@@ -16,14 +16,12 @@ public class ObstaclePresenter : MonoBehaviour
     public void SetObstacle(float posX, float posY)
     {
         //print($"{posX} {posY}");
-        _model.SetX(posX);
-        _model.SetY(posY);
+        _model.Set(posX, posY);
     }
 
-    public void ManualUpdate(float deltaTime, float speed)
+    public void UpdateObstacleMove(float deltaTime, float speed)
     {
-        _model.MoveX(deltaTime , speed);
-        _model.MoveY(deltaTime , speed);
+        _model.Move(deltaTime, speed);
     }
     public void Hit(Collider2D player)
     {
@@ -31,10 +29,10 @@ public class ObstaclePresenter : MonoBehaviour
         switch (_model.ItemType)
         {
             case ObstacleType.Item:
-                FindObjectOfType<GamePresenter>().AddScore(_model.Score);
+                FindObjectOfType<GamePresenter>()?.AddScore(_model.Score);
                 break;
             case ObstacleType.Enemy:
-                player.GetComponent<PlayerPresenter>().GameOver();
+                player.GetComponent<PlayerPresenter>()?.GameOver();
                 Instantiate(_explosionEffect, transform.position, Quaternion.identity, this.transform.parent.transform);
                 break;
             default: 
@@ -47,7 +45,6 @@ public class ObstaclePresenter : MonoBehaviour
         if (other.tag == "Player")
         {
             Hit(other);
-
         }
     }
 

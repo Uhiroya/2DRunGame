@@ -13,19 +13,17 @@ public class GamePresenter : MonoBehaviour
     [SerializeField] GameView _view;
     [SerializeField] PlayerPresenter _playerPresenter;
     [SerializeField] ObstacleGenerator _obstaclePresenter;
-    public static float MapXMargin = Screen.width * 0.15f;
+    
     private void Awake()
     {
-        MapXMargin = Screen.width * 0.15f;
         Bind();
         Inisalize();
     }
     /// <summary>初期化を行う</summary>
     private void Inisalize()
     {
-        _model.GameState.Value = GameFlowState.Inisialize;
+        _model.SetGameState(GameFlowState.Inisialize);
     }
-
     /// <summary>
     /// バインド
     /// </summary>
@@ -82,7 +80,7 @@ public class GamePresenter : MonoBehaviour
             _view.ManualUpdate(Time.deltaTime);
             _model.AddScore(_scoreRatePerSecond * Time.deltaTime);
             _model.AddSpeed(_speedUpRate * Time.deltaTime);
-            _obstaclePresenter.ManualUpdate(Time.deltaTime, _model.GameSpeed.Value);
+            _obstaclePresenter.UpdateObstacleMove(Time.deltaTime, _model.GameSpeed.Value);
         }
     }
     public void AddScore(float score)
@@ -94,11 +92,11 @@ public class GamePresenter : MonoBehaviour
         => _view.ShowResultScore(_model.Score.Value);
     /// <summary>アニメーションイベントから呼び出される。</summary>
     public void ChangeStateToTitle()
-        => _model.GameState.Value = GameFlowState.Title;
+        => _model.SetGameState(GameFlowState.Title);
     /// <summary>アニメーションイベントから呼び出される。</summary>
     public void ChangeStateToInGame()
-        => _model.GameState.Value = GameFlowState.InGame;
+        => _model.SetGameState(GameFlowState.InGame);
     /// <summary>アニメーションイベントから呼び出される。</summary>
     public void ChangeStateToResult()
-        => _model.GameState.Value = GameFlowState.Result;
+        => _model.SetGameState(GameFlowState.Result);
 }

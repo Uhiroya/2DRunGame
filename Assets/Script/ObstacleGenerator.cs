@@ -65,15 +65,15 @@ public class ObstacleGenerator : MonoBehaviour
         IsHit.Value = false;
         _distance = 0f;
     }
-    public void ManualUpdate(float deltaTime, float speed)
+    public void UpdateObstacleMove(float deltaTime, float speed)
     {
-        _distance += deltaTime * speed * Screen.height;
+        _distance += deltaTime * speed * InGameConst.WindowHeight;
         if (_distance > _obstacleMakeDistance)
         {
             _obstaclePool.Get(out var obj);
             obj.SetObstacle(
-                Random.Range(GamePresenter.MapXMargin, Screen.width - GamePresenter.MapXMargin)
-                , Screen.height + _yFrameOut
+                Random.Range(InGameConst.GroundXMargin, InGameConst.WindowWidth - InGameConst.GroundXMargin)
+                , InGameConst.WindowHeight + _yFrameOut
                 );
             _obstacleList.Add(obj);
             _distance = 0;
@@ -83,8 +83,8 @@ public class ObstacleGenerator : MonoBehaviour
         {
             if (obj.isActiveAndEnabled)
             {
-               // obj.transform.position -= new Vector3(0, deltaTime * speed * Screen.height, 0);
-                obj.ManualUpdate(deltaTime, speed);
+               // obj.transform.position -= new Vector3(0, deltaTime * speed * InGameConst.WindowHeight, 0);
+                obj.UpdateObstacleMove(deltaTime, speed);
                 if (obj.transform.position.y < -_yFrameOut)
                 {
                     _obstaclePool.Release(obj);

@@ -5,15 +5,15 @@ using UniRx;
 [System.Serializable]
 public class GameModel
 {
-    
-    public readonly ReactiveProperty<GameFlowState> GameState; 
+    private readonly ReactiveProperty<GameFlowState> _gameState;
+    public IReadOnlyReactiveProperty<GameFlowState> GameState => _gameState;
     private readonly ReactiveProperty<float> _gameSpeed ;
     public IReadOnlyReactiveProperty<float> GameSpeed => _gameSpeed;
     private readonly ReactiveProperty<float> _score;
     public IReadOnlyReactiveProperty<float> Score => _score;
     public GameModel()
     {
-        GameState = new(GameFlowState.Inisialize);
+        _gameState = new(GameFlowState.Inisialize);
         _gameSpeed = new(0f);
         _score = new(0f);
         GameState.Where(x => x == GameFlowState.Title || x == GameFlowState.InGame)
@@ -25,6 +25,10 @@ public class GameModel
     ~GameModel()
     {
         _disposable.Dispose();
+    }
+    public void SetGameState(GameFlowState state)
+    {
+        _gameState.Value = state;
     }
     public void AddScore(float point)
     {

@@ -8,7 +8,7 @@ using UnityEngine.SocialPlatforms.Impl;
 [System.Serializable]
 public class GameView
 {
-    [SerializeField] BackGroundScroller _background;
+    [SerializeField] BackGroundController _background;
     [SerializeField] Text _scoreText;
     [SerializeField] GameObject _resultUIGroup;
     [SerializeField] Text _resultScoreText;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class BackGroundScroller : MonoBehaviour
+public class BackGroundController : MonoBehaviour
 {
     RawImage _image;
     [SerializeField] float _uvSpeed;
@@ -14,9 +14,9 @@ public class BackGroundScroller : MonoBehaviour
     }
     public void ManualUpdate(float deltaTime)
     {
-        Move(deltaTime);
+        UVScroll(deltaTime);
     }
-    public void Move(float deltaTime)
+    public void UVScroll(float deltaTime)
     {
         var rect = _image.uvRect;
         rect.y += _uvSpeed * deltaTime;

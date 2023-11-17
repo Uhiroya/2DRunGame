@@ -30,7 +30,7 @@ public class PlayerPresenter : MonoBehaviour
     public void Bind()
     {
         _model.PlayerState.Where(x => x == PlayerCondition.Waiting).Subscribe(x => _view.OnWaiting());   
-        _model.PlayerState.Where(x => x == PlayerCondition.Alive).Subscribe(x => _view.OnWalking());   
+        _model.PlayerState.Where(x => x == PlayerCondition.Alive).Subscribe(x => _view.OnWalk());   
         _model.PlayerState.Where(x => x == PlayerCondition.Dead).Subscribe(x => { _view.OnDead(); _model.Reset(); } );   
     }
     void OnDisable()
@@ -47,7 +47,6 @@ public class PlayerPresenter : MonoBehaviour
     }
     public void GameOver()
     {
-        Debug.Log("sinnda");
         _model.SetPlayerCondition(PlayerCondition.Dead);
     }
 }

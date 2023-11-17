@@ -9,8 +9,8 @@ public class ObstacleModel
 {
     [SerializeField] Transform _transform;
     [SerializeField] ObstacleType _itemType;
+    [SerializeField, Range(0f, 1f)] float _xMoveRangeRate;
     [SerializeField] float _xMoveSpeed;
-    [SerializeField , Range(0f , 1f)] float _xMoveRangeRate;
     [SerializeField] float _yMoveSpeed;
     [SerializeField] float _score;
     public ObstacleType ItemType => _itemType;
@@ -20,17 +20,27 @@ public class ObstacleModel
     float _xMoveRange;
     float _defaultPositionX = 0f;
     float _time;
+    public void Set(float posX , float posY)
+    {
+        SetX(posX);
+        SetY(posY);
+    }
+    public void Move(float deltaTime , float speed)
+    {
+        MoveX(deltaTime, speed);
+        MoveY(deltaTime, speed);
+    }
     public void SetX(float posX)
     {
-        _xMoveRange = _xMoveRangeRate * Screen.width / 2;
+        _xMoveRange = _xMoveRangeRate * InGameConst.WindowWidth / 2;
         //障害物の移動距離がマップに収まるように制限する。
-        if (posX - _xMoveRange < GamePresenter.MapXMargin)
+        if (posX - _xMoveRange < InGameConst.GroundXMargin)
         {
-            _defaultPositionX = GamePresenter.MapXMargin + _xMoveRange;
+            _defaultPositionX = InGameConst.GroundXMargin + _xMoveRange;
         }
-        else if (posX + _xMoveRange > Screen.width - GamePresenter.MapXMargin)
+        else if (posX + _xMoveRange > InGameConst.WindowWidth - InGameConst.GroundXMargin)
         {
-            _defaultPositionX = Screen.width - GamePresenter.MapXMargin - _xMoveRange;
+            _defaultPositionX = InGameConst.WindowWidth - InGameConst.GroundXMargin - _xMoveRange;
         }
         else
         {
@@ -54,7 +64,7 @@ public class ObstacleModel
     }
     public void MoveY(float deltaTime, float speed)
     {
-        var moveAmount = deltaTime * speed * Screen.height;
+        var moveAmount = deltaTime * speed * InGameConst.WindowHeight;
         _transform.position -= new Vector3(0f , (moveAmount * _yMoveSpeed), 0f);
         PositionY.Value = _transform.position.y;
     }

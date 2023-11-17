@@ -7,7 +7,7 @@ public class PlayerView
     [SerializeField] Animator _animator;
     public void OnWaiting()
     => _animator.SetTrigger("Waiting");
-    public void OnWalking()
+    public void OnWalk()
         => _animator.SetTrigger("Walking");
     public void OnDead()
     => _animator.SetTrigger("Dead");
