@@ -3,39 +3,56 @@ using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
 using UniRx.Triggers;
-[RequireComponent(typeof(Rigidbody2D))]
-public class PlayerPresenter : MonoBehaviour
+using VContainer;
+using VContainer.Unity;
+
+
+public interface IPlayerPresenter
 {
-    [SerializeField] PlayerModel _model;
-    [SerializeField] PlayerView _view;
-    public IReadOnlyReactiveProperty<PlayerCondition> PlayerState  => _model.PlayerState;
+    IReadOnlyReactiveProperty<PlayerCondition> PlayerState { get; }
+    public void Move(float x);
+    public void SetSpeedRate(float speedRate);
+    public void GameStart();
+    public void GameOver();
+
+}
+[RequireComponent(typeof(Rigidbody2D))]
+public class PlayerPresenter : Component , IInitializable , IPlayerPresenter
+{
+    public IReadOnlyReactiveProperty<PlayerCondition> PlayerState => _model.PlayerState;
+    IPlayerModel _model;
+    IPlayerView _view;
+
     CompositeDisposable _disposable;
-    void OnEnable()
-    {
-        Inisialize();
-    }
-    public void Inisialize()
+    [Inject]
+    public PlayerPresenter(IPlayerModel model , IPlayerView view)
     {
         _disposable = new();
-        this.UpdateAsObservable()
-             .Where(x => _model.PlayerState.Value == PlayerCondition.Alive)
-             .Select(x => Input.GetAxis("Horizontal"))
-             .Subscribe(x => _model.Move(x))
-             .AddTo(_disposable);
+        _model =  model;
+        _view = view;
     }
-    public void Start()
-    {
-        Bind();
-    }
-    public void Bind()
-    {
-        _model.PlayerState.Where(x => x == PlayerCondition.Waiting).Subscribe(x => _view.OnWaiting());   
-        _model.PlayerState.Where(x => x == PlayerCondition.Alive).Subscribe(x => _view.OnWalk());   
-        _model.PlayerState.Where(x => x == PlayerCondition.Dead).Subscribe(x => { _view.OnDead(); _model.Reset(); } );   
-    }
-    void OnDisable()
+    ~PlayerPresenter()
     {
         _disposable.Dispose();
+    }
+    
+    public void Initialize()
+    {
+        Debug.Log("Initialize");
+        //“ü—Í‚ÌŽó‚¯Žæ‚è
+
+        Bind();
+    }
+
+    public void Bind()
+    {
+        _model.PlayerState.Where(x => x == PlayerCondition.Waiting).Subscribe(x => _view.OnWaiting()).AddTo(_disposable);   
+        _model.PlayerState.Where(x => x == PlayerCondition.Alive).Subscribe(x => _view.OnWalk()).AddTo(_disposable);   
+        _model.PlayerState.Where(x => x == PlayerCondition.Dead).Subscribe(x => { _view.OnDead(); _model.Reset(); } ).AddTo(_disposable);   
+    }
+    public void Move(float x)
+    {
+        _model.Move(x);
     }
     public void SetSpeedRate(float speedRate)
     {
@@ -49,4 +66,6 @@ public class PlayerPresenter : MonoBehaviour
     {
         _model.SetPlayerCondition(PlayerCondition.Dead);
     }
+
+
 }
