@@ -17,7 +17,7 @@ public interface IPlayerPresenter
 
 }
 [RequireComponent(typeof(Rigidbody2D))]
-public class PlayerPresenter : Component , IInitializable , IPlayerPresenter
+public class PlayerPresenter : IInitializable , IPlayerPresenter
 {
     public IReadOnlyReactiveProperty<PlayerCondition> PlayerState => _model.PlayerState;
     IPlayerModel _model;
