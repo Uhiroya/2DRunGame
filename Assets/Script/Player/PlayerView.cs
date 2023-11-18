@@ -6,7 +6,6 @@ public interface IPlayerView
     public void OnWaiting();
     public void OnWalk();
     public void OnDead();
-
 }
 public class PlayerView :IPlayerView
 {
@@ -15,7 +14,6 @@ public class PlayerView :IPlayerView
     {
         _animator = animator;
     }
-    
     public void OnWaiting()
         => _animator.SetTrigger("Waiting");
     public void OnWalk()

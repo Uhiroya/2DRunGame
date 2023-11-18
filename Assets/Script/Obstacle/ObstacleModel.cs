@@ -4,15 +4,24 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UIElements;
-[System.Serializable]
 public class ObstacleModel
 {
-    [SerializeField] Transform _transform;
-    [SerializeField] ObstacleType _itemType;
-    [SerializeField, Range(0f, 1f)] float _xMoveRangeRate;
-    [SerializeField] float _xMoveSpeed;
-    [SerializeField] float _yMoveSpeed;
-    [SerializeField] float _score;
+    Transform _transform;
+    ObstacleType _itemType;
+    float _xMoveRangeRate;
+    float _xMoveSpeed;
+    float _yMoveSpeed;
+    float _score;
+
+    public ObstacleModel(ObstacleType itemType , float xMoveRangeRate
+        , float xMoveSpeed , float yMoveSpeed , float score)
+    {
+        _itemType = itemType;
+        _xMoveRangeRate = xMoveRangeRate;
+        _xMoveSpeed = xMoveSpeed;
+        _yMoveSpeed = yMoveSpeed;
+        _score = score;
+    }
     public ObstacleType ItemType => _itemType;
     public float Score => _score;
     public readonly ReactiveProperty<float> PositionX = new(0f);
@@ -20,6 +29,10 @@ public class ObstacleModel
     float _xMoveRange;
     float _defaultPositionX = 0f;
     float _time;
+    public void Create(Transform transform)
+    {
+        _transform = transform;
+    }
     public void Set(float posX , float posY)
     {
         SetX(posX);
@@ -72,6 +85,7 @@ public class ObstacleModel
 [System.Serializable]
 public enum ObstacleType
 {
+    None,
     Enemy,
     Item,
 }

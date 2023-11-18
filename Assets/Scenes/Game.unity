@@ -388,7 +388,6 @@ MonoBehaviour:
     _resultUIGroup: {fileID: 2030643008}
     _resultScoreText: {fileID: 96632410}
     _countUpTime: 1
-  _obstaclePresenter: {fileID: 936137285}
 --- !u!4 &175587347
 Transform:
   m_ObjectHideFlags: 0
@@ -1192,10 +1191,20 @@ MonoBehaviour:
   autoRun: 1
   autoInjectGameObjects: []
   _gamePresenter: {fileID: 175587346}
-  _rb: {fileID: 923217639}
-  _col: {fileID: 923217641}
-  _defaultSpeed: 500
+  _playerTransform: {fileID: 923217634}
+  _defaultSpeed: 5
   _animator: {fileID: 923217635}
+  _obstacle: {fileID: 3951436707410769295, guid: 4ea3c20e6edddbb40a358c7c0828bd42, type: 3}
+  _explotionEffect: {fileID: 3242437969426385444, guid: 5ce95eef410467a4cabe3a776dd322ef, type: 3}
+  _obstacleMakeDistance: 600
+  _yFrameOut: 30
+  _hitRange: 100
+  _obstacleParent: {fileID: 936137284}
+  _itemType: 1
+  _xMoveRangeRate: 0.299
+  _xMoveSpeed: 0.3
+  _yMoveSpeed: 1
+  _score: 300
 --- !u!1 &936137283
 GameObject:
   m_ObjectHideFlags: 0
@@ -1205,7 +1214,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 936137284}
-  - component: {fileID: 936137285}
   m_Layer: 5
   m_Name: ObstacleGenerator
   m_TagString: Untagged
@@ -1233,21 +1241,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &936137285
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 936137283}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cca26b5632c97164d9b521fd5d77cc2d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _obstacle: {fileID: 3951436707410769285, guid: 4ea3c20e6edddbb40a358c7c0828bd42, type: 3}
-  _obstacleMakeDistance: 600
-  _yFrameOut: 100
 --- !u!1 &1218659300
 GameObject:
   m_ObjectHideFlags: 0

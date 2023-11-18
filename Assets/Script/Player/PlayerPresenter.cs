@@ -10,6 +10,7 @@ using VContainer.Unity;
 public interface IPlayerPresenter
 {
     IReadOnlyReactiveProperty<PlayerCondition> PlayerState { get; }
+    public Vector2 PlayerPosition { get;}
     public void Move(float x);
     public void SetSpeedRate(float speedRate);
     public void GameStart();
@@ -20,6 +21,8 @@ public interface IPlayerPresenter
 public class PlayerPresenter : IInitializable , IPlayerPresenter
 {
     public IReadOnlyReactiveProperty<PlayerCondition> PlayerState => _model.PlayerState;
+    Vector2 _playerPosition;
+    public Vector2 PlayerPosition => _playerPosition;
     IPlayerModel _model;
     IPlayerView _view;
 
@@ -38,14 +41,12 @@ public class PlayerPresenter : IInitializable , IPlayerPresenter
     
     public void Initialize()
     {
-        Debug.Log("Initialize");
-        //“ü—Í‚ÌŽó‚¯Žæ‚è
-
         Bind();
     }
 
     public void Bind()
     {
+        _model.PositionX.Subscribe(x => _playerPosition = new Vector2 (x, _model.PositionY));
         _model.PlayerState.Where(x => x == PlayerCondition.Waiting).Subscribe(x => _view.OnWaiting()).AddTo(_disposable);   
         _model.PlayerState.Where(x => x == PlayerCondition.Alive).Subscribe(x => _view.OnWalk()).AddTo(_disposable);   
         _model.PlayerState.Where(x => x == PlayerCondition.Dead).Subscribe(x => { _view.OnDead(); _model.Reset(); } ).AddTo(_disposable);   

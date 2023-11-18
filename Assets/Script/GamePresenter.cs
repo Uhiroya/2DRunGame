@@ -13,7 +13,7 @@ public class GamePresenter : MonoBehaviour
     [SerializeField] GameModel _model;
     [SerializeField] GameView _view;
     [Inject] IPlayerPresenter _playerPresenter;
-    [SerializeField] ObstacleGenerator _obstaclePresenter;
+    [Inject] ObstacleGenerator _obstaclePresenter;
     
     private void Awake()
     {
@@ -30,6 +30,7 @@ public class GamePresenter : MonoBehaviour
     /// </summary>
     private void Bind()
     {
+        _obstaclePresenter.AddScore += AddScore;
         _model.GameSpeed
             .Subscribe(
                 x =>
