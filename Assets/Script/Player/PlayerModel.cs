@@ -56,7 +56,6 @@ public class PlayerModel : IPlayerModel
     }
     public void Move(float x)
     {
-        Debug.Log(x);
         _rb.velocity = new Vector2(x * _defaultSpeed * _speedRate, 0f);
         PositionX.Value = _rb.transform.position.x;
     }

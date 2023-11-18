@@ -17,7 +17,7 @@ public class PlayerLifetimeScope : LifetimeScope
         this.UpdateAsObservable()
              .Where(x => _iPlayerPresenter.PlayerState.Value == PlayerCondition.Alive)
              .Select(x => Input.GetAxis("Horizontal"))
-             .Subscribe(x => { _iPlayerPresenter.Move(x); Debug.Log(x); })
+             .Subscribe(x => { _iPlayerPresenter.Move(x);})
              .AddTo(this);
     }
     protected override void Configure(IContainerBuilder builder)
