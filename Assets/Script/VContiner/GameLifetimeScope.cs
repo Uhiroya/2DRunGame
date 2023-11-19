@@ -3,7 +3,7 @@ using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 using UniRx;
-public class PlayerLifetimeScope : LifetimeScope
+public class GameLifetimeScope : LifetimeScope
 {
 
     [SerializeField] GamePresenter _gamePresenter;
@@ -13,18 +13,13 @@ public class PlayerLifetimeScope : LifetimeScope
     [Header("PlayerView")]
     [SerializeField] Animator _animator;
     [Header("ObstacleGenerator")]
-    [SerializeField] GameObject _obstacle;
-    [SerializeField] GameObject _explotionEffect;
     [SerializeField] float _obstacleMakeDistance = 300f;
     [SerializeField] float _yFrameOut = 100f;
-    [SerializeField] float _hitRange = 20f;
     [SerializeField] Transform _obstacleParent;
-    [Header("ObstacleModel")]
-    [SerializeField] ObstacleType _itemType;
-    [SerializeField, Range(0f, 1f)] float _xMoveRangeRate;
-    [SerializeField] float _xMoveSpeed;
-    [SerializeField] float _yMoveSpeed;
-    [SerializeField] float _score;
+    [Header("ObstaclePresenter")]
+    [SerializeField] ObstacleData _obstacleData;
+    //[Header("ObstacleModel")]
+    ObstacleParam _obstacleParam => _obstacleData.Param;
     private void Start()
     {
         var _iPlayerPresenter = Container.Resolve<IPlayerPresenter>();
@@ -46,18 +41,12 @@ public class PlayerLifetimeScope : LifetimeScope
         builder.Register<PlayerView>(Lifetime.Singleton).As<IPlayerView>()
             .WithParameter("animator", _animator);
         builder.RegisterEntryPoint<ObstacleGenerator>(Lifetime.Singleton).AsSelf()
-            .WithParameter("obstacle", _obstacle)
-            .WithParameter("explotionEffect", _explotionEffect)
-            .WithParameter("obstacleMakeDistance" ,_obstacleMakeDistance)
+            .WithParameter("obstacleMakeDistance", _obstacleMakeDistance)
             .WithParameter("yFrameOut", _yFrameOut)
-            .WithParameter("hitRange", _hitRange)
             .WithParameter("parentTransform", _obstacleParent);
-        builder.Register<ObstaclePresenter>(Lifetime.Transient).AsSelf();
+        builder.Register<ObstaclePresenter>(Lifetime.Transient).AsSelf()
+            .WithParameter("obstacleData", _obstacleData);
         builder.Register<ObstacleModel>(Lifetime.Transient).AsSelf()
-            .WithParameter("itemType",_itemType )
-            .WithParameter("xMoveRangeRate", _xMoveRangeRate)
-            .WithParameter("xMoveSpeed" ,_xMoveSpeed)
-            .WithParameter("yMoveSpeed" ,_yMoveSpeed)
-            .WithParameter("score" , _score);
+            .WithParameter("obstacleParam", _obstacleParam);
     }
 }

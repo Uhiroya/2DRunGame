@@ -12,52 +12,28 @@ public interface IObstaclePresenter
 }
 public class ObstaclePresenter 
 {
-    Collider2D _col;
     ObstacleModel _model;
-    public ObstacleType ObstacleType => _model.ItemType;
-    public ObstaclePresenter(ObstacleModel model)
+    ObstacleData _obstacleData;
+
+    public ObstaclePresenter(ObstacleData obstacleData , ObstacleModel model)
     {
+        _obstacleData = obstacleData;
         _model = model;
     }
-    //public readonly ReactiveProperty<ObstacleType> IsHit = new(ObstacleType.None) ;
+    public ObstacleData ObstacleData => _obstacleData;
     public readonly ReactiveProperty<Vector2> Position = new();
-    public void Create(Collider2D col ,Transform transform)
+    public void SetTransform(Transform transform)
     {
-        //IsHit.Value = ObstacleType.None;
-        _model.PositionX
-            .Subscribe(x => { Position.Value = new Vector2(x, Position.Value.y); });
-        _model.PositionY
-            .Subscribe(y => { Position.Value = new Vector2(Position.Value.x , y);});
-        _col.OnTriggerEnter2DAsObservable()
-            .Where(col => col.tag == "Player")
-            .Subscribe(col => Hit(col));
-        _col = col;
-        _model.Create(transform);
+        _model.Position.Subscribe(x => Position.Value = x );
+        _model.SetTransform(transform);
     }
-
     public void SetObstacle(float posX, float posY)
     {
         _model.Set(posX, posY);
     }
-
     public void UpdateObstacleMove(float deltaTime, float speed)
     {
         _model.Move(deltaTime, speed);
     }
-    public void Hit(Collider2D player)
-    {
-        //IsHit.Value = _model.ItemType;
-        Debug.Log("aaaa");
-    }
-    public float GetScore()
-    {
-        return _model.Score;
-    }
-
-    public void OnDestroy()
-    {
-        //IsHit.Dispose();
-    }
-
 
 }

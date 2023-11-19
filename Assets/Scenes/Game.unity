@@ -283,6 +283,62 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 121155832}
   m_CullTransparentMesh: 1
+--- !u!1 &124276871
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 124276873}
+  - component: {fileID: 124276872}
+  m_Layer: 0
+  m_Name: VContainerLifeScope
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &124276872
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 124276871}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a76988bd3e31b643a74d38e49bdb21d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parentReference:
+    TypeName: 
+  autoRun: 1
+  autoInjectGameObjects: []
+  _gamePresenter: {fileID: 175587346}
+  _playerTransform: {fileID: 923217634}
+  _defaultSpeed: 4
+  _animator: {fileID: 923217635}
+  _obstacleMakeDistance: 500
+  _yFrameOut: 30
+  _obstacleParent: {fileID: 936137284}
+  _obstacleData: {fileID: 11400000, guid: 77b0014605f5ad843a5e9267448e14c9, type: 2}
+--- !u!4 &124276873
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 124276871}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -355.17154, y: 693.1111, z: -8.058845}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &165261931
 GameObject:
   m_ObjectHideFlags: 0
@@ -1017,7 +1073,6 @@ GameObject:
   - component: {fileID: 923217637}
   - component: {fileID: 923217636}
   - component: {fileID: 923217635}
-  - component: {fileID: 923217642}
   - component: {fileID: 923217640}
   - component: {fileID: 923217639}
   - component: {fileID: 923217641}
@@ -1174,37 +1229,6 @@ CircleCollider2D:
   m_Offset: {x: 0, y: -10}
   serializedVersion: 2
   m_Radius: 40
---- !u!114 &923217642
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 923217633}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a76988bd3e31b643a74d38e49bdb21d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  parentReference:
-    TypeName: 
-  autoRun: 1
-  autoInjectGameObjects: []
-  _gamePresenter: {fileID: 175587346}
-  _playerTransform: {fileID: 923217634}
-  _defaultSpeed: 5
-  _animator: {fileID: 923217635}
-  _obstacle: {fileID: 3951436707410769295, guid: 4ea3c20e6edddbb40a358c7c0828bd42, type: 3}
-  _explotionEffect: {fileID: 3242437969426385444, guid: 5ce95eef410467a4cabe3a776dd322ef, type: 3}
-  _obstacleMakeDistance: 600
-  _yFrameOut: 30
-  _hitRange: 100
-  _obstacleParent: {fileID: 936137284}
-  _itemType: 1
-  _xMoveRangeRate: 0.299
-  _xMoveSpeed: 0.3
-  _yMoveSpeed: 1
-  _score: 300
 --- !u!1 &936137283
 GameObject:
   m_ObjectHideFlags: 0
