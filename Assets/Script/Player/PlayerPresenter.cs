@@ -1,12 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
-using UniRx.Triggers;
 using VContainer;
 using VContainer.Unity;
-
-
 public interface IPlayerPresenter
 {
     IReadOnlyReactiveProperty<PlayerCondition> PlayerState { get; }

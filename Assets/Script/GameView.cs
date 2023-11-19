@@ -3,16 +3,36 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
-using UnityEngine.SocialPlatforms.Impl;
+using UnityEngine.UIElements;
 
-[System.Serializable]
-public class GameView
+public interface IGameView
 {
-    [SerializeField] BackGroundController _background;
-    [SerializeField] Text _scoreText;
-    [SerializeField] GameObject _resultUIGroup;
-    [SerializeField] Text _resultScoreText;
-    [SerializeField] float _countUpTime = 1.0f;
+    void ManualUpdate(float deltaTime);
+
+    void SetUVSpeed(float speed);
+
+    void SetScore(float currentScore);
+
+    void ShowResultUI();
+
+    void ShowResultScore(float score);
+}
+public class GameView : IGameView
+{
+    IBackGroundController _background;
+    Text _scoreText;
+    GameObject _resultUIGroup;
+    Text _resultScoreText;
+    float _countUpTime = 1.0f;
+    public GameView(IBackGroundController background , Text scoreText , GameObject resultUIGroup
+        ,Text resultScoreText, float countUpTime)
+    {
+        _background = background;
+        _scoreText = scoreText; 
+        _resultUIGroup = resultUIGroup;
+        _resultScoreText = resultScoreText;
+        _countUpTime = countUpTime;
+    }
     public void ManualUpdate(float deltaTime)
     {
         _background.ManualUpdate(deltaTime);
@@ -29,7 +49,6 @@ public class GameView
     {
         _resultUIGroup.SetActive(true);
     }
-
     public void ShowResultScore(float score)
     {
         //カウントアップ処理

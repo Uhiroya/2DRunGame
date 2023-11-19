@@ -2,15 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
-public class BackGroundController : MonoBehaviour
+public interface IBackGroundController
+{
+    public void ManualUpdate(float deltaTime);
+    public void UVScroll(float deltaTime);
+    public void SetUVSpeed(float uvSpeed);
+}
+public class BackGroundController : IBackGroundController
 {
     RawImage _image;
-    [SerializeField] float _uvSpeed;
-    
-    private void Awake()
+    float _uvSpeed;
+    public BackGroundController(RawImage image)
     {
-        _image = GetComponent<RawImage>();
+        _image = image;
     }
     public void ManualUpdate(float deltaTime)
     {

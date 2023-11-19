@@ -1,35 +1,40 @@
-using Cysharp.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using UniRx;
-using UnityEngine.Playables;
+using UnityEngine;
 using VContainer;
 using VContainer.Unity;
-using static UnityEditor.Experimental.GraphView.GraphView;
-
-public class GamePresenter : MonoBehaviour
+public interface IGamePresenter
 {
-    [SerializeField] Transform _parentTransform;
-    [SerializeField] float _scoreRatePerSecond = 30f;
-    [SerializeField] float _speedUpRate = 0.01f;
-    [SerializeField] GameModel _model;
-    [SerializeField] GameView _view;
-    [Inject] IPlayerPresenter _playerPresenter;
-    [Inject] IObstacleGenerator _obstaclePresenter;
-    GameObject _deathEffect;
-    CompositeDisposable _disposable = new();
-    public GamePresenter(IPlayerPresenter playerPresenter , IObstacleGenerator obstaclePresenter) 
+    public void ShowResultScore();
+    public void ChangeStateToTitle();
+    public void ChangeStateToInGame();
+    public void ChangeStateToResult();
+}
+public class GamePresenter : IInitializable , ITickable , IGamePresenter
+{
+    Transform _parentTransform;
+    float _scoreRatePerSecond;
+    float _speedUpRate;
+    IGameModel _model;
+    IGameView _view;
+    IPlayerPresenter _playerPresenter;
+    IObstacleGenerator _obstaclePresenter;
+    
+    CompositeDisposable _disposable;
+    public GamePresenter(Transform parentTransform , float scoreRatePerSecond , float speedUpRate
+        ,IGameModel model , IGameView view ,IPlayerPresenter playerPresenter, IObstacleGenerator obstaclePresenter)
     {
+        _parentTransform  = parentTransform;
+        _scoreRatePerSecond = scoreRatePerSecond;
+        _speedUpRate = speedUpRate;
+        _model = model ;
+        _view = view ;
         _playerPresenter = playerPresenter;
         _obstaclePresenter = obstaclePresenter;
         _disposable = new();
     }
-    private void Start()
-    {
-        Initialize();
-    }
-    /// <summary>初期化を行う</summary>
+    GameObject _deathEffect;
     public void Initialize()
     {
         Bind();
@@ -48,60 +53,48 @@ public class GamePresenter : MonoBehaviour
                     _playerPresenter.SetSpeedRate(x);
                 }
                 )
-            .AddTo(this);
+            .AddTo(_disposable);
+
         _model.Score
             .Subscribe(
-                x => 
+                x =>
                     _view.SetScore(x)
                 )
-            .AddTo(this);
+            .AddTo(_disposable);
+
         _model.GameState
             .Subscribe(
-                x => 
+                x =>
                 {
                     switch (x)
                     {
                         case GameFlowState.InGame:
+                            _model.GameStart();
                             _playerPresenter.GameStart();
                             break;
                         case GameFlowState.Result:
-                            if(_deathEffect != null)
+                            if (_deathEffect != null)
                             {
                                 Object.Destroy(_deathEffect);
                                 _deathEffect = null;
                             }
                             _playerPresenter.Reset();
                             _obstaclePresenter.Reset();
+                            _model.GameStop();
                             _view.ShowResultUI();
                             break;
-                        default: 
+                        default:
                             break;
-                    } 
+                    }
                 })
-            .AddTo(this);
+            .AddTo(_disposable);
+
         _obstaclePresenter.ObstaclePosition.
             ObserveReplace()
             .Where(x => Vector2.Distance(x.NewValue, _playerPresenter.PlayerPosition) < x.Key.ObstacleData.HitRange)
             .Subscribe(x => HitObstacle(x.Key));
     }
-    public void HitObstacle(IObstaclePresenter obstacle)
-    {
-        switch (obstacle.ObstacleData.Param.ItemType)
-        {
-            case ObstacleType.Item:
-                AddScore(obstacle.ObstacleData.Score);
-                break;
-            case ObstacleType.Enemy:
-                _playerPresenter.GameOver();
-                _deathEffect = Object.Instantiate(obstacle.ObstacleData.DestroyEffect
-                    , _playerPresenter.PlayerPosition, Quaternion.identity, _parentTransform);
-                break;
-            default:
-                break;
-        }
-        _obstaclePresenter.Release(obstacle);
-    }
-    void Update()
+    public void Tick()
     {
         switch (_playerPresenter.PlayerState.Value)
         {
@@ -115,10 +108,28 @@ public class GamePresenter : MonoBehaviour
                 break;
         }
     }
-    public void AddScore(float score)
+    /// <summary>
+    /// 衝突判定
+    /// </summary>
+    /// <param name="obstacle"></param>
+    public void HitObstacle(IObstaclePresenter obstacle)
     {
-        _model.AddScore(score);
+        switch (obstacle.ObstacleData.Param.ItemType)
+        {
+            case ObstacleType.Item:
+                _model.AddScore(obstacle.ObstacleData.Score);
+                break;
+            case ObstacleType.Enemy:
+                _playerPresenter.GameOver();
+                _deathEffect = Object.Instantiate(obstacle.ObstacleData.DestroyEffect
+                    , _playerPresenter.PlayerPosition, Quaternion.identity, _parentTransform);
+                break;
+            default:
+                break;
+        }
+        _obstaclePresenter.Release(obstacle);
     }
+
     /// <summary>アニメーションイベントから呼び出される。</summary>
     public void ShowResultScore()
         => _view.ShowResultScore(_model.Score.Value);
@@ -131,6 +142,4 @@ public class GamePresenter : MonoBehaviour
     /// <summary>アニメーションイベントから呼び出される。</summary>
     public void ChangeStateToResult()
         => _model.SetGameState(GameFlowState.Result);
-
-
 }

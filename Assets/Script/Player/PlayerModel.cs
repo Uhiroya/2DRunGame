@@ -2,9 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
-using UnityEngine.UIElements;
-using UnityEngine.XR;
-
 public interface IPlayerModel
 {
     IReadOnlyReactiveProperty<PlayerCondition> PlayerState { get; }
@@ -18,12 +15,9 @@ public interface IPlayerModel
 
 public class PlayerModel : IPlayerModel
 {
-    //Rigidbody2D _transform;
-    //Collider2D _col;
     Transform _transform;
     float _defaultSpeed = 500f;
     private float _speedRate = 1f;
-
     private float _positionY;
     public float PositionY => _positionY ;
     public readonly ReactiveProperty<float> _positionX;
@@ -40,10 +34,7 @@ public class PlayerModel : IPlayerModel
             .Skip(1)
             .Subscribe(x => { ClumpX(); })
             .AddTo(_disposable);
-        _playerState = new(PlayerCondition.Waiting);
-        //PlayerState.Where(x => x == PlayerCondition.Alive).Subscribe(x => _col.enabled = true).AddTo(_disposable);
-        //PlayerState.Where(x => x == PlayerCondition.Dead).Subscribe(x => _col.enabled = false).AddTo(_disposable);
-    }
+        _playerState = new(PlayerCondition.Waiting);    }
     CompositeDisposable _disposable = new();
     ~PlayerModel()
     {
@@ -76,8 +67,6 @@ public class PlayerModel : IPlayerModel
         var clampX = Mathf.Clamp(_transform.transform.position.x, InGameConst.GroundXMargin, InGameConst.WindowWidth - InGameConst.GroundXMargin);
         _transform.transform.position = new Vector2(clampX, _transform.transform.position.y);
     }
-
-
 }
 public enum PlayerCondition
 {

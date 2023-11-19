@@ -2,8 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
-[System.Serializable]
-public class GameModel
+public interface IGameModel
+{
+    IReadOnlyReactiveProperty<GameFlowState> GameState { get; }
+    IReadOnlyReactiveProperty<float> GameSpeed { get; }
+    IReadOnlyReactiveProperty<float> Score { get; }
+    void SetGameState(GameFlowState state);
+    void AddScore(float point);
+    void AddSpeed(float point);
+    void GameStart();
+    void GameStop();
+}
+public class GameModel : IGameModel
 {
     private readonly ReactiveProperty<GameFlowState> _gameState;
     public IReadOnlyReactiveProperty<GameFlowState> GameState => _gameState;
@@ -16,15 +26,6 @@ public class GameModel
         _gameState = new(GameFlowState.Inisialize);
         _gameSpeed = new(0f);
         _score = new(0f);
-        GameState.Where(x => x == GameFlowState.Title || x == GameFlowState.InGame)
-            .Subscribe( x => Reset()).AddTo(_disposable);
-        GameState.Where(x => x == GameFlowState.Result)
-            .Subscribe(x => GameStop()).AddTo(_disposable);
-    }
-    CompositeDisposable _disposable = new();
-    ~GameModel()
-    {
-        _disposable.Dispose();
     }
     public void SetGameState(GameFlowState state)
     {
@@ -38,7 +39,7 @@ public class GameModel
     {
         _gameSpeed.Value += point;
     }
-    public void Reset()
+    public void GameStart()
     {
         _gameSpeed.Value = 0.5f;
         _score.Value = 0f;
