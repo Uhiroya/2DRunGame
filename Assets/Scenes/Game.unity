@@ -436,6 +436,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25a932e5b0e59ab49a8c9fefc1ea2091, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _parentTransform: {fileID: 936137284}
   _scoreRatePerSecond: 30
   _speedUpRate: 0.02
   _view:

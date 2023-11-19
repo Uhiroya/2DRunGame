@@ -13,6 +13,7 @@ public interface IPlayerPresenter
     Vector2 PlayerPosition { get;}
     void Move(float x);
     void SetSpeedRate(float speedRate);
+    void Reset();
     void GameStart();
     void GameOver();
 
@@ -49,7 +50,11 @@ public class PlayerPresenter : IInitializable , IPlayerPresenter
         _model.PositionX.Subscribe(x => _playerPosition = new Vector2 (x, _model.PositionY));
         _model.PlayerState.Where(x => x == PlayerCondition.Waiting).Subscribe(x => _view.OnWaiting()).AddTo(_disposable);   
         _model.PlayerState.Where(x => x == PlayerCondition.Alive).Subscribe(x => _view.OnWalk()).AddTo(_disposable);   
-        _model.PlayerState.Where(x => x == PlayerCondition.Dead).Subscribe(x => { _view.OnDead(); _model.Reset(); } ).AddTo(_disposable);   
+        _model.PlayerState.Where(x => x == PlayerCondition.Dead).Subscribe(x => { _view.OnDead();} ).AddTo(_disposable);   
+    }
+    public void Reset()
+    {
+        _model.Reset();
     }
     public void Move(float x)
     {
