@@ -6,12 +6,12 @@ using UnityEngine;
 using UnityEngine.UIElements;
 public interface IObstacleModel
 {
-    IReadOnlyReactiveProperty<PlayerCondition> PlayerState { get; }
-    ReadOnlyReactiveProperty<Vector2> Position { get; }
+    IReadOnlyReactiveProperty<Vector2> Position { get; }
+    public void SetTransform(Transform transform);
     public void Set(float posX, float posY);
     public void Move(float deltaTime, float speed);
 }
-public class ObstacleModel
+public class ObstacleModel : IObstacleModel
 {
     Transform _transform;
     ObstacleParam _obstacleParam;
@@ -28,7 +28,6 @@ public class ObstacleModel
     {
         _transform = transform;
     }
-
     public void Set(float posX, float posY)
     {
         //SetX

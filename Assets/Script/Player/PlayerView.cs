@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 public interface IPlayerView
 {
-    public void OnWaiting();
-    public void OnWalk();
-    public void OnDead();
+    void OnWaiting();
+    void OnWalk();
+    void OnDead();
 }
 public class PlayerView :IPlayerView
 {

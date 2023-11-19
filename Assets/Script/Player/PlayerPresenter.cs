@@ -10,11 +10,11 @@ using VContainer.Unity;
 public interface IPlayerPresenter
 {
     IReadOnlyReactiveProperty<PlayerCondition> PlayerState { get; }
-    public Vector2 PlayerPosition { get;}
-    public void Move(float x);
-    public void SetSpeedRate(float speedRate);
-    public void GameStart();
-    public void GameOver();
+    Vector2 PlayerPosition { get;}
+    void Move(float x);
+    void SetSpeedRate(float speedRate);
+    void GameStart();
+    void GameOver();
 
 }
 [RequireComponent(typeof(Rigidbody2D))]

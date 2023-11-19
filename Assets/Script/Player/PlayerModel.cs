@@ -8,12 +8,12 @@ using UnityEngine.XR;
 public interface IPlayerModel
 {
     IReadOnlyReactiveProperty<PlayerCondition> PlayerState { get; }
-    public float PositionY { get;}
+    float PositionY { get;}
     IReadOnlyReactiveProperty<float> PositionX { get; }
     void SetPlayerCondition(PlayerCondition condition);
-    public void SetSpeedRate(float speedRate);
-    public void Move(float x);
-    public void Reset();
+    void SetSpeedRate(float speedRate);
+    void Move(float x);
+    void Reset();
 }
 
 public class PlayerModel : IPlayerModel

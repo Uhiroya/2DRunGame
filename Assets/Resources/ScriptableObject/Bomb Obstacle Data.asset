@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _obstacle: {fileID: 3951436707410769295, guid: 4ea3c20e6edddbb40a358c7c0828bd42, type: 3}
   _destroyEffect: {fileID: 3242437969426385444, guid: 5ce95eef410467a4cabe3a776dd322ef, type: 3}
-  _hitRange: 70
+  _hitRange: 80
   _score: 0
   _param:
     _itemType: 1

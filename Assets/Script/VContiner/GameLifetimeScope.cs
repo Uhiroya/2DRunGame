@@ -40,13 +40,13 @@ public class GameLifetimeScope : LifetimeScope
             .WithParameter("defaultSpeed" , _defaultSpeed);
         builder.Register<PlayerView>(Lifetime.Singleton).As<IPlayerView>()
             .WithParameter("animator", _animator);
-        builder.RegisterEntryPoint<ObstacleGenerator>(Lifetime.Singleton).AsSelf()
+        builder.RegisterEntryPoint<ObstacleGenerator>(Lifetime.Singleton).AsSelf().As<IObstacleGenerator>()
             .WithParameter("obstacleMakeDistance", _obstacleMakeDistance)
             .WithParameter("yFrameOut", _yFrameOut)
             .WithParameter("parentTransform", _obstacleParent);
-        builder.Register<ObstaclePresenter>(Lifetime.Transient).AsSelf()
+        builder.Register<ObstaclePresenter>(Lifetime.Transient).AsSelf().As<IObstaclePresenter>()
             .WithParameter("obstacleData", _obstacleData);
-        builder.Register<ObstacleModel>(Lifetime.Transient).AsSelf()
+        builder.Register<ObstacleModel>(Lifetime.Transient).AsSelf().As<IObstacleModel>()
             .WithParameter("obstacleParam", _obstacleParam);
     }
 }

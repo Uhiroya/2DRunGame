@@ -6,21 +6,26 @@ using UnityEngine.Pool;
 using System.Linq;
 using VContainer;
 using VContainer.Unity;
-
-public class ObstacleGenerator : IStartable
+public interface IObstacleGenerator 
+{
+    void UpdateObstacleMove(float deltaTime, float speed);
+    void Reset();
+}
+public class ObstacleGenerator : IObstacleGenerator , IStartable
 {
     float _obstacleMakeDistance;
     float _yFrameOut;
     Transform _parentTransform;
-    [Inject] IPlayerPresenter _player;
-    [Inject] IObjectResolver _container;
-
-    ObjectPool<ObstaclePresenter> _obstaclePool;
-    Dictionary<ObstaclePresenter,GameObject> _obstacleDataRef = new();
+    ObjectPool<IObstaclePresenter> _obstaclePool;
+    Dictionary<IObstaclePresenter,GameObject> _obstacleDataRef = new();
+    /// <summary>
+    /// 次障害物を作成するまでの距離
+    /// </summary>
     float _distance;
     //GamePresenterに移行予定
     public System.Action<float> AddScore;
-    
+    [Inject] IPlayerPresenter _player;
+    [Inject] IObjectResolver _container;
     public ObstacleGenerator(Transform parentTransform , float obstacleMakeDistance, float yFrameOut)
     {
         _parentTransform = parentTransform;
@@ -32,7 +37,7 @@ public class ObstacleGenerator : IStartable
         _obstaclePool = new(
             createFunc: () =>
             {
-                var target = _container.Resolve<ObstaclePresenter>();
+                var target = _container.Resolve<IObstaclePresenter>();
                 var obj = Object.Instantiate(target.ObstacleData.Obstacle, _parentTransform);
                 target.SetTransform(obj.transform);
                 _obstacleDataRef.Add(target , obj);
@@ -63,10 +68,8 @@ public class ObstacleGenerator : IStartable
         _obstaclePool.Release(obj);
     }
     //GamePresenterに移行予定
-    public void ReleaseObstacle(ObstaclePresenter obstacle)
+    public void ReleaseObstacle(IObstaclePresenter obstacle)
     {
-        Debug.Log("ぶつかってる");
-        //インターフェースでの実装に差し替える。
         switch (obstacle.ObstacleData.Param.ItemType)
         {
             case ObstacleType.Item:
@@ -80,7 +83,6 @@ public class ObstacleGenerator : IStartable
             default:
                 break;
         }
-        
         _obstaclePool.Release(obstacle);
     }
     public void Reset()
@@ -90,7 +92,6 @@ public class ObstacleGenerator : IStartable
             if (pair.Value.activeSelf)
             {
                 _obstaclePool.Release(pair.Key);
-                //稀に例外が出るかも Trying to release an object that has already been released to the pool.
             }
         }
         _distance = 0f;
@@ -112,7 +113,6 @@ public class ObstacleGenerator : IStartable
         {
             if (pair.Value.activeSelf)
             {
-                // obj.transform.position -= new Vector3(0, deltaTime * speed * InGameConst.WindowHeight, 0);
                 pair.Key.UpdateObstacleMove(deltaTime, speed);
                 if (pair.Value.transform.position.y < -_yFrameOut)
                 {
