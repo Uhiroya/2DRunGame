@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UniRx;
@@ -45,9 +45,10 @@ public class ObstacleModel : IObstacleModel
         {
             _defaultPositionX = posX;
         }
-        //SetY
-        _transform.position = new Vector3(posX, posY);
-        _position.Value = _transform.position;
+        //SetX , SetY
+        var position = new Vector3(posX, posY);
+        _transform.position = position;
+        _position.Value = position;
     }
     public void Move(float deltaTime, float speed)
     {
@@ -57,9 +58,9 @@ public class ObstacleModel : IObstacleModel
         var newPos = _defaultPositionX + _xMoveRange * Mathf.Sin(theta);
         //Y移動
         var moveAmount = deltaTime * speed * InGameConst.WindowHeight * _obstacleParam.YMoveSpeed;
-
-        _transform.position = new Vector3(newPos, _transform.position.y - moveAmount);
-        _position.Value = _transform.position;
+        var position = new Vector3(newPos, _transform.position.y - moveAmount);
+        _transform.position = position;
+        _position.Value = position;
     }
 }
 

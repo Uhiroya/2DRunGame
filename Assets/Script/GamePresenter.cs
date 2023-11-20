@@ -11,40 +11,54 @@ public interface IGamePresenter
     public void ChangeStateToInGame();
     public void ChangeStateToResult();
 }
-public class GamePresenter : IInitializable , ITickable , IGamePresenter
+public class GamePresenter : IInitializable , ITickable , System.IDisposable, IGamePresenter
 {
+    /// <summary>
+    /// VContainerで注入される
+    /// </summary>
     Transform _parentTransform;
-    float _scoreRatePerSecond;
-    float _speedUpRate;
     IGameModel _model;
     IGameView _view;
     IPlayerPresenter _playerPresenter;
     IObstacleGenerator _obstaclePresenter;
-    
-    CompositeDisposable _disposable;
-    public GamePresenter(Transform parentTransform , float scoreRatePerSecond , float speedUpRate
+    /// <summary>
+    /// コンストラクタ
+    /// </summary>
+    public GamePresenter(Transform parentTransform 
         ,IGameModel model , IGameView view ,IPlayerPresenter playerPresenter, IObstacleGenerator obstaclePresenter)
     {
         _parentTransform  = parentTransform;
-        _scoreRatePerSecond = scoreRatePerSecond;
-        _speedUpRate = speedUpRate;
         _model = model ;
         _view = view ;
         _playerPresenter = playerPresenter;
         _obstaclePresenter = obstaclePresenter;
-        _disposable = new();
     }
+    /// <summary>
+    /// その他メンバ変数
+    /// </summary>
+    CompositeDisposable _disposable;
     GameObject _deathEffect;
+    /// <summary>
+    ///VContainerからPlayerLoop.Initializationの前に呼ばれる
+    /// </summary>
     public void Initialize()
     {
+        _disposable = new();
         Bind();
-        _model.SetGameState(GameFlowState.Inisialize);
+    }
+    /// <summary>
+    /// インスタンスを生成する人にDisposeしてもらう.。
+    /// </summary>
+    public void Dispose()
+    {
+        _disposable.Dispose();
     }
     /// <summary>
     /// バインド
     /// </summary>
     private void Bind()
     {
+        //modelと
         _model.GameSpeed
             .Subscribe(
                 x =>
@@ -61,7 +75,7 @@ public class GamePresenter : IInitializable , ITickable , IGamePresenter
                     _view.SetScore(x)
                 )
             .AddTo(_disposable);
-
+        //ゲームフローの状態による命令
         _model.GameState
             .Subscribe(
                 x =>
@@ -88,20 +102,22 @@ public class GamePresenter : IInitializable , ITickable , IGamePresenter
                     }
                 })
             .AddTo(_disposable);
-
+        //衝突判定
         _obstaclePresenter.ObstaclePosition.
             ObserveReplace()
             .Where(x => Vector2.Distance(x.NewValue, _playerPresenter.PlayerPosition) < x.Key.ObstacleData.HitRange)
             .Subscribe(x => HitObstacle(x.Key));
     }
+    /// <summary>
+    ///VContainerからUpdateのタイミングで呼ばれる
+    /// </summary>
     public void Tick()
     {
         switch (_playerPresenter.PlayerState.Value)
         {
             case PlayerCondition.Alive:
                 _view.ManualUpdate(Time.deltaTime);
-                _model.AddScore(_scoreRatePerSecond * Time.deltaTime);
-                _model.AddSpeed(_speedUpRate * Time.deltaTime);
+                _model.ManualUpdate(Time.deltaTime);
                 _obstaclePresenter.UpdateObstacleMove(Time.deltaTime, _model.GameSpeed.Value);
                 break;
             default:
@@ -135,11 +151,13 @@ public class GamePresenter : IInitializable , ITickable , IGamePresenter
         => _view.ShowResultScore(_model.Score.Value);
     /// <summary>アニメーションイベントから呼び出される。</summary>
     public void ChangeStateToTitle()
-        => _model.SetGameState(GameFlowState.Title);
+        => _model.ChangeStateToTitle();
     /// <summary>アニメーションイベントから呼び出される。</summary>
     public void ChangeStateToInGame()
-        => _model.SetGameState(GameFlowState.InGame);
+        => _model.ChangeStateToInGame();
     /// <summary>アニメーションイベントから呼び出される。</summary>
     public void ChangeStateToResult()
-        => _model.SetGameState(GameFlowState.Result);
+        => _model.ChangeStateToResult();
+
+
 }

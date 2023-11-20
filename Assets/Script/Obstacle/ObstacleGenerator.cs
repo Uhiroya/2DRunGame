@@ -6,6 +6,7 @@ using UnityEngine.Pool;
 using System.Linq;
 using VContainer;
 using VContainer.Unity;
+
 public interface IObstacleGenerator 
 {
     IReadOnlyReactiveDictionary<IObstaclePresenter, Vector2> ObstaclePosition { get; }
@@ -13,7 +14,7 @@ public interface IObstacleGenerator
     void Release(IObstaclePresenter obstaclePresenter);
     void Reset();
 }
-public class ObstacleGenerator : IObstacleGenerator , IStartable
+public class ObstacleGenerator : IObstacleGenerator , IStartable , System.IDisposable
 {
     Transform _parentTransform;
     float _obstacleMakeDistance;
@@ -27,14 +28,19 @@ public class ObstacleGenerator : IObstacleGenerator , IStartable
     float _distance;
     public readonly ReactiveDictionary<IObstaclePresenter,Vector2> _obstaclePosition = new();
     public IReadOnlyReactiveDictionary<IObstaclePresenter, Vector2> ObstaclePosition => _obstaclePosition;
-    //GamePresenterに移行予定
-    public System.Action<float> AddScore;
+
     [Inject] IObjectResolver _container;
+    
     public ObstacleGenerator(Transform parentTransform , float obstacleMakeDistance, float yFrameOut)
     {
         _parentTransform = parentTransform;
         _obstacleMakeDistance = obstacleMakeDistance;
         _yFrameOut = yFrameOut;
+    }
+    CompositeDisposable _disposable = new();
+    public void Dispose()
+    {
+        _disposable.Dispose();
     }
     public void Start()
     {
@@ -45,7 +51,7 @@ public class ObstacleGenerator : IObstacleGenerator , IStartable
                 var obj = Object.Instantiate(target.ObstacleData.Obstacle, _parentTransform);
                 target.SetTransform(obj.transform);
                 _obstacleDataRef.Add(target , obj);
-                target.Position.Subscribe(x => _obstaclePosition[target] = x);
+                target.Position.Subscribe(x => _obstaclePosition[target] = x).AddTo(_disposable);
                 return target;
             },// プールが空のときに新しいインスタンスを生成する処理
             actionOnGet: target =>

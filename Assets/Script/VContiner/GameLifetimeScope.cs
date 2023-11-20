@@ -4,12 +4,13 @@ using VContainer;
 using VContainer.Unity;
 using UniRx;
 using UnityEngine.UI;
+
 public class GameLifetimeScope : LifetimeScope
 {
     [Header("GameManager")]
     [SerializeField] GameManager _gameManager;
 
-    [Header("GamePresenter")]
+    [Header("GameModel")]
     [SerializeField] float _scoreRatePerSecond = 30f;
     [SerializeField] float _speedUpRate = 0.01f;
 
@@ -47,15 +48,16 @@ public class GameLifetimeScope : LifetimeScope
              .Select(x => Input.GetAxis("Horizontal"))
              .Subscribe(x => { _iPlayerPresenter.Move(x);})
              .AddTo(this);
+        
     }
     protected override void Configure(IContainerBuilder builder)
     {
         builder.RegisterComponent(_gameManager);
         builder.RegisterEntryPoint<GamePresenter>(Lifetime.Singleton).AsSelf().As<IGamePresenter>()
-            .WithParameter("parentTransform", _obstacleParent)
-            .WithParameter("scoreRatePerSecond", _scoreRatePerSecond)
+            .WithParameter("parentTransform", _obstacleParent);
+        builder.Register<GameModel>(Lifetime.Singleton).AsSelf().As<IGameModel>()
+             .WithParameter("scoreRatePerSecond", _scoreRatePerSecond)
             .WithParameter("speedUpRate", _speedUpRate);
-        builder.Register<GameModel>(Lifetime.Singleton).AsSelf().As<IGameModel>();
         builder.Register<GameView>(Lifetime.Singleton).AsSelf().As<IGameView>()
             .WithParameter("scoreText", _scoreText)
             .WithParameter("resultUIGroup", _resultUIGroup)

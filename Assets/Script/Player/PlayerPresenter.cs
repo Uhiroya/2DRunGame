@@ -14,7 +14,7 @@ public interface IPlayerPresenter
 
 }
 [RequireComponent(typeof(Rigidbody2D))]
-public class PlayerPresenter : IInitializable , IPlayerPresenter
+public class PlayerPresenter : IInitializable , IPlayerPresenter , System.IDisposable
 {
     public IReadOnlyReactiveProperty<PlayerCondition> PlayerState => _model.PlayerState;
     Vector2 _playerPosition;
@@ -30,11 +30,10 @@ public class PlayerPresenter : IInitializable , IPlayerPresenter
         _model =  model;
         _view = view;
     }
-    ~PlayerPresenter()
+    public void Dispose()
     {
         _disposable.Dispose();
     }
-    
     public void Initialize()
     {
         Bind();

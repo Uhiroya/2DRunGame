@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
@@ -13,7 +14,7 @@ public interface IPlayerModel
     void Reset();
 }
 
-public class PlayerModel : IPlayerModel
+public class PlayerModel : IPlayerModel , IDisposable
 {
     Transform _transform;
     float _defaultSpeed = 500f;
@@ -27,16 +28,17 @@ public class PlayerModel : IPlayerModel
     public PlayerModel(Transform transform  ,float defaultSpeed)
     {
         _transform = transform;
-        _positionY = _transform.transform.position.y;
+        _positionY = _transform.position.y;
         _defaultSpeed = defaultSpeed;
         _positionX = new(0f);
         _positionX
             .Skip(1)
             .Subscribe(x => { ClumpX(); })
             .AddTo(_disposable);
-        _playerState = new(PlayerCondition.Waiting);    }
+        _playerState = new(PlayerCondition.Waiting);   
+    }
     CompositeDisposable _disposable = new();
-    ~PlayerModel()
+    public void Dispose()
     {
         _disposable.Dispose();
     }
@@ -51,7 +53,7 @@ public class PlayerModel : IPlayerModel
     public void Move(float x)
     {
         _transform.position += new Vector3(x * _defaultSpeed * _speedRate, 0f);
-        _positionX.Value = _transform.transform.position.x;
+        _positionX.Value = _transform.position.x;
     }
     public void Reset()
     {
@@ -64,7 +66,8 @@ public class PlayerModel : IPlayerModel
     /// </summary>
     void ClumpX()
     {
-        var clampX = Mathf.Clamp(_transform.transform.position.x, InGameConst.GroundXMargin, InGameConst.WindowWidth - InGameConst.GroundXMargin);
-        _transform.transform.position = new Vector2(clampX, _transform.transform.position.y);
+        var position = _transform.position;
+        var clampX = Mathf.Clamp(position.x, InGameConst.GroundXMargin, InGameConst.WindowWidth - InGameConst.GroundXMargin);
+        _transform.position = new Vector2(clampX,position.y);
     }
 }
