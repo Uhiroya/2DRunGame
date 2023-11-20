@@ -1,56 +1,43 @@
 using System.Collections;
 using System.Collections.Generic;
 using UniRx;
+using UniRx.Triggers;
 using UnityEngine;
 using VContainer;
+using VContainer.Unity;
 
-public class ObstaclePresenter : MonoBehaviour
+public interface IObstaclePresenter
 {
-    [SerializeField] GameObject _explosionEffect;
-    [SerializeField] ObstacleModel _model;
-
-    public readonly ReactiveProperty<bool> IsHit = new(false) ;
-    public void OnEnable()
+    ObstacleData ObstacleData { get; }
+    IReadOnlyReactiveProperty<Vector2> Position { get; } 
+    void SetTransform(Transform transform);
+    void SetObstacle(float posX, float posY);
+    void UpdateObstacleMove(float deltaTime, float speed);
+}
+public class ObstaclePresenter : IObstaclePresenter
+{
+    IObstacleModel _model;
+    ObstacleData _obstacleData;
+    public ObstaclePresenter(ObstacleData obstacleData , IObstacleModel model)
     {
-        IsHit.Value = false ;
+        _obstacleData = obstacleData;
+        _model = model;
+    }
+    public ObstacleData ObstacleData => _obstacleData;
+    public readonly ReactiveProperty<Vector2> _position = new();
+    public IReadOnlyReactiveProperty<Vector2> Position => _position;
+    public void SetTransform(Transform transform)
+    {
+        _model.Position.Subscribe(x => _position.Value = x );
+        _model.SetTransform(transform);
     }
     public void SetObstacle(float posX, float posY)
     {
-        //print($"{posX} {posY}");
         _model.Set(posX, posY);
     }
-
     public void UpdateObstacleMove(float deltaTime, float speed)
     {
         _model.Move(deltaTime, speed);
     }
-    public void Hit(Collider2D player)
-    {
-        //インターフェースでの実装に差し替える。
-        switch (_model.ItemType)
-        {
-            case ObstacleType.Item:
-                FindObjectOfType<GamePresenter>()?.AddScore(_model.Score);
-                break;
-            case ObstacleType.Enemy:
-                player.GetComponent<PlayerLifetimeScope>()?.Container.Resolve<IPlayerPresenter>().GameOver();
-                Instantiate(_explosionEffect, transform.position, Quaternion.identity, this.transform.parent.transform);
-                break;
-            default: 
-                break;
-        }
-        IsHit.Value = true;
-    }
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.tag == "Player")
-        {
-            Hit(other);
-        }
-    }
 
-    public void OnDestroy()
-    {
-        IsHit.Dispose();
-    }
 }
