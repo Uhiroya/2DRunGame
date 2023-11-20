@@ -10,4 +10,5 @@ UniRX
 DoTween
 
 ### クラス図
-<img src="https://github.com/CyberAgentHack/gameclient_college_design_2/assets/72613038/e1b22521-7331-453d-9285-4e6c0889f3fb" width="800">
+<img src="https://github.com/CyberAgentHack/gameclient_college_design_2/assets/72613038/27288070-19cb-48ef-b521-c3d5c9f10110" width="800">
+
