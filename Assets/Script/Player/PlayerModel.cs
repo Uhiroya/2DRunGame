@@ -2,19 +2,34 @@ using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
-
-[System.Serializable]
-public class PlayerModel
+public interface IPlayerModel
 {
-    [SerializeField] Rigidbody2D _rb;
-    [SerializeField] Collider2D _col;
-    [SerializeField] float _defaultSpeed = 500f;
+    IReadOnlyReactiveProperty<PlayerCondition> PlayerState { get; }
+
+    void SetPlayerCondition(PlayerCondition condition);
+    public void SetSpeedRate(float speedRate);
+
+    public void Move(float x);
+
+    public void Reset();
+}
+
+public class PlayerModel : IPlayerModel
+{
+    Rigidbody2D _rb;
+    Collider2D _col;
+    float _defaultSpeed = 500f;
     private float _speedRate = 1f;
     public readonly ReactiveProperty<float> PositionX;
     private readonly ReactiveProperty<PlayerCondition> _playerState;
     public IReadOnlyReactiveProperty<PlayerCondition> PlayerState => _playerState;
-    public PlayerModel()
+    public PlayerModel(Rigidbody2D rb , Collider2D col , float defaultSpeed = 500f)
     {
+        Debug.Log("ê∂ê¨Model");
+        _rb = rb;
+        _col = col;
+        _defaultSpeed = defaultSpeed;
+
         PositionX = new(0f);
         PositionX
             .Skip(1)
@@ -54,7 +69,7 @@ public class PlayerModel
     /// <summary>
     /// à⁄ìÆêßå¿
     /// </summary>
-    private void ClumpX()
+    void ClumpX()
     {
         var clampX = Mathf.Clamp(_rb.transform.position.x, InGameConst.GroundXMargin, InGameConst.WindowWidth - InGameConst.GroundXMargin);
         _rb.transform.position = new Vector2(clampX, _rb.transform.position.y);

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
 using UnityEngine.Playables;
+using VContainer;
 
 public class GamePresenter : MonoBehaviour
 {
@@ -11,7 +12,7 @@ public class GamePresenter : MonoBehaviour
     [SerializeField] float _speedUpRate = 0.01f;
     [SerializeField] GameModel _model;
     [SerializeField] GameView _view;
-    [SerializeField] PlayerPresenter _playerPresenter;
+    [Inject] IPlayerPresenter _playerPresenter;
     [SerializeField] ObstacleGenerator _obstaclePresenter;
     
     private void Awake()

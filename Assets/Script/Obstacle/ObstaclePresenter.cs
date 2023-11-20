@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
+using VContainer;
 
 public class ObstaclePresenter : MonoBehaviour
 {
@@ -32,7 +33,7 @@ public class ObstaclePresenter : MonoBehaviour
                 FindObjectOfType<GamePresenter>()?.AddScore(_model.Score);
                 break;
             case ObstacleType.Enemy:
-                player.GetComponent<PlayerPresenter>()?.GameOver();
+                player.GetComponent<PlayerLifetimeScope>()?.Container.Resolve<IPlayerPresenter>().GameOver();
                 Instantiate(_explosionEffect, transform.position, Quaternion.identity, this.transform.parent.transform);
                 break;
             default: 
