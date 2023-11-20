@@ -1,4 +1,4 @@
-using UniRx.Triggers;
+﻿using UniRx.Triggers;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -41,7 +41,7 @@ public class GameLifetimeScope : LifetimeScope
     private void Start()
     {
         var _iPlayerPresenter = Container.Resolve<IPlayerPresenter>();
-        //���͂̊Ď�
+        //入力の監視
         this.UpdateAsObservable()
              .Where(x => _iPlayerPresenter.PlayerState.Value == PlayerCondition.Alive)
              .Select(x => Input.GetAxis("Horizontal"))

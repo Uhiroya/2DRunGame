@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UniRx;
@@ -32,7 +32,7 @@ public class ObstacleModel : IObstacleModel
     {
         //SetX
         _xMoveRange = _obstacleParam.XMoveArea * InGameConst.WindowWidth / 2;
-        //áŠQ•¨‚ÌˆÚ“®‹——£‚ªƒ}ƒbƒv‚Éû‚Ü‚é‚æ‚¤‚É§ŒÀ‚·‚éB
+        //éšœå®³ç‰©ã®ç§»å‹•è·é›¢ãŒãƒãƒƒãƒ—ã«åã¾ã‚‹ã‚ˆã†ã«åˆ¶é™ã™ã‚‹ã€‚
         if (posX - _xMoveRange < InGameConst.GroundXMargin)
         {
             _defaultPositionX = InGameConst.GroundXMargin + _xMoveRange;
@@ -51,11 +51,11 @@ public class ObstacleModel : IObstacleModel
     }
     public void Move(float deltaTime, float speed)
     {
-        //XˆÚ“®
+        //Xç§»å‹•
         _time += deltaTime;
         var theta = (_time * speed * _obstacleParam.XMoveSpeed) % (Mathf.PI * 2);
         var newPos = _defaultPositionX + _xMoveRange * Mathf.Sin(theta);
-        //YˆÚ“®
+        //Yç§»å‹•
         var moveAmount = deltaTime * speed * InGameConst.WindowHeight * _obstacleParam.YMoveSpeed;
 
         _transform.position = new Vector3(newPos, _transform.position.y - moveAmount);
@@ -63,10 +63,3 @@ public class ObstacleModel : IObstacleModel
     }
 }
 
-[System.Serializable]
-public enum ObstacleType
-{
-    None,
-    Enemy,
-    Item,
-}

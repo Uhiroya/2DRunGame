@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -51,7 +51,7 @@ public class GameView : IGameView
     }
     public void ShowResultScore(float score)
     {
-        //ƒJƒEƒ“ƒgƒAƒbƒvˆ—
+        //ã‚«ã‚¦ãƒ³ãƒˆã‚¢ãƒƒãƒ—å‡¦ç†
         DOVirtual.Float(
             0f,
             score,

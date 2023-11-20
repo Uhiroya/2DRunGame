@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
@@ -41,7 +41,7 @@ public class GamePresenter : IInitializable , ITickable , IGamePresenter
         _model.SetGameState(GameFlowState.Inisialize);
     }
     /// <summary>
-    /// ƒoƒCƒ“ƒh
+    /// ãƒã‚¤ãƒ³ãƒ‰
     /// </summary>
     private void Bind()
     {
@@ -109,7 +109,7 @@ public class GamePresenter : IInitializable , ITickable , IGamePresenter
         }
     }
     /// <summary>
-    /// Õ“Ë”»’è
+    /// è¡çªåˆ¤å®š
     /// </summary>
     /// <param name="obstacle"></param>
     public void HitObstacle(IObstaclePresenter obstacle)
@@ -130,16 +130,16 @@ public class GamePresenter : IInitializable , ITickable , IGamePresenter
         _obstaclePresenter.Release(obstacle);
     }
 
-    /// <summary>ƒAƒjƒ[ƒVƒ‡ƒ“ƒCƒxƒ“ƒg‚©‚çŒÄ‚Ño‚³‚ê‚éB</summary>
+    /// <summary>ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚¤ãƒ™ãƒ³ãƒˆã‹ã‚‰å‘¼ã³å‡ºã•ã‚Œã‚‹ã€‚</summary>
     public void ShowResultScore()
         => _view.ShowResultScore(_model.Score.Value);
-    /// <summary>ƒAƒjƒ[ƒVƒ‡ƒ“ƒCƒxƒ“ƒg‚©‚çŒÄ‚Ño‚³‚ê‚éB</summary>
+    /// <summary>ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚¤ãƒ™ãƒ³ãƒˆã‹ã‚‰å‘¼ã³å‡ºã•ã‚Œã‚‹ã€‚</summary>
     public void ChangeStateToTitle()
         => _model.SetGameState(GameFlowState.Title);
-    /// <summary>ƒAƒjƒ[ƒVƒ‡ƒ“ƒCƒxƒ“ƒg‚©‚çŒÄ‚Ño‚³‚ê‚éB</summary>
+    /// <summary>ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚¤ãƒ™ãƒ³ãƒˆã‹ã‚‰å‘¼ã³å‡ºã•ã‚Œã‚‹ã€‚</summary>
     public void ChangeStateToInGame()
         => _model.SetGameState(GameFlowState.InGame);
-    /// <summary>ƒAƒjƒ[ƒVƒ‡ƒ“ƒCƒxƒ“ƒg‚©‚çŒÄ‚Ño‚³‚ê‚éB</summary>
+    /// <summary>ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚¤ãƒ™ãƒ³ãƒˆã‹ã‚‰å‘¼ã³å‡ºã•ã‚Œã‚‹ã€‚</summary>
     public void ChangeStateToResult()
         => _model.SetGameState(GameFlowState.Result);
 }

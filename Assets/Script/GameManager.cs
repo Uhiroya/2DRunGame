@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+ï»¿using Cysharp.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,16 +11,16 @@ using VContainer.Unity;
 public class GameManager : MonoBehaviour
 {
     [Inject] IGamePresenter _gamePresenter;
-    /// <summary>ƒAƒjƒ[ƒVƒ‡ƒ“ƒCƒxƒ“ƒg‚©‚çŒÄ‚Ño‚³‚ê‚éB</summary>
+    /// <summary>ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚¤ãƒ™ãƒ³ãƒˆã‹ã‚‰å‘¼ã³å‡ºã•ã‚Œã‚‹ã€‚</summary>
     public void ShowResultScore()
         => _gamePresenter.ShowResultScore();
-    /// <summary>ƒAƒjƒ[ƒVƒ‡ƒ“ƒCƒxƒ“ƒg‚©‚çŒÄ‚Ño‚³‚ê‚éB</summary>
+    /// <summary>ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚¤ãƒ™ãƒ³ãƒˆã‹ã‚‰å‘¼ã³å‡ºã•ã‚Œã‚‹ã€‚</summary>
     public void ChangeStateToTitle()
         => _gamePresenter.ChangeStateToTitle();
-    /// <summary>ƒAƒjƒ[ƒVƒ‡ƒ“ƒCƒxƒ“ƒg‚©‚çŒÄ‚Ño‚³‚ê‚éB</summary>
+    /// <summary>ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚¤ãƒ™ãƒ³ãƒˆã‹ã‚‰å‘¼ã³å‡ºã•ã‚Œã‚‹ã€‚</summary>
     public void ChangeStateToInGame()
         => _gamePresenter.ChangeStateToInGame();
-    /// <summary>ƒAƒjƒ[ƒVƒ‡ƒ“ƒCƒxƒ“ƒg‚©‚çŒÄ‚Ño‚³‚ê‚éB</summary>
+    /// <summary>ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚¤ãƒ™ãƒ³ãƒˆã‹ã‚‰å‘¼ã³å‡ºã•ã‚Œã‚‹ã€‚</summary>
     public void ChangeStateToResult()
         => _gamePresenter.ChangeStateToResult();
 }

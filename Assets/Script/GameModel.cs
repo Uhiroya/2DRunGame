@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
@@ -48,14 +48,5 @@ public class GameModel : IGameModel
     {
         _gameSpeed.Value = 0f;
     }
-}
-[System.Serializable]
-public enum GameFlowState
-{
-    None,
-    Inisialize,
-    Title,
-    InGame,
-    Result,
 }
 

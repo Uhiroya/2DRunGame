@@ -1,4 +1,4 @@
-using System.Collections;
+Ôªøusing System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
@@ -60,18 +60,11 @@ public class PlayerModel : IPlayerModel
         _playerState.Value = 0f;
     }
     /// <summary>
-    /// à⁄ìÆêßå¿
+    /// ÁßªÂãïÂà∂Èôê
     /// </summary>
     void ClumpX()
     {
         var clampX = Mathf.Clamp(_transform.transform.position.x, InGameConst.GroundXMargin, InGameConst.WindowWidth - InGameConst.GroundXMargin);
         _transform.transform.position = new Vector2(clampX, _transform.transform.position.y);
     }
-}
-public enum PlayerCondition
-{
-    None,
-    Waiting,
-    Alive,
-    Dead,
 }
