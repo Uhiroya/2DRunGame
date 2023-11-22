@@ -319,19 +319,13 @@ MonoBehaviour:
   _gameManager: {fileID: 175587346}
   _scoreRatePerSecond: 30
   _speedUpRate: 0.01
-  _titleAnimation: {fileID: 7400000, guid: 4dfd2194441eb2e45a2cbfb87b64c03f, type: 2}
-  _titleObject: {fileID: 1384479104}
-  _titleTapObject: {fileID: 1529405291}
   _scoreText: {fileID: 121155834}
-  _resultFadeAnimation: {fileID: 7400000, guid: 887b40eb539cd87469ac0115de49e344, type: 2}
-  _resultEmphasisAnimation: {fileID: 7400000, guid: dd354d590a1753f4dbd0968eb0332439, type: 2}
   _resultUIGroup: {fileID: 2030643008}
   _resultScoreText: {fileID: 96632410}
   _countUpTime: 1
   _backGroundImage: {fileID: 1762523921}
   _playerTransform: {fileID: 923217634}
   _defaultSpeed: 4
-  _deadAnimation: {fileID: 7400000, guid: 1e9798d898a9d0e49a7663f986ae3fcc, type: 2}
   _animator: {fileID: 923217635}
   _obstacleParent: {fileID: 936137284}
   _obstacleMakeDistance: 500
@@ -615,6 +609,18 @@ MonoBehaviour:
         m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
         m_MethodName: SetActive
         m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 175587346}
+        m_TargetAssemblyTypeName: GamePresenter, Assembly-CSharp
+        m_MethodName: ChangeStateToResult
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -921,8 +927,8 @@ MonoBehaviour:
           m_BoolArgument: 1
         m_CallState: 2
       - m_Target: {fileID: 175587346}
-        m_TargetAssemblyTypeName: AnimationEventProvider, Assembly-CSharp
-        m_MethodName: GameStart
+        m_TargetAssemblyTypeName: GamePresenter, Assembly-CSharp
+        m_MethodName: ChangeStateToInGame
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1195,8 +1201,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 175587346}
-        m_TargetAssemblyTypeName: AnimationEventProvider, Assembly-CSharp
-        m_MethodName: OnPlayerDeath
+        m_TargetAssemblyTypeName: GamePresenter, Assembly-CSharp
+        m_MethodName: ChangeStateToResult
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1479,13 +1485,14 @@ GameObject:
   - component: {fileID: 1384479107}
   - component: {fileID: 1384479106}
   - component: {fileID: 1384479108}
+  - component: {fileID: 1384479109}
   m_Layer: 5
   m_Name: LogoImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1384479105
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1565,6 +1572,60 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1384479109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1384479104}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6f45ae30db06fe46b6a524bfeae5b3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  StartAnimationEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1529405291}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  FinishAnimationEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1529405291}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 124276871}
+        m_TargetAssemblyTypeName: GamePresenter, Assembly-CSharp
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
 --- !u!1 &1529405291
 GameObject:
   m_ObjectHideFlags: 0
@@ -2000,8 +2061,8 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
       - m_Target: {fileID: 175587346}
-        m_TargetAssemblyTypeName: AnimationEventProvider, Assembly-CSharp
-        m_MethodName: GoTitle
+        m_TargetAssemblyTypeName: GamePresenter, Assembly-CSharp
+        m_MethodName: ChangeStateToTitle
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2252,8 +2313,8 @@ MonoBehaviour:
           m_BoolArgument: 1
         m_CallState: 2
       - m_Target: {fileID: 175587346}
-        m_TargetAssemblyTypeName: AnimationEventProvider, Assembly-CSharp
-        m_MethodName: GameStart
+        m_TargetAssemblyTypeName: GamePresenter, Assembly-CSharp
+        m_MethodName: ChangeStateToInGame
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

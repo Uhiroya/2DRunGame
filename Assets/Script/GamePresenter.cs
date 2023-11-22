@@ -1,16 +1,17 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
-using Cysharp.Threading.Tasks;
 public interface IGamePresenter
 {
-    public void GoTitle();
-    public void GameStart();
+    public void ShowResultScore();
+    public void ChangeStateToTitle();
+    public void ChangeStateToInGame();
+    public void ChangeStateToResult();
 }
-public class GamePresenter : IInitializable , IStartable ,ITickable , System.IDisposable, IGamePresenter
+public class GamePresenter : IInitializable , ITickable , System.IDisposable, IGamePresenter
 {
     /// <summary>
     /// VContainerで注入される
@@ -36,7 +37,7 @@ public class GamePresenter : IInitializable , IStartable ,ITickable , System.IDi
     /// その他メンバ変数
     /// </summary>
     CompositeDisposable _disposable;
-    GameObject _hitEffect;
+    GameObject _deathEffect;
     /// <summary>
     ///VContainerからPlayerLoop.Initializationの前に呼ばれる
     /// </summary>
@@ -86,10 +87,10 @@ public class GamePresenter : IInitializable , IStartable ,ITickable , System.IDi
                             _playerPresenter.GameStart();
                             break;
                         case GameFlowState.Result:
-                            if (_hitEffect != null)
+                            if (_deathEffect != null)
                             {
-                                Object.Destroy(_hitEffect);
-                                _hitEffect = null;
+                                Object.Destroy(_deathEffect);
+                                _deathEffect = null;
                             }
                             _playerPresenter.Reset();
                             _obstaclePresenter.Reset();
@@ -106,8 +107,6 @@ public class GamePresenter : IInitializable , IStartable ,ITickable , System.IDi
             ObserveReplace()
             .Where(x => Vector2.Distance(x.NewValue, _playerPresenter.PlayerPosition) < x.Key.ObstacleData.HitRange)
             .Subscribe(x => HitObstacle(x.Key));
-
-        _playerPresenter.PlayerDeath += OnPlayerDeath;
     }
     /// <summary>
     ///VContainerからUpdateのタイミングで呼ばれる
@@ -131,44 +130,34 @@ public class GamePresenter : IInitializable , IStartable ,ITickable , System.IDi
     /// <param name="obstacle"></param>
     public void HitObstacle(IObstaclePresenter obstacle)
     {
-        _obstaclePresenter.Release(obstacle);
         switch (obstacle.ObstacleData.Param.ItemType)
         {
             case ObstacleType.Item:
                 _model.AddScore(obstacle.ObstacleData.Score);
                 break;
             case ObstacleType.Enemy:
-                _playerPresenter.HitObject();
-                _hitEffect = Object.Instantiate(obstacle.ObstacleData.DestroyEffect
+                _playerPresenter.GameOver();
+                _deathEffect = Object.Instantiate(obstacle.ObstacleData.DestroyEffect
                     , _playerPresenter.PlayerPosition, Quaternion.identity, _parentTransform);
                 break;
             default:
                 break;
         }
-        
+        _obstaclePresenter.Release(obstacle);
     }
 
     /// <summary>アニメーションイベントから呼び出される。</summary>
-    public void GoTitle()
-    {
-        _model.ChangeStateToTitle();
-        _view.TitleStart();
-    }
+    public void ShowResultScore()
+        => _view.ShowResultScore(_model.Score.Value);
     /// <summary>アニメーションイベントから呼び出される。</summary>
-    public void GameStart()
-    {
-        _model.ChangeStateToInGame();
-        _view.ResetTitleUI();
-    }
+    public void ChangeStateToTitle()
+        => _model.ChangeStateToTitle();
     /// <summary>アニメーションイベントから呼び出される。</summary>
-    public void OnPlayerDeath()
-    {
-        _model.ChangeStateToResult();
-        _view.ShowResultScore(_model.Score.Value);
-    }
+    public void ChangeStateToInGame()
+        => _model.ChangeStateToInGame();
+    /// <summary>アニメーションイベントから呼び出される。</summary>
+    public void ChangeStateToResult()
+        => _model.ChangeStateToResult();
 
-    public async void Start()
-    {
-        await _view.TitleStart();
-    }
+
 }

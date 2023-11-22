@@ -1,4 +1,4 @@
-using UniRx.Triggers;
+﻿using UniRx.Triggers;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -8,19 +8,14 @@ using UnityEngine.UI;
 public class GameLifetimeScope : LifetimeScope
 {
     [Header("GameManager")]
-    [SerializeField] ButtonEventProvider _gameManager;
+    [SerializeField] GameManager _gameManager;
 
     [Header("GameModel")]
     [SerializeField] float _scoreRatePerSecond = 30f;
     [SerializeField] float _speedUpRate = 0.01f;
 
     [Header("GameView")]
-    [SerializeField] AnimationClip _titleAnimation;
-    [SerializeField] GameObject _titleObject;
-    [SerializeField] GameObject _titleTapObject;
     [SerializeField] Text _scoreText;
-    [SerializeField] AnimationClip _resultFadeAnimation;
-    [SerializeField] AnimationClip _resultEmphasisAnimation;
     [SerializeField] GameObject _resultUIGroup;
     [SerializeField] Text _resultScoreText;
     [SerializeField] float _countUpTime = 1.0f;
@@ -33,7 +28,6 @@ public class GameLifetimeScope : LifetimeScope
     [SerializeField] float _defaultSpeed = 500f;
 
     [Header("PlayerView")]
-    [SerializeField] AnimationClip _deadAnimation;
     [SerializeField] Animator _animator;
 
     [Header("ObstacleGenerator")]
@@ -65,13 +59,9 @@ public class GameLifetimeScope : LifetimeScope
              .WithParameter("scoreRatePerSecond", _scoreRatePerSecond)
             .WithParameter("speedUpRate", _speedUpRate);
         builder.Register<GameView>(Lifetime.Singleton).AsSelf().As<IGameView>()
-            .WithParameter("titleAnimationTime", _titleAnimation.length)
-            .WithParameter("titleObject", _titleObject)
-            .WithParameter("titleTapObject", _titleTapObject)
             .WithParameter("scoreText", _scoreText)
             .WithParameter("resultUIGroup", _resultUIGroup)
             .WithParameter("resultScoreText", _resultScoreText)
-            .WithParameter("resultAnimationTime", _resultFadeAnimation.length + _resultEmphasisAnimation.length)
             .WithParameter("countUpTime", _countUpTime);
         builder.Register<BackGroundController>(Lifetime.Singleton).AsSelf().As<IBackGroundController>()
             .WithParameter("image", _backGroundImage);
@@ -80,7 +70,6 @@ public class GameLifetimeScope : LifetimeScope
             .WithParameter("transform" , _playerTransform)
             .WithParameter("defaultSpeed" , _defaultSpeed);
         builder.Register<PlayerView>(Lifetime.Singleton).As<IPlayerView>()
-            .WithParameter("deadAnimation", _deadAnimation)
             .WithParameter("animator", _animator);
         builder.RegisterEntryPoint<ObstacleGenerator>(Lifetime.Singleton).AsSelf().As<IObstacleGenerator>()
             .WithParameter("obstacleMakeDistance", _obstacleMakeDistance)

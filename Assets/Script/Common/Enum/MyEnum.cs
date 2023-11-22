@@ -1,4 +1,4 @@
-[System.Serializable]
+﻿[System.Serializable]
 public enum GameFlowState
 {
     None,
@@ -13,7 +13,6 @@ public enum PlayerCondition
     None,
     Waiting,
     Alive,
-    OnDead,
     Dead,
 }
 [System.Serializable]

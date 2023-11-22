@@ -1,26 +1,22 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UniRx;
 using VContainer;
 using VContainer.Unity;
-using Cysharp.Threading.Tasks;
-
 public interface IPlayerPresenter
 {
     IReadOnlyReactiveProperty<PlayerCondition> PlayerState { get; }
     Vector2 PlayerPosition { get;}
-    event System.Action PlayerDeath;
     void Move(float x);
     void SetSpeedRate(float speedRate);
     void Reset();
     void GameStart();
-    void HitObject();
+    void GameOver();
 
 }
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerPresenter : IInitializable , IPlayerPresenter , System.IDisposable
 {
     public IReadOnlyReactiveProperty<PlayerCondition> PlayerState => _model.PlayerState;
-    public event System.Action PlayerDeath;
     Vector2 _playerPosition;
     public Vector2 PlayerPosition => _playerPosition;
     IPlayerModel _model;
@@ -45,22 +41,10 @@ public class PlayerPresenter : IInitializable , IPlayerPresenter , System.IDispo
 
     public void Bind()
     {
-        //プレイヤー移動の監視
         _model.PositionX.Subscribe(x => _playerPosition = new Vector2 (x, _model.PositionY)).AddTo(_disposable);
-        _model.PlayerState.Where(x => x == PlayerCondition.Waiting)
-             .Subscribe(x => _view.OnWaiting())
-             .AddTo(_disposable);
-        _model.PlayerState.Where(x => x == PlayerCondition.Alive)
-            .Subscribe(x => _view.OnWalk())
-            .AddTo(_disposable);   
-
-        _model.PlayerState.Where(x => x == PlayerCondition.OnDead)
-            .Subscribe(async x => 
-            {
-                await _view.OnDead();
-                GameOver();
-            })
-            .AddTo(_disposable);   
+        _model.PlayerState.Where(x => x == PlayerCondition.Waiting).Subscribe(x => _view.OnWaiting()).AddTo(_disposable);   
+        _model.PlayerState.Where(x => x == PlayerCondition.Alive).Subscribe(x => _view.OnWalk()).AddTo(_disposable);   
+        _model.PlayerState.Where(x => x == PlayerCondition.Dead).Subscribe(x => { _view.OnDead();} ).AddTo(_disposable);   
     }
     public void Reset()
     {
@@ -78,12 +62,10 @@ public class PlayerPresenter : IInitializable , IPlayerPresenter , System.IDispo
     {
         _model.SetPlayerCondition(PlayerCondition.Alive);
     }
-    public void HitObject()
-    {
-        _model.SetPlayerCondition(PlayerCondition.OnDead);
-    }
     public void GameOver()
     {
-        PlayerDeath?.Invoke();
+        _model.SetPlayerCondition(PlayerCondition.Dead);
     }
+
+
 }
