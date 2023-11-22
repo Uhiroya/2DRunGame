@@ -1,12 +1,15 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 using UnityEngine.UIElements;
+using Cysharp.Threading.Tasks;
 
 public interface IGameView
 {
+    UniTask TitleStart();
+    public void ResetTitleUI();
     void ManualUpdate(float deltaTime);
 
     void SetUVSpeed(float speed);
@@ -15,23 +18,47 @@ public interface IGameView
 
     void ShowResultUI();
 
-    void ShowResultScore(float score);
+    UniTaskVoid ShowResultScore(float score);
 }
 public class GameView : IGameView
 {
+    float _titleAnimationTime;
+    GameObject _titleObject;
+    GameObject _titleTapObject;
+    Vector3 _titlePosition;
     IBackGroundController _background;
     Text _scoreText;
     GameObject _resultUIGroup;
     Text _resultScoreText;
-    float _countUpTime = 1.0f;
-    public GameView(IBackGroundController background , Text scoreText , GameObject resultUIGroup
-        ,Text resultScoreText, float countUpTime)
+    float _resultAnimationTime;
+    float _countUpTime;
+   
+    public GameView(float titleAnimationTime, GameObject titleObject , GameObject titleTapObject ,
+        IBackGroundController background , Text scoreText , GameObject resultUIGroup
+        ,Text resultScoreText, float resultAnimationTime ,float countUpTime)
     {
+        _titleAnimationTime = titleAnimationTime;
+        _titleObject = titleObject;
+        _titleTapObject = titleTapObject;
         _background = background;
         _scoreText = scoreText; 
         _resultUIGroup = resultUIGroup;
         _resultScoreText = resultScoreText;
+        _resultAnimationTime = resultAnimationTime;
         _countUpTime = countUpTime;
+        _titlePosition = _titleObject.transform.position;
+    }
+    public async UniTask TitleStart()
+    {
+        _titleObject.SetActive(true);
+        await UniTask.Delay((int)(_titleAnimationTime * 1000));
+        _titleTapObject.SetActive(true);
+    }
+    public void ResetTitleUI()
+    {
+        _titleObject.SetActive(false);
+        _titleObject.transform.position = _titlePosition;
+        _titleTapObject.SetActive(false);
     }
     public void ManualUpdate(float deltaTime)
     {
@@ -49,10 +76,11 @@ public class GameView : IGameView
     {
         _resultUIGroup.SetActive(true);
     }
-    public void ShowResultScore(float score)
+    public async UniTaskVoid ShowResultScore(float score)
     {
+        await UniTask.Delay((int)(_resultAnimationTime * 1000));
         //カウントアップ処理
-        DOVirtual.Float(
+        await DOVirtual.Float(
             0f,
             score,
             _countUpTime,
