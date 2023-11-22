@@ -135,7 +135,7 @@ GameObject:
   - component: {fileID: 96632411}
   - component: {fileID: 96632410}
   m_Layer: 5
-  m_Name: Score
+  m_Name: ResultScore
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -316,13 +316,20 @@ MonoBehaviour:
     TypeName: 
   autoRun: 1
   autoInjectGameObjects: []
-  _gamePresenter: {fileID: 175587346}
+  _gameManager: {fileID: 175587346}
+  _scoreRatePerSecond: 30
+  _speedUpRate: 0.01
+  _scoreText: {fileID: 121155834}
+  _resultUIGroup: {fileID: 2030643008}
+  _resultScoreText: {fileID: 96632410}
+  _countUpTime: 1
+  _backGroundImage: {fileID: 1762523921}
   _playerTransform: {fileID: 923217634}
   _defaultSpeed: 4
   _animator: {fileID: 923217635}
+  _obstacleParent: {fileID: 936137284}
   _obstacleMakeDistance: 500
   _yFrameOut: 30
-  _obstacleParent: {fileID: 936137284}
   _obstacleData: {fileID: 11400000, guid: 77b0014605f5ad843a5e9267448e14c9, type: 2}
 --- !u!4 &124276873
 Transform:
@@ -337,7 +344,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &165261931
 GameObject:
@@ -405,7 +412,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &175587345
 GameObject:
@@ -418,7 +425,7 @@ GameObject:
   - component: {fileID: 175587347}
   - component: {fileID: 175587346}
   m_Layer: 5
-  m_Name: GamePresenter
+  m_Name: GameManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -433,17 +440,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 175587345}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 25a932e5b0e59ab49a8c9fefc1ea2091, type: 3}
+  m_Script: {fileID: 11500000, guid: 422b14a599a877449b04ebf573f6283b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _scoreRatePerSecond: 30
-  _speedUpRate: 0.02
-  _view:
-    _background: {fileID: 1762523923}
-    _scoreText: {fileID: 121155834}
-    _resultUIGroup: {fileID: 2030643008}
-    _resultScoreText: {fileID: 96632410}
-    _countUpTime: 1
 --- !u!4 &175587347
 Transform:
   m_ObjectHideFlags: 0
@@ -457,7 +456,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &376229090
 GameObject:
@@ -1096,7 +1095,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1971553430}
-  m_RootOrder: 4
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -1258,7 +1257,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1971553430}
-  m_RootOrder: 5
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -1297,7 +1296,7 @@ RectTransform:
   - {fileID: 1384479105}
   - {fileID: 1529405292}
   m_Father: {fileID: 1971553430}
-  m_RootOrder: 1
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -1615,9 +1614,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
-      - m_Target: {fileID: 175587346}
+      - m_Target: {fileID: 124276871}
         m_TargetAssemblyTypeName: GamePresenter, Assembly-CSharp
-        m_MethodName: ChangeStateToTitle
+        m_MethodName: 
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1737,7 +1736,6 @@ GameObject:
   - component: {fileID: 1762523920}
   - component: {fileID: 1762523922}
   - component: {fileID: 1762523921}
-  - component: {fileID: 1762523923}
   m_Layer: 5
   m_Name: BackGroundImage
   m_TagString: Untagged
@@ -1800,19 +1798,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1762523919}
   m_CullTransparentMesh: 1
---- !u!114 &1762523923
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1762523919}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: af7b4b1ba1352fb469e70338474b9d8d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _uvSpeed: 0
 --- !u!1 &1790544278
 GameObject:
   m_ObjectHideFlags: 0
@@ -2075,6 +2060,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 175587346}
+        m_TargetAssemblyTypeName: GamePresenter, Assembly-CSharp
+        m_MethodName: ChangeStateToTitle
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1897384763
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2206,13 +2203,13 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1762523920}
+  - {fileID: 936137284}
+  - {fileID: 923217634}
   - {fileID: 1218659301}
   - {fileID: 2095340970}
   - {fileID: 2030643009}
-  - {fileID: 923217634}
-  - {fileID: 936137284}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -2429,7 +2426,7 @@ Animator:
   m_GameObject: {fileID: 1999615240}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 9cf84ab7200354a4b9f500d57e44f0fe, type: 2}
+  m_Controller: {fileID: 9100000, guid: 1052f9784ac9d5e46970702e2c450334, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -2503,7 +2500,7 @@ RectTransform:
   - {fileID: 1790544279}
   - {fileID: 1999615241}
   m_Father: {fileID: 1971553430}
-  m_RootOrder: 3
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -2553,7 +2550,7 @@ RectTransform:
   m_Children:
   - {fileID: 121155833}
   m_Father: {fileID: 1971553430}
-  m_RootOrder: 2
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}

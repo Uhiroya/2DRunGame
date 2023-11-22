@@ -1,10 +1,8 @@
+Ôªøusing System;
 using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
-using UnityEngine.UIElements;
-using UnityEngine.XR;
-
 public interface IPlayerModel
 {
     IReadOnlyReactiveProperty<PlayerCondition> PlayerState { get; }
@@ -16,14 +14,11 @@ public interface IPlayerModel
     void Reset();
 }
 
-public class PlayerModel : IPlayerModel
+public class PlayerModel : IPlayerModel , IDisposable
 {
-    //Rigidbody2D _transform;
-    //Collider2D _col;
     Transform _transform;
     float _defaultSpeed = 500f;
     private float _speedRate = 1f;
-
     private float _positionY;
     public float PositionY => _positionY ;
     public readonly ReactiveProperty<float> _positionX;
@@ -33,19 +28,17 @@ public class PlayerModel : IPlayerModel
     public PlayerModel(Transform transform  ,float defaultSpeed)
     {
         _transform = transform;
-        _positionY = _transform.transform.position.y;
+        _positionY = _transform.position.y;
         _defaultSpeed = defaultSpeed;
         _positionX = new(0f);
         _positionX
             .Skip(1)
             .Subscribe(x => { ClumpX(); })
             .AddTo(_disposable);
-        _playerState = new(PlayerCondition.Waiting);
-        //PlayerState.Where(x => x == PlayerCondition.Alive).Subscribe(x => _col.enabled = true).AddTo(_disposable);
-        //PlayerState.Where(x => x == PlayerCondition.Dead).Subscribe(x => _col.enabled = false).AddTo(_disposable);
+        _playerState = new(PlayerCondition.Waiting);   
     }
     CompositeDisposable _disposable = new();
-    ~PlayerModel()
+    public void Dispose()
     {
         _disposable.Dispose();
     }
@@ -60,7 +53,7 @@ public class PlayerModel : IPlayerModel
     public void Move(float x)
     {
         _transform.position += new Vector3(x * _defaultSpeed * _speedRate, 0f);
-        _positionX.Value = _transform.transform.position.x;
+        _positionX.Value = _transform.position.x;
     }
     public void Reset()
     {
@@ -69,20 +62,12 @@ public class PlayerModel : IPlayerModel
         _playerState.Value = 0f;
     }
     /// <summary>
-    /// à⁄ìÆêßå¿
+    /// ÁßªÂãïÂà∂Èôê
     /// </summary>
     void ClumpX()
     {
-        var clampX = Mathf.Clamp(_transform.transform.position.x, InGameConst.GroundXMargin, InGameConst.WindowWidth - InGameConst.GroundXMargin);
-        _transform.transform.position = new Vector2(clampX, _transform.transform.position.y);
+        var position = _transform.position;
+        var clampX = Mathf.Clamp(position.x, InGameConst.GroundXMargin, InGameConst.WindowWidth - InGameConst.GroundXMargin);
+        _transform.position = new Vector2(clampX,position.y);
     }
-
-
-}
-public enum PlayerCondition
-{
-    None,
-    Waiting,
-    Alive,
-    Dead,
 }

@@ -1,36 +1,64 @@
-using Cysharp.Threading.Tasks;
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using UniRx;
-using UnityEngine.Playables;
+using UnityEngine;
 using VContainer;
-
-public class GamePresenter : MonoBehaviour
+using VContainer.Unity;
+public interface IGamePresenter
 {
-    [SerializeField] float _scoreRatePerSecond = 30f;
-    [SerializeField] float _speedUpRate = 0.01f;
-    [SerializeField] GameModel _model;
-    [SerializeField] GameView _view;
-    [Inject] IPlayerPresenter _playerPresenter;
-    [Inject] ObstacleGenerator _obstaclePresenter;
-    
-    private void Awake()
+    public void ShowResultScore();
+    public void ChangeStateToTitle();
+    public void ChangeStateToInGame();
+    public void ChangeStateToResult();
+}
+public class GamePresenter : IInitializable , ITickable , System.IDisposable, IGamePresenter
+{
+    /// <summary>
+    /// VContainerã§æ³¨å…¥ã•ã‚Œã‚‹
+    /// </summary>
+    Transform _parentTransform;
+    IGameModel _model;
+    IGameView _view;
+    IPlayerPresenter _playerPresenter;
+    IObstacleGenerator _obstaclePresenter;
+    /// <summary>
+    /// ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
+    /// </summary>
+    public GamePresenter(Transform parentTransform 
+        ,IGameModel model , IGameView view ,IPlayerPresenter playerPresenter, IObstacleGenerator obstaclePresenter)
     {
-        Bind();
-        Inisalize();
-    }
-    /// <summary>‰Šú‰»‚ğs‚¤</summary>
-    private void Inisalize()
-    {
-        _model.SetGameState(GameFlowState.Inisialize);
+        _parentTransform  = parentTransform;
+        _model = model ;
+        _view = view ;
+        _playerPresenter = playerPresenter;
+        _obstaclePresenter = obstaclePresenter;
     }
     /// <summary>
-    /// ƒoƒCƒ“ƒh
+    /// ãã®ä»–ãƒ¡ãƒ³ãƒå¤‰æ•°
+    /// </summary>
+    CompositeDisposable _disposable;
+    GameObject _deathEffect;
+    /// <summary>
+    ///VContainerã‹ã‚‰PlayerLoop.Initializationã®å‰ã«å‘¼ã°ã‚Œã‚‹
+    /// </summary>
+    public void Initialize()
+    {
+        _disposable = new();
+        Bind();
+    }
+    /// <summary>
+    /// ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’ç”Ÿæˆã™ã‚‹äººã«Disposeã—ã¦ã‚‚ã‚‰ã†.ã€‚
+    /// </summary>
+    public void Dispose()
+    {
+        _disposable.Dispose();
+    }
+    /// <summary>
+    /// ãƒã‚¤ãƒ³ãƒ‰
     /// </summary>
     private void Bind()
     {
-        _obstaclePresenter.AddScore += AddScore;
+        //modelã¨
         _model.GameSpeed
             .Subscribe(
                 x =>
@@ -39,66 +67,97 @@ public class GamePresenter : MonoBehaviour
                     _playerPresenter.SetSpeedRate(x);
                 }
                 )
-            .AddTo(this);
+            .AddTo(_disposable);
 
         _model.Score
             .Subscribe(
-                x => 
+                x =>
                     _view.SetScore(x)
                 )
-            .AddTo(this);
-
+            .AddTo(_disposable);
+        //ã‚²ãƒ¼ãƒ ãƒ•ãƒ­ãƒ¼ã®çŠ¶æ…‹ã«ã‚ˆã‚‹å‘½ä»¤
         _model.GameState
             .Subscribe(
-                x => 
+                x =>
                 {
                     switch (x)
                     {
                         case GameFlowState.InGame:
+                            _model.GameStart();
                             _playerPresenter.GameStart();
                             break;
                         case GameFlowState.Result:
+                            if (_deathEffect != null)
+                            {
+                                Object.Destroy(_deathEffect);
+                                _deathEffect = null;
+                            }
+                            _playerPresenter.Reset();
                             _obstaclePresenter.Reset();
+                            _model.GameStop();
                             _view.ShowResultUI();
                             break;
-                        default: 
+                        default:
                             break;
-                    } 
+                    }
                 })
-            .AddTo(this);
-
-        //_obstaclePresenter.IsHit.Where(x => x == true)
-        //    .Subscribe(
-        //        x => 
-        //        {
-        //            _playerPresenter.GameOver(); 
-        //        })
-        //    .AddTo(this);
+            .AddTo(_disposable);
+        //è¡çªåˆ¤å®š
+        _obstaclePresenter.ObstaclePosition.
+            ObserveReplace()
+            .Where(x => Vector2.Distance(x.NewValue, _playerPresenter.PlayerPosition) < x.Key.ObstacleData.HitRange)
+            .Subscribe(x => HitObstacle(x.Key));
     }
-    private void Update()
+    /// <summary>
+    ///VContainerã‹ã‚‰Updateã®ã‚¿ã‚¤ãƒŸãƒ³ã‚°ã§å‘¼ã°ã‚Œã‚‹
+    /// </summary>
+    public void Tick()
     {
-        if ( _playerPresenter.PlayerState.Value == PlayerCondition.Alive)
+        switch (_playerPresenter.PlayerState.Value)
         {
-            _view.ManualUpdate(Time.deltaTime);
-            _model.AddScore(_scoreRatePerSecond * Time.deltaTime);
-            _model.AddSpeed(_speedUpRate * Time.deltaTime);
-            _obstaclePresenter.UpdateObstacleMove(Time.deltaTime, _model.GameSpeed.Value);
+            case PlayerCondition.Alive:
+                _view.ManualUpdate(Time.deltaTime);
+                _model.ManualUpdate(Time.deltaTime);
+                _obstaclePresenter.UpdateObstacleMove(Time.deltaTime, _model.GameSpeed.Value);
+                break;
+            default:
+                break;
         }
     }
-    public void AddScore(float score)
+    /// <summary>
+    /// è¡çªåˆ¤å®š
+    /// </summary>
+    /// <param name="obstacle"></param>
+    public void HitObstacle(IObstaclePresenter obstacle)
     {
-        _model.AddScore(score);
+        switch (obstacle.ObstacleData.Param.ItemType)
+        {
+            case ObstacleType.Item:
+                _model.AddScore(obstacle.ObstacleData.Score);
+                break;
+            case ObstacleType.Enemy:
+                _playerPresenter.GameOver();
+                _deathEffect = Object.Instantiate(obstacle.ObstacleData.DestroyEffect
+                    , _playerPresenter.PlayerPosition, Quaternion.identity, _parentTransform);
+                break;
+            default:
+                break;
+        }
+        _obstaclePresenter.Release(obstacle);
     }
-    /// <summary>ƒAƒjƒ[ƒVƒ‡ƒ“ƒCƒxƒ“ƒg‚©‚çŒÄ‚Ño‚³‚ê‚éB</summary>
+
+    /// <summary>ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚¤ãƒ™ãƒ³ãƒˆã‹ã‚‰å‘¼ã³å‡ºã•ã‚Œã‚‹ã€‚</summary>
     public void ShowResultScore()
         => _view.ShowResultScore(_model.Score.Value);
-    /// <summary>ƒAƒjƒ[ƒVƒ‡ƒ“ƒCƒxƒ“ƒg‚©‚çŒÄ‚Ño‚³‚ê‚éB</summary>
+    /// <summary>ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚¤ãƒ™ãƒ³ãƒˆã‹ã‚‰å‘¼ã³å‡ºã•ã‚Œã‚‹ã€‚</summary>
     public void ChangeStateToTitle()
-        => _model.SetGameState(GameFlowState.Title);
-    /// <summary>ƒAƒjƒ[ƒVƒ‡ƒ“ƒCƒxƒ“ƒg‚©‚çŒÄ‚Ño‚³‚ê‚éB</summary>
+        => _model.ChangeStateToTitle();
+    /// <summary>ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚¤ãƒ™ãƒ³ãƒˆã‹ã‚‰å‘¼ã³å‡ºã•ã‚Œã‚‹ã€‚</summary>
     public void ChangeStateToInGame()
-        => _model.SetGameState(GameFlowState.InGame);
-    /// <summary>ƒAƒjƒ[ƒVƒ‡ƒ“ƒCƒxƒ“ƒg‚©‚çŒÄ‚Ño‚³‚ê‚éB</summary>
+        => _model.ChangeStateToInGame();
+    /// <summary>ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚¤ãƒ™ãƒ³ãƒˆã‹ã‚‰å‘¼ã³å‡ºã•ã‚Œã‚‹ã€‚</summary>
     public void ChangeStateToResult()
-        => _model.SetGameState(GameFlowState.Result);
+        => _model.ChangeStateToResult();
+
+
 }

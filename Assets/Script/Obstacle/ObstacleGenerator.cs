@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
@@ -6,31 +6,41 @@ using UnityEngine.Pool;
 using System.Linq;
 using VContainer;
 using VContainer.Unity;
+
 public interface IObstacleGenerator 
 {
+    IReadOnlyReactiveDictionary<IObstaclePresenter, Vector2> ObstaclePosition { get; }
     void UpdateObstacleMove(float deltaTime, float speed);
+    void Release(IObstaclePresenter obstaclePresenter);
     void Reset();
 }
-public class ObstacleGenerator : IObstacleGenerator , IStartable
+public class ObstacleGenerator : IObstacleGenerator , IStartable , System.IDisposable
 {
+    Transform _parentTransform;
     float _obstacleMakeDistance;
     float _yFrameOut;
-    Transform _parentTransform;
     ObjectPool<IObstaclePresenter> _obstaclePool;
     Dictionary<IObstaclePresenter,GameObject> _obstacleDataRef = new();
+    public Dictionary<IObstaclePresenter,GameObject> ObstacleDataRef => _obstacleDataRef;
     /// <summary>
-    /// ŸáŠQ•¨‚ğì¬‚·‚é‚Ü‚Å‚Ì‹——£
+    /// æ¬¡éšœå®³ç‰©ã‚’ä½œæˆã™ã‚‹ã¾ã§ã®è·é›¢
     /// </summary>
     float _distance;
-    //GamePresenter‚ÉˆÚs—\’è
-    public System.Action<float> AddScore;
-    [Inject] IPlayerPresenter _player;
+    public readonly ReactiveDictionary<IObstaclePresenter,Vector2> _obstaclePosition = new();
+    public IReadOnlyReactiveDictionary<IObstaclePresenter, Vector2> ObstaclePosition => _obstaclePosition;
+
     [Inject] IObjectResolver _container;
+    
     public ObstacleGenerator(Transform parentTransform , float obstacleMakeDistance, float yFrameOut)
     {
         _parentTransform = parentTransform;
         _obstacleMakeDistance = obstacleMakeDistance;
         _yFrameOut = yFrameOut;
+    }
+    CompositeDisposable _disposable = new();
+    public void Dispose()
+    {
+        _disposable.Dispose();
     }
     public void Start()
     {
@@ -41,50 +51,36 @@ public class ObstacleGenerator : IObstacleGenerator , IStartable
                 var obj = Object.Instantiate(target.ObstacleData.Obstacle, _parentTransform);
                 target.SetTransform(obj.transform);
                 _obstacleDataRef.Add(target , obj);
-                target.Position.Where(x => Vector2.Distance(x , _player.PlayerPosition) < target.ObstacleData.HitRange)
-                        .Subscribe(x => ReleaseObstacle(target));
+                target.Position.Subscribe(x => _obstaclePosition[target] = x).AddTo(_disposable);
                 return target;
-            },// ƒv[ƒ‹‚ª‹ó‚Ì‚Æ‚«‚ÉV‚µ‚¢ƒCƒ“ƒXƒ^ƒ“ƒX‚ğ¶¬‚·‚éˆ—
+            },// ãƒ—ãƒ¼ãƒ«ãŒç©ºã®ã¨ãã«æ–°ã—ã„ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’ç”Ÿæˆã™ã‚‹å‡¦ç†
             actionOnGet: target =>
             {
                 _obstacleDataRef[target].SetActive(true);
-            },// ƒv[ƒ‹‚©‚çæ‚èo‚³‚ê‚½‚Æ‚«‚Ìˆ— 
+            },// ãƒ—ãƒ¼ãƒ«ã‹ã‚‰å–ã‚Šå‡ºã•ã‚ŒãŸã¨ãã®å‡¦ç† 
             actionOnRelease: target =>
             {
                 _obstacleDataRef[target].SetActive(false);
             }
-            ,// ƒv[ƒ‹‚É–ß‚µ‚½‚Æ‚«‚Ìˆ—
+            ,// ãƒ—ãƒ¼ãƒ«ã«æˆ»ã—ãŸã¨ãã®å‡¦ç†
             actionOnDestroy: target =>
             {
                 Object.Destroy(_obstacleDataRef[target]);
                 _obstacleDataRef.Remove(target);
-            }, // ƒv[ƒ‹‚ªmaxSize‚ğ’´‚¦‚½‚Æ‚«‚Ìˆ—
-            collectionCheck: true, // “¯ˆêƒCƒ“ƒXƒ^ƒ“ƒX‚ª“o˜^‚³‚ê‚Ä‚¢‚È‚¢‚©ƒ`ƒFƒbƒN‚·‚é‚©‚Ç‚¤‚©
-            defaultCapacity: 10,   // ƒfƒtƒHƒ‹ƒg‚Ì—e—Ê
+            }, // ãƒ—ãƒ¼ãƒ«ãŒmaxSizeã‚’è¶…ãˆãŸã¨ãã®å‡¦ç†
+            collectionCheck: true, // åŒä¸€ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ãŒç™»éŒ²ã•ã‚Œã¦ã„ãªã„ã‹ãƒã‚§ãƒƒã‚¯ã™ã‚‹ã‹ã©ã†ã‹
+            defaultCapacity: 10,   // ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®å®¹é‡
             maxSize: 100
         );
-        //ˆê‚Â–Ú‚ğì‚Á‚Ä‚¨‚©‚È‚¢‚Æ‰‰ñ¶¬‚ªd‚¢
+        //ä¸€ã¤ç›®ã‚’ä½œã£ã¦ãŠã‹ãªã„ã¨åˆå›ç”ŸæˆãŒé‡ã„
         _obstaclePool.Get(out var obj);
         _obstaclePool.Release(obj);
     }
-    //GamePresenter‚ÉˆÚs—\’è
-    public void ReleaseObstacle(IObstaclePresenter obstacle)
+    public void Release(IObstaclePresenter obstaclePresenter)
     {
-        switch (obstacle.ObstacleData.Param.ItemType)
-        {
-            case ObstacleType.Item:
-                AddScore?.Invoke(obstacle.ObstacleData.Score);
-                break;
-            case ObstacleType.Enemy:
-                _player.GameOver();
-                var obj = Object.Instantiate(obstacle.ObstacleData.DestroyEffect, _player.PlayerPosition,Quaternion.identity, _parentTransform );
-                Object.Destroy(obj , 3f);//GamePresenter‚ÉˆÚs—\’è
-                break;
-            default:
-                break;
-        }
-        _obstaclePool.Release(obstacle);
+        _obstaclePool.Release(obstaclePresenter);
     }
+
     public void Reset()
     {
         foreach (var pair in _obstacleDataRef)
