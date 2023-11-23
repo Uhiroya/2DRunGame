@@ -10,7 +10,7 @@ public interface IGamePresenter
     public void GoTitle();
     public void GameStart();
 }
-public class GamePresenter : IInitializable , IStartable ,ITickable , System.IDisposable, IGamePresenter
+public class GamePresenter : IInitializable  ,ITickable , System.IDisposable, IGamePresenter
 {
     /// <summary>
     /// VContainerで注入される
@@ -156,7 +156,6 @@ public class GamePresenter : IInitializable , IStartable ,ITickable , System.IDi
     public void GoTitle()
     {
         _model.ChangeStateToTitle();
-        _view.TitleStart();
     }
     /// <summary>アニメーションイベントから呼び出される。</summary>
     public void GameStart()
@@ -168,10 +167,5 @@ public class GamePresenter : IInitializable , IStartable ,ITickable , System.IDi
     {
         _model.ChangeStateToResult();
         _view.ShowResultScore(_model.Score.Value);
-    }
-
-    public async void Start()
-    {
-        await _view.TitleStart();
     }
 }

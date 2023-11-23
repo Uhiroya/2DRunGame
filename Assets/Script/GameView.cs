@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
-using UnityEngine.UIElements;
 using Cysharp.Threading.Tasks;
 using MyScriptableObjectClass;
 public interface IGameView
 {
-    UniTask TitleStart();
     void ManualUpdate(float deltaTime);
 
     void SetUVSpeed(float speed);
@@ -41,10 +39,6 @@ public class GameView : IGameView
         _scoreText = scoreText; 
         _resultUIGroup = resultUIGroup;
         _resultScoreText = resultScoreText;
-    }
-    public async UniTask TitleStart()
-    {
-        await UniTask.Delay((int)(_titleAnimationTime * 1000));
     }
     public void ManualUpdate(float deltaTime)
     {
