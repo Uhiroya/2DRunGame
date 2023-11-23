@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UniRx;
@@ -6,6 +6,7 @@ using UnityEngine;
 public interface IPlayerModel
 {
     IReadOnlyReactiveProperty<PlayerCondition> PlayerState { get; }
+    float PlayerHitRange { get; }
     float PositionY { get;}
     IReadOnlyReactiveProperty<float> PositionX { get; }
     void SetPlayerCondition(PlayerCondition condition);
@@ -16,20 +17,26 @@ public interface IPlayerModel
 
 public class PlayerModel : IPlayerModel , IDisposable
 {
-    Transform _transform;
+    
+    Transform _playerTransform;
+    float _playerHitRange = 50f;
     float _defaultSpeed = 500f;
-    private float _speedRate = 1f;
-    private float _positionY;
+
+    float _speedRate;
+    float _positionY;
+    public float PlayerHitRange => _playerHitRange;
     public float PositionY => _positionY ;
-    public readonly ReactiveProperty<float> _positionX;
+    readonly ReactiveProperty<float> _positionX;
     public IReadOnlyReactiveProperty<float> PositionX => _positionX;
-    private readonly ReactiveProperty<PlayerCondition> _playerState;
+    readonly ReactiveProperty<PlayerCondition> _playerState;
     public IReadOnlyReactiveProperty<PlayerCondition> PlayerState => _playerState;
-    public PlayerModel(Transform transform  ,float defaultSpeed)
+    public PlayerModel(Transform playerTransform  , float playerHitRange , float defaultSpeed)
     {
-        _transform = transform;
-        _positionY = _transform.position.y;
+        _playerTransform = playerTransform;
+        _playerHitRange = playerHitRange;
         _defaultSpeed = defaultSpeed;
+
+        _positionY = _playerTransform.position.y;
         _positionX = new(0f);
         _positionX
             .Skip(1)
@@ -52,12 +59,12 @@ public class PlayerModel : IPlayerModel , IDisposable
     }
     public void Move(float x)
     {
-        _transform.position += new Vector3(x * _defaultSpeed * _speedRate, 0f);
-        _positionX.Value = _transform.position.x;
+        _playerTransform.position += new Vector3(x * _defaultSpeed * _speedRate, 0f);
+        _positionX.Value = _playerTransform.position.x;
     }
     public void Reset()
     {
-        _transform.position = new Vector3(InGameConst.WindowWidth / 2, 0f, 0f);
+        _playerTransform.position = new Vector3(InGameConst.WindowWidth / 2, 0f, 0f);
         _positionX.Value = InGameConst.WindowWidth / 2;
         _playerState.Value = 0f;
     }
@@ -66,8 +73,8 @@ public class PlayerModel : IPlayerModel , IDisposable
     /// </summary>
     void ClumpX()
     {
-        var position = _transform.position;
+        var position = _playerTransform.position;
         var clampX = Mathf.Clamp(position.x, InGameConst.GroundXMargin, InGameConst.WindowWidth - InGameConst.GroundXMargin);
-        _transform.position = new Vector2(clampX,position.y);
+        _playerTransform.position = new Vector2(clampX,position.y);
     }
 }

@@ -28,6 +28,7 @@ public class GameLifetimeScope : LifetimeScope
 
     [Header("PlayerModel")]
     [SerializeField] Transform _playerTransform;
+    [SerializeField] float _playerHitRange = 50f;
     [SerializeField] float _defaultSpeed = 500f;
 
     [Header("PlayerView")]
@@ -73,7 +74,8 @@ public class GameLifetimeScope : LifetimeScope
             .WithParameter("image", _backGroundImage);
         builder.RegisterEntryPoint< PlayerPresenter>(Lifetime.Singleton).AsSelf().As<IPlayerPresenter>();
         builder.Register<PlayerModel>(Lifetime.Singleton).As<IPlayerModel>()
-            .WithParameter("transform" , _playerTransform)
+            .WithParameter("playerTransform", _playerTransform)
+            .WithParameter("playerHitRange", _playerHitRange)
             .WithParameter("defaultSpeed" , _defaultSpeed);
         builder.Register<PlayerView>(Lifetime.Singleton).As<IPlayerView>()
             .WithParameter("deadAnimation", _deadAnimation)

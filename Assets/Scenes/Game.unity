@@ -320,11 +320,9 @@ MonoBehaviour:
   _scoreRatePerSecond: 30
   _speedUpRate: 0.01
   _titleAnimation: {fileID: 7400000, guid: 4dfd2194441eb2e45a2cbfb87b64c03f, type: 2}
-  _titleObject: {fileID: 1384479104}
-  _titleTapObject: {fileID: 1529405291}
-  _scoreText: {fileID: 121155834}
   _resultFadeAnimation: {fileID: 7400000, guid: 887b40eb539cd87469ac0115de49e344, type: 2}
   _resultEmphasisAnimation: {fileID: 7400000, guid: dd354d590a1753f4dbd0968eb0332439, type: 2}
+  _scoreText: {fileID: 121155834}
   _resultUIGroup: {fileID: 2030643008}
   _resultScoreText: {fileID: 96632410}
   _countUpTime: 1
@@ -1181,19 +1179,7 @@ MonoBehaviour:
       m_Calls: []
   FinishAnimationEvent:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 175587346}
-        m_TargetAssemblyTypeName: AnimationEventProvider, Assembly-CSharp
-        m_MethodName: OnPlayerDeath
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!58 &923217641
 CircleCollider2D:
   m_ObjectHideFlags: 0
