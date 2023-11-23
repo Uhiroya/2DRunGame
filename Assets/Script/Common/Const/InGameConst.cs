@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,15 +6,15 @@ using UnityEngine;
 public static class InGameConst 
 {
     /// <summary>
-    /// ‰æ–Êc•
+    /// ç”»é¢ç¸¦å¹…
     /// </summary>
     public const float WindowHeight = 1280f;
     /// <summary>
-    /// ‰æ–Ê‰¡•
+    /// ç”»é¢æ¨ªå¹…
     /// </summary>
     public const float WindowWidth = WindowHeight * 9f / 16f ;
     /// <summary>
-    /// Map‰¡•‚Ì—]”’
+    /// Mapæ¨ªå¹…ã®ä½™ç™½
     /// </summary>
     public const float GroundXMargin = WindowWidth * 0.15f;
 

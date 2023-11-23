@@ -1,44 +1,61 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
-[System.Serializable]
-public class GameModel
+using System.Drawing;
+
+public interface IGameModel
 {
+    IReadOnlyReactiveProperty<GameFlowState> GameState { get; }
+    IReadOnlyReactiveProperty<float> GameSpeed { get; }
+    IReadOnlyReactiveProperty<float> Score { get; }
+    void ChangeStateToTitle();
+    void ChangeStateToInGame();
+    void ChangeStateToResult();
+    void ManualUpdate(float deltaTime);
+    void AddScore(float deltaTime);
+    void AddSpeed(float deltaTime);
+    void GameStart();
+    void GameStop();
+}
+public class GameModel : IGameModel
+{
+    float _scoreRatePerSecond;
+    float _speedUpRate;
     private readonly ReactiveProperty<GameFlowState> _gameState;
     public IReadOnlyReactiveProperty<GameFlowState> GameState => _gameState;
     private readonly ReactiveProperty<float> _gameSpeed ;
     public IReadOnlyReactiveProperty<float> GameSpeed => _gameSpeed;
     private readonly ReactiveProperty<float> _score;
     public IReadOnlyReactiveProperty<float> Score => _score;
-    public GameModel()
+    public GameModel(float scoreRatePerSecond, float speedUpRate)
     {
+        _scoreRatePerSecond = scoreRatePerSecond;
+        _speedUpRate = speedUpRate;
         _gameState = new(GameFlowState.Inisialize);
         _gameSpeed = new(0f);
         _score = new(0f);
-        GameState.Where(x => x == GameFlowState.Title || x == GameFlowState.InGame)
-            .Subscribe( x => Reset()).AddTo(_disposable);
-        GameState.Where(x => x == GameFlowState.Result)
-            .Subscribe(x => GameStop()).AddTo(_disposable);
     }
-    CompositeDisposable _disposable = new();
-    ~GameModel()
+    public void ChangeStateToTitle()
+        => _gameState.Value = GameFlowState.Title;
+    public void ChangeStateToInGame()
+        => _gameState.Value = GameFlowState.InGame;
+    public void ChangeStateToResult()
+        => _gameState.Value = GameFlowState.Result;
+    public void ManualUpdate(float deltaTime)
     {
-        _disposable.Dispose();
+        AddScore(deltaTime);
+        AddSpeed(deltaTime);
     }
-    public void SetGameState(GameFlowState state)
+    public void AddScore(float deltaTime)
     {
-        _gameState.Value = state;
+        _score.Value += _scoreRatePerSecond * deltaTime;
     }
-    public void AddScore(float point)
+    public void AddSpeed(float deltaTime)
     {
-        _score.Value += point;
+        _gameSpeed.Value += _speedUpRate * deltaTime; ;
     }
-    public void AddSpeed(float point)
-    {
-        _gameSpeed.Value += point;
-    }
-    public void Reset()
+    public void GameStart()
     {
         _gameSpeed.Value = 0.5f;
         _score.Value = 0f;
@@ -47,14 +64,6 @@ public class GameModel
     {
         _gameSpeed.Value = 0f;
     }
-}
-[System.Serializable]
-public enum GameFlowState
-{
-    None,
-    Inisialize,
-    Title,
-    InGame,
-    Result,
+
 }
 

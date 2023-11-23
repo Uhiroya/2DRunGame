@@ -1,25 +1,28 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
-using UniRx.Triggers;
 using VContainer;
 using VContainer.Unity;
-
+using Cysharp.Threading.Tasks;
 
 public interface IPlayerPresenter
 {
     IReadOnlyReactiveProperty<PlayerCondition> PlayerState { get; }
-    public void Move(float x);
-    public void SetSpeedRate(float speedRate);
-    public void GameStart();
-    public void GameOver();
+    Vector2 PlayerPosition { get;}
+    event System.Action PlayerDeath;
+    void Move(float x);
+    void SetSpeedRate(float speedRate);
+    void Reset();
+    void GameStart();
+    void HitObject();
 
 }
 [RequireComponent(typeof(Rigidbody2D))]
-public class PlayerPresenter : IInitializable , IPlayerPresenter
+public class PlayerPresenter : IInitializable , IPlayerPresenter , System.IDisposable
 {
     public IReadOnlyReactiveProperty<PlayerCondition> PlayerState => _model.PlayerState;
+    public event System.Action PlayerDeath;
+    Vector2 _playerPosition;
+    public Vector2 PlayerPosition => _playerPosition;
     IPlayerModel _model;
     IPlayerView _view;
 
@@ -31,24 +34,37 @@ public class PlayerPresenter : IInitializable , IPlayerPresenter
         _model =  model;
         _view = view;
     }
-    ~PlayerPresenter()
+    public void Dispose()
     {
         _disposable.Dispose();
     }
-    
     public void Initialize()
     {
-        Debug.Log("Initialize");
-        //���͂̎󂯎��
-
         Bind();
     }
 
     public void Bind()
     {
-        _model.PlayerState.Where(x => x == PlayerCondition.Waiting).Subscribe(x => _view.OnWaiting()).AddTo(_disposable);   
-        _model.PlayerState.Where(x => x == PlayerCondition.Alive).Subscribe(x => _view.OnWalk()).AddTo(_disposable);   
-        _model.PlayerState.Where(x => x == PlayerCondition.Dead).Subscribe(x => { _view.OnDead(); _model.Reset(); } ).AddTo(_disposable);   
+        //プレイヤー移動の監視
+        _model.PositionX.Subscribe(x => _playerPosition = new Vector2 (x, _model.PositionY)).AddTo(_disposable);
+        _model.PlayerState.Where(x => x == PlayerCondition.Waiting)
+             .Subscribe(x => _view.OnWaiting())
+             .AddTo(_disposable);
+        _model.PlayerState.Where(x => x == PlayerCondition.Alive)
+            .Subscribe(x => _view.OnWalk())
+            .AddTo(_disposable);   
+
+        _model.PlayerState.Where(x => x == PlayerCondition.OnDead)
+            .Subscribe(async x => 
+            {
+                await _view.OnDead();
+                GameOver();
+            })
+            .AddTo(_disposable);   
+    }
+    public void Reset()
+    {
+        _model.Reset();
     }
     public void Move(float x)
     {
@@ -62,10 +78,12 @@ public class PlayerPresenter : IInitializable , IPlayerPresenter
     {
         _model.SetPlayerCondition(PlayerCondition.Alive);
     }
+    public void HitObject()
+    {
+        _model.SetPlayerCondition(PlayerCondition.OnDead);
+    }
     public void GameOver()
     {
-        _model.SetPlayerCondition(PlayerCondition.Dead);
+        PlayerDeath?.Invoke();
     }
-
-
 }

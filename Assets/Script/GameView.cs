@@ -3,16 +3,49 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
-using UnityEngine.SocialPlatforms.Impl;
+using UnityEngine.UIElements;
+using Cysharp.Threading.Tasks;
 
-[System.Serializable]
-public class GameView
+public interface IGameView
 {
-    [SerializeField] BackGroundController _background;
-    [SerializeField] Text _scoreText;
-    [SerializeField] GameObject _resultUIGroup;
-    [SerializeField] Text _resultScoreText;
-    [SerializeField] float _countUpTime = 1.0f;
+    UniTask TitleStart();
+    void ManualUpdate(float deltaTime);
+
+    void SetUVSpeed(float speed);
+
+    void SetScore(float currentScore);
+
+    void ShowResultUI();
+
+    UniTaskVoid ShowResultScore(float score);
+}
+public class GameView : IGameView
+{
+    float _titleAnimationTime;
+    float _resultAnimationTime;
+    float _countUpTime;
+    IBackGroundController _background;
+    Text _scoreText;
+    GameObject _resultUIGroup;
+    Text _resultScoreText;
+    
+   
+    public GameView(float titleAnimationTime, float resultAnimationTime, float countUpTime
+        ,IBackGroundController background , Text scoreText , GameObject resultUIGroup
+        ,Text resultScoreText)
+    {
+        _titleAnimationTime = titleAnimationTime;
+        _resultAnimationTime = resultAnimationTime;
+        _countUpTime = countUpTime;
+        _background = background;
+        _scoreText = scoreText; 
+        _resultUIGroup = resultUIGroup;
+        _resultScoreText = resultScoreText;
+    }
+    public async UniTask TitleStart()
+    {
+        await UniTask.Delay((int)(_titleAnimationTime * 1000));
+    }
     public void ManualUpdate(float deltaTime)
     {
         _background.ManualUpdate(deltaTime);
@@ -29,11 +62,11 @@ public class GameView
     {
         _resultUIGroup.SetActive(true);
     }
-
-    public void ShowResultScore(float score)
+    public async UniTaskVoid ShowResultScore(float score)
     {
-        //ƒJƒEƒ“ƒgƒAƒbƒvˆ—
-        DOVirtual.Float(
+        await UniTask.Delay((int)(_resultAnimationTime * 1000));
+        //ã‚«ã‚¦ãƒ³ãƒˆã‚¢ãƒƒãƒ—å‡¦ç†
+        await DOVirtual.Float(
             0f,
             score,
             _countUpTime,

@@ -4,36 +4,35 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UIElements;
-[System.Serializable]
-public class ObstacleModel
+public interface IObstacleModel
 {
-    [SerializeField] Transform _transform;
-    [SerializeField] ObstacleType _itemType;
-    [SerializeField, Range(0f, 1f)] float _xMoveRangeRate;
-    [SerializeField] float _xMoveSpeed;
-    [SerializeField] float _yMoveSpeed;
-    [SerializeField] float _score;
-    public ObstacleType ItemType => _itemType;
-    public float Score => _score;
-    public readonly ReactiveProperty<float> PositionX = new(0f);
-    public readonly ReactiveProperty<float> PositionY = new(0f);
+    IReadOnlyReactiveProperty<Vector2> Position { get; }
+    public void SetTransform(Transform transform);
+    public void Set(float posX, float posY);
+    public void Move(float deltaTime, float speed);
+}
+public class ObstacleModel : IObstacleModel
+{
+    Transform _transform;
+    ObstacleParam _obstacleParam;
+    public ObstacleModel(ObstacleParam obstacleParam)
+    {
+        _obstacleParam = obstacleParam;
+    }
+    public readonly ReactiveProperty<Vector2> _position = new(Vector2.zero);
+    public IReadOnlyReactiveProperty<Vector2> Position => _position;
     float _xMoveRange;
     float _defaultPositionX = 0f;
     float _time;
-    public void Set(float posX , float posY)
+    public void SetTransform(Transform transform)
     {
-        SetX(posX);
-        SetY(posY);
+        _transform = transform;
     }
-    public void Move(float deltaTime , float speed)
+    public void Set(float posX, float posY)
     {
-        MoveX(deltaTime, speed);
-        MoveY(deltaTime, speed);
-    }
-    public void SetX(float posX)
-    {
-        _xMoveRange = _xMoveRangeRate * InGameConst.WindowWidth / 2;
-        //áŠQ•¨‚ÌˆÚ“®‹——£‚ªƒ}ƒbƒv‚Éû‚Ü‚é‚æ‚¤‚É§ŒÀ‚·‚éB
+        //SetX
+        _xMoveRange = _obstacleParam.XMoveArea * InGameConst.WindowWidth / 2;
+        //éšœå®³ç‰©ã®ç§»å‹•è·é›¢ãŒãƒãƒƒãƒ—ã«åã¾ã‚‹ã‚ˆã†ã«åˆ¶é™ã™ã‚‹ã€‚
         if (posX - _xMoveRange < InGameConst.GroundXMargin)
         {
             _defaultPositionX = InGameConst.GroundXMargin + _xMoveRange;
@@ -46,32 +45,22 @@ public class ObstacleModel
         {
             _defaultPositionX = posX;
         }
-        _transform.position = new Vector3(posX, _transform.position.y, _transform.position.z);
-        PositionX.Value = posX;  
+        //SetX , SetY
+        var position = new Vector3(posX, posY);
+        _transform.position = position;
+        _position.Value = position;
     }
-    public void SetY(float posY)
+    public void Move(float deltaTime, float speed)
     {
-        _transform.position = new Vector3(_transform.position.x, posY, _transform.position.z);
-        PositionY.Value = _transform.position.y;
-    }
-    public void MoveX(float deltaTime, float speed)
-    {
+        //Xç§»å‹•
         _time += deltaTime;
-        var theta = (_time * speed * _xMoveSpeed) % (Mathf.PI * 2);
+        var theta = (_time * speed * _obstacleParam.XMoveSpeed) % (Mathf.PI * 2);
         var newPos = _defaultPositionX + _xMoveRange * Mathf.Sin(theta);
-        _transform.position = new Vector3(newPos, _transform.position.y, _transform.position.z);
-        PositionX.Value = newPos;
-    }
-    public void MoveY(float deltaTime, float speed)
-    {
-        var moveAmount = deltaTime * speed * InGameConst.WindowHeight;
-        _transform.position -= new Vector3(0f , (moveAmount * _yMoveSpeed), 0f);
-        PositionY.Value = _transform.position.y;
+        //Yç§»å‹•
+        var moveAmount = deltaTime * speed * InGameConst.WindowHeight * _obstacleParam.YMoveSpeed;
+        var position = new Vector3(newPos, _transform.position.y - moveAmount);
+        _transform.position = position;
+        _position.Value = position;
     }
 }
-[System.Serializable]
-public enum ObstacleType
-{
-    Enemy,
-    Item,
-}
+
