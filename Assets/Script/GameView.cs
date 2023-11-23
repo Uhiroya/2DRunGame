@@ -1,12 +1,14 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 using UnityEngine.UIElements;
+using Cysharp.Threading.Tasks;
 
 public interface IGameView
 {
+    UniTask TitleStart();
     void ManualUpdate(float deltaTime);
 
     void SetUVSpeed(float speed);
@@ -15,23 +17,34 @@ public interface IGameView
 
     void ShowResultUI();
 
-    void ShowResultScore(float score);
+    UniTaskVoid ShowResultScore(float score);
 }
 public class GameView : IGameView
 {
+    float _titleAnimationTime;
+    float _resultAnimationTime;
+    float _countUpTime;
     IBackGroundController _background;
     Text _scoreText;
     GameObject _resultUIGroup;
     Text _resultScoreText;
-    float _countUpTime = 1.0f;
-    public GameView(IBackGroundController background , Text scoreText , GameObject resultUIGroup
-        ,Text resultScoreText, float countUpTime)
+    
+   
+    public GameView(float titleAnimationTime, float resultAnimationTime, float countUpTime
+        ,IBackGroundController background , Text scoreText , GameObject resultUIGroup
+        ,Text resultScoreText)
     {
+        _titleAnimationTime = titleAnimationTime;
+        _resultAnimationTime = resultAnimationTime;
+        _countUpTime = countUpTime;
         _background = background;
         _scoreText = scoreText; 
         _resultUIGroup = resultUIGroup;
         _resultScoreText = resultScoreText;
-        _countUpTime = countUpTime;
+    }
+    public async UniTask TitleStart()
+    {
+        await UniTask.Delay((int)(_titleAnimationTime * 1000));
     }
     public void ManualUpdate(float deltaTime)
     {
@@ -49,10 +62,11 @@ public class GameView : IGameView
     {
         _resultUIGroup.SetActive(true);
     }
-    public void ShowResultScore(float score)
+    public async UniTaskVoid ShowResultScore(float score)
     {
+        await UniTask.Delay((int)(_resultAnimationTime * 1000));
         //カウントアップ処理
-        DOVirtual.Float(
+        await DOVirtual.Float(
             0f,
             score,
             _countUpTime,
