@@ -16,11 +16,9 @@ public class GameLifetimeScope : LifetimeScope
 
     [Header("GameView")]
     [SerializeField] AnimationClip _titleAnimation;
-    [SerializeField] GameObject _titleObject;
-    [SerializeField] GameObject _titleTapObject;
-    [SerializeField] Text _scoreText;
     [SerializeField] AnimationClip _resultFadeAnimation;
     [SerializeField] AnimationClip _resultEmphasisAnimation;
+    [SerializeField] Text _scoreText;
     [SerializeField] GameObject _resultUIGroup;
     [SerializeField] Text _resultScoreText;
     [SerializeField] float _countUpTime = 1.0f;
@@ -66,12 +64,10 @@ public class GameLifetimeScope : LifetimeScope
             .WithParameter("speedUpRate", _speedUpRate);
         builder.Register<GameView>(Lifetime.Singleton).AsSelf().As<IGameView>()
             .WithParameter("titleAnimationTime", _titleAnimation.length)
-            .WithParameter("titleObject", _titleObject)
-            .WithParameter("titleTapObject", _titleTapObject)
+            .WithParameter("resultAnimationTime", _resultFadeAnimation.length + _resultEmphasisAnimation.length)
             .WithParameter("scoreText", _scoreText)
             .WithParameter("resultUIGroup", _resultUIGroup)
             .WithParameter("resultScoreText", _resultScoreText)
-            .WithParameter("resultAnimationTime", _resultFadeAnimation.length + _resultEmphasisAnimation.length)
             .WithParameter("countUpTime", _countUpTime);
         builder.Register<BackGroundController>(Lifetime.Singleton).AsSelf().As<IBackGroundController>()
             .WithParameter("image", _backGroundImage);

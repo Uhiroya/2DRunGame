@@ -158,7 +158,6 @@ public class GamePresenter : IInitializable , IStartable ,ITickable , System.IDi
     public void GameStart()
     {
         _model.ChangeStateToInGame();
-        _view.ResetTitleUI();
     }
     /// <summary>アニメーションイベントから呼び出される。</summary>
     public void OnPlayerDeath()

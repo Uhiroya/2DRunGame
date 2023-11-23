@@ -9,7 +9,6 @@ using Cysharp.Threading.Tasks;
 public interface IGameView
 {
     UniTask TitleStart();
-    public void ResetTitleUI();
     void ManualUpdate(float deltaTime);
 
     void SetUVSpeed(float speed);
@@ -23,42 +22,29 @@ public interface IGameView
 public class GameView : IGameView
 {
     float _titleAnimationTime;
-    GameObject _titleObject;
-    GameObject _titleTapObject;
-    Vector3 _titlePosition;
+    float _resultAnimationTime;
+    float _countUpTime;
     IBackGroundController _background;
     Text _scoreText;
     GameObject _resultUIGroup;
     Text _resultScoreText;
-    float _resultAnimationTime;
-    float _countUpTime;
+    
    
-    public GameView(float titleAnimationTime, GameObject titleObject , GameObject titleTapObject ,
-        IBackGroundController background , Text scoreText , GameObject resultUIGroup
-        ,Text resultScoreText, float resultAnimationTime ,float countUpTime)
+    public GameView(float titleAnimationTime, float resultAnimationTime, float countUpTime
+        ,IBackGroundController background , Text scoreText , GameObject resultUIGroup
+        ,Text resultScoreText)
     {
         _titleAnimationTime = titleAnimationTime;
-        _titleObject = titleObject;
-        _titleTapObject = titleTapObject;
+        _resultAnimationTime = resultAnimationTime;
+        _countUpTime = countUpTime;
         _background = background;
         _scoreText = scoreText; 
         _resultUIGroup = resultUIGroup;
         _resultScoreText = resultScoreText;
-        _resultAnimationTime = resultAnimationTime;
-        _countUpTime = countUpTime;
-        _titlePosition = _titleObject.transform.position;
     }
     public async UniTask TitleStart()
     {
-        _titleObject.SetActive(true);
         await UniTask.Delay((int)(_titleAnimationTime * 1000));
-        _titleTapObject.SetActive(true);
-    }
-    public void ResetTitleUI()
-    {
-        _titleObject.SetActive(false);
-        _titleObject.transform.position = _titlePosition;
-        _titleTapObject.SetActive(false);
     }
     public void ManualUpdate(float deltaTime)
     {
