@@ -104,7 +104,11 @@ public class GamePresenter : IInitializable , IStartable ,ITickable , System.IDi
         //衝突判定
         _obstaclePresenter.ObstaclePosition.
             ObserveReplace()
-            .Where(x => Vector2.Distance(x.NewValue, _playerPresenter.PlayerPosition) < x.Key.ObstacleData.HitRange)
+            .Where(x =>
+            {
+                return Vector2.Distance(x.NewValue, _playerPresenter.PlayerPosition) 
+                        < x.Key.ObstacleData.HitRange + _playerPresenter.PlayerHitRange;
+            })
             .Subscribe(x => HitObstacle(x.Key));
 
         _playerPresenter.PlayerDeath += OnPlayerDeath;

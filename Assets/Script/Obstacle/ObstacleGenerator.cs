@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
@@ -6,7 +6,7 @@ using UnityEngine.Pool;
 using System.Linq;
 using VContainer;
 using VContainer.Unity;
-
+using MyScriptableObjectClass;
 public interface IObstacleGenerator 
 {
     IReadOnlyReactiveDictionary<IObstaclePresenter, Vector2> ObstaclePosition { get; }
@@ -17,8 +17,7 @@ public interface IObstacleGenerator
 public class ObstacleGenerator : IObstacleGenerator , IStartable , System.IDisposable
 {
     Transform _parentTransform;
-    float _obstacleMakeDistance;
-    float _yFrameOut;
+    ObstacleGeneratorSetting _obstacleGeneratorSetting;
     ObjectPool<IObstaclePresenter> _obstaclePool;
     Dictionary<IObstaclePresenter,GameObject> _obstacleDataRef = new();
     public Dictionary<IObstaclePresenter,GameObject> ObstacleDataRef => _obstacleDataRef;
@@ -31,11 +30,10 @@ public class ObstacleGenerator : IObstacleGenerator , IStartable , System.IDispo
 
     [Inject] IObjectResolver _container;
     
-    public ObstacleGenerator(Transform parentTransform , float obstacleMakeDistance, float yFrameOut)
+    public ObstacleGenerator( ObstacleGeneratorSetting obstacleGeneratorSetting, Transform parentTransform)
     {
         _parentTransform = parentTransform;
-        _obstacleMakeDistance = obstacleMakeDistance;
-        _yFrameOut = yFrameOut;
+        _obstacleGeneratorSetting = obstacleGeneratorSetting;
     }
     CompositeDisposable _disposable = new();
     public void Dispose()
@@ -95,12 +93,12 @@ public class ObstacleGenerator : IObstacleGenerator , IStartable , System.IDispo
     public void UpdateObstacleMove(float deltaTime, float speed)
     {
         _distance += deltaTime * speed * InGameConst.WindowHeight;
-        if (_distance > _obstacleMakeDistance)
+        if (_distance > _obstacleGeneratorSetting.ObstacleMakePerDistance)
         {
             _obstaclePool.Get(out var obj);
              obj.SetObstacle(
                 Random.Range(InGameConst.GroundXMargin, InGameConst.WindowWidth - InGameConst.GroundXMargin)
-                , InGameConst.WindowHeight + _yFrameOut
+                , InGameConst.WindowHeight + _obstacleGeneratorSetting.ObstacleFrameOutRange
                 );
             _distance = 0;
         }
@@ -110,7 +108,7 @@ public class ObstacleGenerator : IObstacleGenerator , IStartable , System.IDispo
             if (pair.Value.activeSelf)
             {
                 pair.Key.UpdateObstacleMove(deltaTime, speed);
-                if (pair.Value.transform.position.y < -_yFrameOut)
+                if (pair.Value.transform.position.y < -_obstacleGeneratorSetting.ObstacleFrameOutRange)
                 {
                     _obstaclePool.Release(pair.Key);
                 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UIElements;
+using MyScriptableObjectClass;
 public interface IObstacleModel
 {
     IReadOnlyReactiveProperty<Vector2> Position { get; }

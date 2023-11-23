@@ -8,6 +8,7 @@ public interface IPlayerPresenter
 {
     IReadOnlyReactiveProperty<PlayerCondition> PlayerState { get; }
     Vector2 PlayerPosition { get;}
+    float PlayerHitRange { get;}
     event System.Action PlayerDeath;
     void Move(float x);
     void SetSpeedRate(float speedRate);
@@ -19,8 +20,11 @@ public interface IPlayerPresenter
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerPresenter : IInitializable , IPlayerPresenter , System.IDisposable
 {
+
+    
     public IReadOnlyReactiveProperty<PlayerCondition> PlayerState => _model.PlayerState;
     public event System.Action PlayerDeath;
+    public float PlayerHitRange => _model.PlayerHitRange;
     Vector2 _playerPosition;
     public Vector2 PlayerPosition => _playerPosition;
     IPlayerModel _model;

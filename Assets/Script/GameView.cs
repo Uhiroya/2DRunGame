@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using DG.Tweening;
 using UnityEngine.UIElements;
 using Cysharp.Threading.Tasks;
-
+using MyScriptableObjectClass;
 public interface IGameView
 {
     UniTask TitleStart();
@@ -23,20 +23,20 @@ public class GameView : IGameView
 {
     float _titleAnimationTime;
     float _resultAnimationTime;
-    float _countUpTime;
+    GameViewSetting _gameViewSetting;
     IBackGroundController _background;
     Text _scoreText;
     GameObject _resultUIGroup;
     Text _resultScoreText;
     
    
-    public GameView(float titleAnimationTime, float resultAnimationTime, float countUpTime
+    public GameView(GameViewSetting gameViewSetting ,float titleAnimationTime, float resultAnimationTime 
         ,IBackGroundController background , Text scoreText , GameObject resultUIGroup
         ,Text resultScoreText)
     {
+        _gameViewSetting = gameViewSetting;
         _titleAnimationTime = titleAnimationTime;
         _resultAnimationTime = resultAnimationTime;
-        _countUpTime = countUpTime;
         _background = background;
         _scoreText = scoreText; 
         _resultUIGroup = resultUIGroup;
@@ -69,7 +69,7 @@ public class GameView : IGameView
         await DOVirtual.Float(
             0f,
             score,
-            _countUpTime,
+            _gameViewSetting.ResultScoreCountUpTime,
             value => _resultScoreText.text = value.ToString("00000000")
         );
     }

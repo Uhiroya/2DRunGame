@@ -4,15 +4,13 @@ using VContainer;
 using VContainer.Unity;
 using UniRx;
 using UnityEngine.UI;
-
+using MyScriptableObjectClass;
 public class GameLifetimeScope : LifetimeScope
 {
+    [Header("GameSettings")]
+    [SerializeField] GameSettings _gameSettings;
     [Header("GameManager")]
     [SerializeField] ButtonEventProvider _gameManager;
-
-    [Header("GameModel")]
-    [SerializeField] float _scoreRatePerSecond = 30f;
-    [SerializeField] float _speedUpRate = 0.01f;
 
     [Header("GameView")]
     [SerializeField] AnimationClip _titleAnimation;
@@ -21,14 +19,12 @@ public class GameLifetimeScope : LifetimeScope
     [SerializeField] Text _scoreText;
     [SerializeField] GameObject _resultUIGroup;
     [SerializeField] Text _resultScoreText;
-    [SerializeField] float _countUpTime = 1.0f;
 
     [Header("_backGroundController")]
     [SerializeField] RawImage _backGroundImage;
 
     [Header("PlayerModel")]
     [SerializeField] Transform _playerTransform;
-    [SerializeField] float _defaultSpeed = 500f;
 
     [Header("PlayerView")]
     [SerializeField] AnimationClip _deadAnimation;
@@ -36,10 +32,7 @@ public class GameLifetimeScope : LifetimeScope
 
     [Header("ObstacleGenerator")]
     [SerializeField] Transform _obstacleParent;
-    [SerializeField] float _obstacleMakeDistance = 300f;
-    [SerializeField] float _yFrameOut = 100f;
     
-
     [Header("ObstaclePresenter")]
     [SerializeField] ObstacleData _obstacleData;
     ObstacleParam _obstacleParam => _obstacleData.Param;
@@ -60,27 +53,25 @@ public class GameLifetimeScope : LifetimeScope
         builder.RegisterEntryPoint<GamePresenter>(Lifetime.Singleton).AsSelf().As<IGamePresenter>()
             .WithParameter("parentTransform", _obstacleParent);
         builder.Register<GameModel>(Lifetime.Singleton).AsSelf().As<IGameModel>()
-             .WithParameter("scoreRatePerSecond", _scoreRatePerSecond)
-            .WithParameter("speedUpRate", _speedUpRate);
+             .WithParameter("gameModelSetting", _gameSettings.GameModelSetting);
         builder.Register<GameView>(Lifetime.Singleton).AsSelf().As<IGameView>()
+            .WithParameter("gameViewSetting", _gameSettings.GameViewSetting)
             .WithParameter("titleAnimationTime", _titleAnimation.length)
             .WithParameter("resultAnimationTime", _resultFadeAnimation.length + _resultEmphasisAnimation.length)
             .WithParameter("scoreText", _scoreText)
             .WithParameter("resultUIGroup", _resultUIGroup)
-            .WithParameter("resultScoreText", _resultScoreText)
-            .WithParameter("countUpTime", _countUpTime);
+            .WithParameter("resultScoreText", _resultScoreText);       
         builder.Register<BackGroundController>(Lifetime.Singleton).AsSelf().As<IBackGroundController>()
             .WithParameter("image", _backGroundImage);
         builder.RegisterEntryPoint< PlayerPresenter>(Lifetime.Singleton).AsSelf().As<IPlayerPresenter>();
         builder.Register<PlayerModel>(Lifetime.Singleton).As<IPlayerModel>()
-            .WithParameter("transform" , _playerTransform)
-            .WithParameter("defaultSpeed" , _defaultSpeed);
+            .WithParameter("playerModelSetting", _gameSettings.PlayerModelSetting)
+            .WithParameter("playerTransform", _playerTransform);
         builder.Register<PlayerView>(Lifetime.Singleton).As<IPlayerView>()
-            .WithParameter("deadAnimation", _deadAnimation)
+            .WithParameter("deadAnimationTime", _deadAnimation.length)
             .WithParameter("animator", _animator);
         builder.RegisterEntryPoint<ObstacleGenerator>(Lifetime.Singleton).AsSelf().As<IObstacleGenerator>()
-            .WithParameter("obstacleMakeDistance", _obstacleMakeDistance)
-            .WithParameter("yFrameOut", _yFrameOut)
+            .WithParameter("obstacleGeneratorSetting", _gameSettings.ObstacleGeneratorSetting)
             .WithParameter("parentTransform", _obstacleParent);
         builder.Register<ObstaclePresenter>(Lifetime.Transient).AsSelf().As<IObstaclePresenter>()
             .WithParameter("obstacleData", _obstacleData);
