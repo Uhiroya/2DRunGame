@@ -1,11 +1,11 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UniRx.Triggers;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
-
+using MyScriptableObjectClass;
 public interface IObstaclePresenter
 {
     ObstacleData ObstacleData { get; }

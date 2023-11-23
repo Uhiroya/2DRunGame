@@ -1,9 +1,9 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
 using System.Drawing;
-
+using MyScriptableObjectClass;
 public interface IGameModel
 {
     IReadOnlyReactiveProperty<GameFlowState> GameState { get; }
@@ -20,18 +20,16 @@ public interface IGameModel
 }
 public class GameModel : IGameModel
 {
-    float _scoreRatePerSecond;
-    float _speedUpRate;
+    GameModelSetting _gameModelSetting;
     private readonly ReactiveProperty<GameFlowState> _gameState;
     public IReadOnlyReactiveProperty<GameFlowState> GameState => _gameState;
     private readonly ReactiveProperty<float> _gameSpeed ;
     public IReadOnlyReactiveProperty<float> GameSpeed => _gameSpeed;
     private readonly ReactiveProperty<float> _score;
     public IReadOnlyReactiveProperty<float> Score => _score;
-    public GameModel(float scoreRatePerSecond, float speedUpRate)
+    public GameModel(GameModelSetting gameModelSetting)
     {
-        _scoreRatePerSecond = scoreRatePerSecond;
-        _speedUpRate = speedUpRate;
+        _gameModelSetting = gameModelSetting;
         _gameState = new(GameFlowState.Inisialize);
         _gameSpeed = new(0f);
         _score = new(0f);
@@ -49,11 +47,11 @@ public class GameModel : IGameModel
     }
     public void AddScore(float deltaTime)
     {
-        _score.Value += _scoreRatePerSecond * deltaTime;
+        _score.Value += _gameModelSetting.ScoreRatePerSecond * deltaTime;
     }
     public void AddSpeed(float deltaTime)
     {
-        _gameSpeed.Value += _speedUpRate * deltaTime; ;
+        _gameSpeed.Value += _gameModelSetting.SpeedUpRate * deltaTime; ;
     }
     public void GameStart()
     {

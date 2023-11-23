@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
+using MyScriptableObjectClass;
 public interface IPlayerModel
 {
     IReadOnlyReactiveProperty<PlayerCondition> PlayerState { get; }
@@ -19,23 +20,20 @@ public class PlayerModel : IPlayerModel , IDisposable
 {
     
     Transform _playerTransform;
-    float _playerHitRange = 50f;
-    float _defaultSpeed = 500f;
+    PlayerModelSetting _playerModelSetting;
 
     float _speedRate;
     float _positionY;
-    public float PlayerHitRange => _playerHitRange;
+    public float PlayerHitRange => _playerModelSetting.PlayerHitRange;
     public float PositionY => _positionY ;
     readonly ReactiveProperty<float> _positionX;
     public IReadOnlyReactiveProperty<float> PositionX => _positionX;
     readonly ReactiveProperty<PlayerCondition> _playerState;
     public IReadOnlyReactiveProperty<PlayerCondition> PlayerState => _playerState;
-    public PlayerModel(Transform playerTransform  , float playerHitRange , float defaultSpeed)
+    public PlayerModel(PlayerModelSetting playerModelSetting , Transform playerTransform)
     {
         _playerTransform = playerTransform;
-        _playerHitRange = playerHitRange;
-        _defaultSpeed = defaultSpeed;
-
+        _playerModelSetting = playerModelSetting;
         _positionY = _playerTransform.position.y;
         _positionX = new(0f);
         _positionX
@@ -59,7 +57,7 @@ public class PlayerModel : IPlayerModel , IDisposable
     }
     public void Move(float x)
     {
-        _playerTransform.position += new Vector3(x * _defaultSpeed * _speedRate, 0f);
+        _playerTransform.position += new Vector3(x * _playerModelSetting.PlayerDefaultSpeed * _speedRate, 0f);
         _positionX.Value = _playerTransform.position.x;
     }
     public void Reset()

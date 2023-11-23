@@ -12,14 +12,14 @@ public interface IPlayerView
 }
 public class PlayerView : IPlayerView
 {
-    AnimationClip _deadAnimation;
+    float _deadAnimationTime;
     static readonly int _hashWaiting = Animator.StringToHash("Waiting");
     static readonly int _hashWalking = Animator.StringToHash("Walking");
     static readonly int _hashDead = Animator.StringToHash("Dead");
     Animator _animator;
-    public PlayerView(AnimationClip deadAnimation ,Animator animator)
+    public PlayerView(float deadAnimationTime, Animator animator)
     {
-        _deadAnimation = deadAnimation;
+        _deadAnimationTime = deadAnimationTime;
         _animator = animator;
     }
     public void OnWaiting()
@@ -29,6 +29,6 @@ public class PlayerView : IPlayerView
     public async UniTask OnDead()
     {
         _animator.SetTrigger(_hashDead);
-        await UniTask.Delay((int)(_deadAnimation.length * 1000)); 
+        await UniTask.Delay((int)(_deadAnimationTime * 1000)); 
     }
 }
