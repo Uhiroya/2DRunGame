@@ -19,7 +19,11 @@ MonoBehaviour:
     _resultScoreCountUpTime: 1
   _playerModelSetting:
     _playerHitRange: 50
-    _playerDefaultSpeed: 5
+    _playerDefaultSpeed: 4
   _obstacleGeneratorSetting:
+    _obstacleObjects:
+    - {fileID: 11400000, guid: 77b0014605f5ad843a5e9267448e14c9, type: 2}
+    - {fileID: 11400000, guid: 2d212ca450063a344b2659473c09d264, type: 2}
+    - {fileID: 11400000, guid: ade2f12e9716da14f9368b6e9890f8d5, type: 2}
     _obstacleMakePerDistance: 500
     _obstacleFrameOutRange: 30

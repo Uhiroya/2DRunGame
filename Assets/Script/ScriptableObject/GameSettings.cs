@@ -41,8 +41,10 @@ namespace MyScriptableObjectClass
     [System.Serializable]
     public class ObstacleGeneratorSetting
     {
+        [SerializeField] List<ObstacleData> _obstacleObjects;
         [SerializeField] float _obstacleMakePerDistance;
         [SerializeField] float _obstacleFrameOutRange;
+        public List<ObstacleData> ObstacleDataSet => _obstacleObjects;
         public float ObstacleMakePerDistance => _obstacleMakePerDistance;
         public float ObstacleFrameOutRange => _obstacleFrameOutRange;
     }
