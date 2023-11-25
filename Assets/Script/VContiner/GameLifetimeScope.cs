@@ -10,7 +10,7 @@ public class GameLifetimeScope : LifetimeScope
     [Header("GameSettings")]
     [SerializeField] GameSettings _gameSettings;
     [Header("GameManager")]
-    [SerializeField] ButtonEventProvider _gameManager;
+    [SerializeField] GameManager _gameManager;
 
     [Header("GameView")]
     [SerializeField] AnimationClip _titleAnimation;
