@@ -16,61 +16,6 @@ public interface IObstacleGenerator
     void Release(IObstaclePresenter obstaclePresenter);
     void Reset();
 }
-//public class ObstacleObjectPool
-//{
-//    List<GameObject> _pool;
-//    Dictionary<GameObject, IObstaclePresenter> _obstacleDataReference = new();
-//    private readonly System.Func<IObstaclePresenter> _createFunc;
-//    private readonly System.Action<GameObject> _actionOnGet;
-//    private readonly System.Action<GameObject> _actionOnRelease;
-//    private readonly System.Action<GameObject> _actionOnDestroy;
-//    public MyObjectPool(System.Func<IObstaclePresenter> createFunc, System.Action<GameObject> actionOnGet = null, System.Action<GameObject> actionOnRelease = null, System.Action<GameObject> actionOnDestroy = null)
-//    {
-//        _pool = new List<GameObject>();
-//        _createFunc = createFunc;
-//        _actionOnGet = actionOnGet;
-//        _actionOnRelease = actionOnRelease;
-//        _actionOnDestroy = actionOnDestroy;
-//    }
-
-//    public IObstaclePresenter Get(GameObject obj)
-//    {
-//        IObstaclePresenter result;
-//        obj = null;
-//        if (_obstacleDataReference.ContainsKey(obj))
-//        {
-//            obj.SetActive(true);
-//            _obstacleDataReference.TryGetValue(obj ,out result);
-//        }
-//        else
-//        {
-//            result = _createFunc();
-//            _obstacleDataReference.Add(obj,result);
-//        }
-//        _actionOnGet(obj);
-//        return result;
-//    }
-//    public void Release((T instance, GameObject obj) tuple)
-//    {
-//        _pool[tuple.Item1].Enqueue(tuple.Item2);
-//        _actionOnRelease(tuple.Item2);
-//    }
-//    public void Clear()
-//    {
-//        if (_actionOnDestroy != null)
-//        {
-//            foreach (var queues in _pool.Values)
-//            {
-//                foreach (var queue in queues)
-//                {
-//                    _actionOnDestroy(queue);
-//                }
-//            }
-//        }
-//        _pool.Clear();
-//    }
-
-//}
 public class ObstacleGenerator : IObstacleGenerator ,  System.IDisposable
 {
     Transform _parentTransform;
@@ -90,7 +35,7 @@ public class ObstacleGenerator : IObstacleGenerator ,  System.IDisposable
     Dictionary<GameObject , IObstaclePresenter> _obstacleInstanceReference = new();
     Dictionary<IObstaclePresenter ,GameObject> _obstacleInstanceReverseReference = new();
     
-    [Inject] IObjectResolver _container;
+    [Inject] readonly System.Func<ObstacleData , IObstaclePresenter> _obstaclePresenterFactory;
     public ObstacleGenerator(ObstacleGeneratorSetting obstacleGeneratorSetting, Transform parentTransform)
     {
         _parentTransform = parentTransform;
@@ -147,8 +92,7 @@ public class ObstacleGenerator : IObstacleGenerator ,  System.IDisposable
     }
     void BindObstacleReference(GameObject obj ,ObstacleData obstacleData , out IObstaclePresenter target)
     {
-        target = _container.Resolve<IObstaclePresenter>();
-        target.SetObstacleData(obstacleData);
+        target = _obstaclePresenterFactory.Invoke(obstacleData);
         target.SetTransform(obj.transform);
         _obstacleInstanceReference.Add(obj, target);
         _obstacleInstanceReverseReference.Add(target, obj);

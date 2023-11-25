@@ -4,11 +4,9 @@ using UniRx;
 using UniRx.Triggers;
 using UnityEngine;
 using VContainer;
-using VContainer.Unity;
 using MyScriptableObjectClass;
 public interface IObstaclePresenter
 {
-    void SetObstacleData(ObstacleData obstacleData);
     ObstacleData ObstacleData { get; }
     IReadOnlyReactiveProperty<Vector2> Position { get; } 
     void SetTransform(Transform transform);
@@ -19,13 +17,11 @@ public class ObstaclePresenter : IObstaclePresenter
 {
     IObstacleModel _model;
     ObstacleData _obstacleData;
-    public ObstaclePresenter(IObstacleModel model)
-    {
-        _model = model;
-    }
-    public void SetObstacleData(ObstacleData obstacleData)
+    [Inject] readonly System.Func<ObstacleParam, IObstacleModel> _obstacleModelFactory;
+    public ObstaclePresenter(ObstacleData obstacleData)
     {
         _obstacleData = obstacleData;
+        _model = _obstacleModelFactory.Invoke(obstacleData.Param);
     }
     public ObstacleData ObstacleData => _obstacleData;
     public readonly ReactiveProperty<Vector2> _position = new();
