@@ -43,7 +43,7 @@ public class GameLifetimeScope : LifetimeScope
         this.UpdateAsObservable()
              .Where(x => _iPlayerPresenter.PlayerState.Value == PlayerCondition.Alive)
              .Select(x => Input.GetAxis("Horizontal"))
-             .Subscribe(x => { _iPlayerPresenter.Move(x);})
+             .Subscribe(x => { _iPlayerPresenter.SetInputX(x);})
              .AddTo(this);
         
     }
