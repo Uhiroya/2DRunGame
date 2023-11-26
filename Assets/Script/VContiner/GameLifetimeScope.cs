@@ -18,6 +18,7 @@ public class GameLifetimeScope : LifetimeScope
     [SerializeField] AnimationClip _resultEmphasisAnimation;
     [SerializeField] Text _scoreText;
     [SerializeField] GameObject _resultUIGroup;
+    [SerializeField] Text _highScoreText;
     [SerializeField] Text _resultScoreText;
 
     [Header("_backGroundController")]
@@ -60,7 +61,8 @@ public class GameLifetimeScope : LifetimeScope
             .WithParameter("resultAnimationTime", _resultFadeAnimation.length + _resultEmphasisAnimation.length)
             .WithParameter("scoreText", _scoreText)
             .WithParameter("resultUIGroup", _resultUIGroup)
-            .WithParameter("resultScoreText", _resultScoreText);       
+            .WithParameter("resultScoreText", _resultScoreText)       
+            .WithParameter("highScoreText", _highScoreText);       
         builder.Register<BackGroundController>(Lifetime.Singleton).AsSelf().As<IBackGroundController>()
             .WithParameter("image", _backGroundImage);
         builder.RegisterEntryPoint< PlayerPresenter>(Lifetime.Singleton).AsSelf().As<IPlayerPresenter>();

@@ -5,12 +5,14 @@ using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 using Cysharp.Threading.Tasks;
+using UnityEngine.SceneManagement;
+
 public interface IGamePresenter
 {
     public void GoTitle();
     public void GameStart();
 }
-public class GamePresenter : IInitializable  ,ITickable , System.IDisposable, IGamePresenter
+public class GamePresenter : IInitializable ,IStartable ,ITickable , System.IDisposable, IGamePresenter
 {
     /// <summary>
     /// VContainerで注入される
@@ -44,6 +46,10 @@ public class GamePresenter : IInitializable  ,ITickable , System.IDisposable, IG
     {
         _disposable = new();
         Bind();
+    }
+    public void Start()
+    {
+        _model.ChangeStateToTitle();
     }
     /// <summary>
     /// インスタンスを生成する人にDisposeしてもらう.。
@@ -81,6 +87,9 @@ public class GamePresenter : IInitializable  ,ITickable , System.IDisposable, IG
                 {
                     switch (x)
                     {
+                        case GameFlowState.Title:
+                            _view.ShowHighScore(_model.HighScore);
+                            break;
                         case GameFlowState.InGame:
                             _model.GameStart();
                             _playerPresenter.GameStart();
@@ -110,7 +119,6 @@ public class GamePresenter : IInitializable  ,ITickable , System.IDisposable, IG
                         < x.Key.ObstacleData.HitRange + _playerPresenter.PlayerHitRange;
             })
             .Subscribe(x => HitObstacle(x.Key));
-
         _playerPresenter.PlayerDeath += OnPlayerDeath;
     }
     /// <summary>

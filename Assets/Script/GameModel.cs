@@ -9,6 +9,7 @@ public interface IGameModel
     IReadOnlyReactiveProperty<GameFlowState> GameState { get; }
     IReadOnlyReactiveProperty<float> GameSpeed { get; }
     IReadOnlyReactiveProperty<float> Score { get; }
+    float HighScore { get; }
     void ChangeStateToTitle();
     void ChangeStateToInGame();
     void ChangeStateToResult();
@@ -27,19 +28,29 @@ public class GameModel : IGameModel
     public IReadOnlyReactiveProperty<float> GameSpeed => _gameSpeed;
     private readonly ReactiveProperty<float> _score;
     public IReadOnlyReactiveProperty<float> Score => _score;
+    private SaveData _saveData;
+    public float HighScore => _saveData.HighScore;
     public GameModel(GameModelSetting gameModelSetting)
     {
         _gameModelSetting = gameModelSetting;
         _gameState = new(GameFlowState.Inisialize);
         _gameSpeed = new(0f);
         _score = new(0f);
+        SaveDataInterface.JsonLoad(out _saveData);
     }
     public void ChangeStateToTitle()
         => _gameState.Value = GameFlowState.Title;
     public void ChangeStateToInGame()
         => _gameState.Value = GameFlowState.InGame;
     public void ChangeStateToResult()
-        => _gameState.Value = GameFlowState.Result;
+    {
+        _gameState.Value = GameFlowState.Result;
+        if(_saveData.HighScore < Score.Value)
+        {
+            _saveData.HighScore = Score.Value;
+            SaveDataInterface.JsonSave(_saveData);
+        }
+    }
     public void ManualUpdate(float deltaTime)
     {
         AddScore(deltaTime);
