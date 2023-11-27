@@ -18,10 +18,10 @@ public class ObstaclePresenter : IObstaclePresenter
     IObstacleModel _model;
     ObstacleData _obstacleData;
     [Inject] readonly System.Func<ObstacleParam, IObstacleModel> _obstacleModelFactory;
-    public ObstaclePresenter(ObstacleData obstacleData)
+    public ObstaclePresenter(ObstacleData obstacleData , IObstacleModel model)
     {
         _obstacleData = obstacleData;
-        _model = _obstacleModelFactory.Invoke(obstacleData.Param);
+        _model = model;
     }
     public ObstacleData ObstacleData => _obstacleData;
     public readonly ReactiveProperty<Vector2> _position = new();
