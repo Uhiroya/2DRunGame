@@ -9,15 +9,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ea975cc842da5940ba7ea2bdbb1751e, type: 3}
-  m_Name: Bomb Obstacle Data 1
+  m_Script: {fileID: 11500000, guid: e0a6ccc900ac5d546bf92efabedade19, type: 3}
+  m_Name: New Obstacle Data 1
   m_EditorClassIdentifier: 
   _obstacle: {fileID: 3951436707410769295, guid: be6e4760444f27648a565fbfe4417be5, type: 3}
-  _destroyEffect: {fileID: 3242437969426385444, guid: 5ce95eef410467a4cabe3a776dd322ef, type: 3}
-  _hitRange: 60
-  _score: 300
-  _param:
-    _itemType: 2
-    _xMoveArea: 0.764
-    _xMoveSpeed: 3.4
-    _yMoveSpeed: 1
+  _obstacleInfo:
+    _destroyEffect: {fileID: 3242437969426385444, guid: 5ce95eef410467a4cabe3a776dd322ef, type: 3}
+    _itemType: 1
+    _hitRange: 40
+    _score: 0
+  _xMoveArea: 0.481
+  _xMoveSpeed: 0.5
+  _yMoveSpeed: 1

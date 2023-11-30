@@ -21,18 +21,18 @@ public class GamePresenter : IInitializable ,IStartable ,ITickable , System.IDis
     IGameModel _model;
     IGameView _view;
     IPlayerPresenter _playerPresenter;
-    IObstacleGenerator _obstaclePresenter;
+    IObstacleGenerator _obstacleGenerator;
     /// <summary>
     /// コンストラクタ
     /// </summary>
     public GamePresenter(Transform parentTransform 
-        ,IGameModel model , IGameView view ,IPlayerPresenter playerPresenter, IObstacleGenerator obstaclePresenter)
+        ,IGameModel model , IGameView view ,IPlayerPresenter playerPresenter, IObstacleGenerator obstacleGenerator)
     {
         _parentTransform  = parentTransform;
         _model = model ;
         _view = view ;
         _playerPresenter = playerPresenter;
-        _obstaclePresenter = obstaclePresenter;
+        _obstacleGenerator = obstacleGenerator;
     }
     /// <summary>
     /// その他メンバ変数
@@ -101,7 +101,7 @@ public class GamePresenter : IInitializable ,IStartable ,ITickable , System.IDis
                                 _hitEffect = null;
                             }
                             _playerPresenter.Reset();
-                            _obstaclePresenter.Reset();
+                            _obstacleGenerator.Reset();
                             _model.GameStop();
                             _view.ShowResultUI();
                             break;
@@ -111,12 +111,12 @@ public class GamePresenter : IInitializable ,IStartable ,ITickable , System.IDis
                 })
             .AddTo(_disposable);
         //衝突判定
-        _obstaclePresenter.ObstaclePosition.
+        _obstacleGenerator.ObstaclePosition.
             ObserveReplace()
             .Where(x =>
             {
                 return Vector2.Distance(x.NewValue, _playerPresenter.PlayerPosition) 
-                        < x.Key.ObstacleData.HitRange + _playerPresenter.PlayerHitRange;
+                        < x.Key.ObstacleInfo.HitRange + _playerPresenter.PlayerHitRange;
             })
             .Subscribe(x => HitObstacle(x.Key));
         _playerPresenter.PlayerDeath += OnPlayerDeath;
@@ -131,7 +131,7 @@ public class GamePresenter : IInitializable ,IStartable ,ITickable , System.IDis
             case PlayerCondition.Alive:
                 _view.ManualUpdate(Time.deltaTime);
                 _model.ManualUpdate(Time.deltaTime);
-                _obstaclePresenter.UpdateObstacleMove(Time.deltaTime, _model.GameSpeed.Value);
+                _obstacleGenerator.UpdateObstacleMove(Time.deltaTime, _model.GameSpeed.Value);
                 break;
             default:
                 break;
@@ -143,15 +143,15 @@ public class GamePresenter : IInitializable ,IStartable ,ITickable , System.IDis
     /// <param name="obstacle"></param>
     public void HitObstacle(IObstaclePresenter obstacle)
     {
-        _obstaclePresenter.Release(obstacle);
-        switch (obstacle.ObstacleData.Param.ItemType)
+        _obstacleGenerator.Release(obstacle);
+        switch (obstacle.ObstacleInfo.ItemType)
         {
-            case ObstacleType.Item:
-                _model.AddScore(obstacle.ObstacleData.Score);
+            case ItemType.Item:
+                _model.AddScore(obstacle.ObstacleInfo.Score);
                 break;
-            case ObstacleType.Enemy:
+            case ItemType.Enemy:
                 _playerPresenter.HitObject();
-                _hitEffect = Object.Instantiate(obstacle.ObstacleData.DestroyEffect
+                _hitEffect = Object.Instantiate(obstacle.ObstacleInfo.DestroyEffect
                     , _playerPresenter.PlayerPosition, Quaternion.identity, _parentTransform);
                 break;
             default:

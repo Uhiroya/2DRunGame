@@ -15,7 +15,6 @@ public abstract class SingletonMonobehavior<T> : MonoBehaviour where T : Compone
         else
         {
             _instance = this as T;
-            DontDestroyOnLoad(gameObject);
             Initialize();
         }
     }
