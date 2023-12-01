@@ -76,6 +76,6 @@ public class GameLifetimeScope : LifetimeScope
             .WithParameter("obstacleGeneratorSetting", _gameSettings.ObstacleGeneratorSetting)
             .WithParameter("parentTransform", _obstacleParent);
         //builder.RegisterFactory<ObstacleParam, IObstacleModel>(parm => new ObstacleModel(parm));
-        builder.RegisterFactory<ObstacleData, int , IObstaclePresenter>((data , index) => new ObstaclePresenter(new ObstacleModel( data , index)));
+        builder.RegisterFactory<ObstacleData, IObstaclePresenter>((data) => new ObstaclePresenter(new ObstacleModel(data)));
     }
 }

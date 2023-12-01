@@ -22,8 +22,8 @@ MonoBehaviour:
     _playerDefaultSpeed: 15
   _obstacleGeneratorSetting:
     _obstacleObjects:
-    - {fileID: 11400000, guid: 77b0014605f5ad843a5e9267448e14c9, type: 2}
-    - {fileID: 11400000, guid: 2d212ca450063a344b2659473c09d264, type: 2}
-    - {fileID: 11400000, guid: ade2f12e9716da14f9368b6e9890f8d5, type: 2}
+    - {fileID: 11400000, guid: b6e07446a8b27a648933fca0b0101236, type: 2}
+    - {fileID: 11400000, guid: aad717cea47733844ae2d55576127ddd, type: 2}
+    - {fileID: 11400000, guid: eca701b008a6219458a22ad3ee6cca16, type: 2}
     _obstacleMakePerDistance: 500
     _obstacleFrameOutRange: 30

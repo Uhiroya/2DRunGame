@@ -10,7 +10,7 @@ public interface IObstacleModel
     IReadOnlyReactiveProperty<Vector2> Position { get; }
     ObstaclePublicInfo ObstacleInfo { get; }
     int ModelID { get; }
-    int DataIndex { get; }
+    int ObstacleID { get; }
     void SetTransform(Transform transform);
     void Set(float posX, float posY);
     void Move(float deltaTime, float speed);
@@ -19,16 +19,14 @@ public class ObstacleModel : IObstacleModel
 {
     static int _nextModelID = 0;
     int _modelID = 0;
-    int _dataIndex;
     ObstacleData _obstacleData;
     public ObstaclePublicInfo ObstacleInfo => _obstacleData.ObstacleInfo;
     Transform _transform;
     public int ModelID => _modelID;
-    public int DataIndex => _dataIndex;
-    public ObstacleModel(ObstacleData obstacleData , int dataIndex)
+    public int ObstacleID => _obstacleData.ObstacleInfo.ObstacleID;
+    public ObstacleModel(ObstacleData obstacleData)
     {
         _obstacleData = obstacleData;
-        _dataIndex = dataIndex;
         _modelID = _nextModelID;
         _nextModelID ++;
     }

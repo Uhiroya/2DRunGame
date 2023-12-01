@@ -19,7 +19,7 @@ public class ObstacleGenerator : IObstacleGenerator ,  System.IDisposable
     Transform _parentTransform;
     ObstacleGeneratorSetting _obstacleGeneratorSetting;
 
-    [Inject] readonly System.Func<ObstacleData,int ,IObstaclePresenter> _obstaclePresenterFactory;
+    [Inject] readonly System.Func<ObstacleData ,IObstaclePresenter> _obstaclePresenterFactory;
     public ObstacleGenerator(ObstacleGeneratorSetting obstacleGeneratorSetting, Transform parentTransform)
     {
         _parentTransform = parentTransform;
@@ -53,7 +53,7 @@ public class ObstacleGenerator : IObstacleGenerator ,  System.IDisposable
     public IReadOnlyReactiveDictionary<IObstaclePresenter, Vector2> ObstaclePosition => _obstaclePosition;
     public void Release(IObstaclePresenter obstaclePresenter)
     {
-        _objectPool[obstaclePresenter.DataIndex]
+        _objectPool[obstaclePresenter.ObstacleID]
             .Release(_instanceReverseReference[obstaclePresenter.ModelID]);
     }
 
@@ -63,7 +63,7 @@ public class ObstacleGenerator : IObstacleGenerator ,  System.IDisposable
         {
             if (pair.Key.activeSelf)
             {
-                _objectPool[_presenterReference[pair.Value].DataIndex].Release(pair.Key);
+                _objectPool[_presenterReference[pair.Value].ObstacleID].Release(pair.Key);
             }
         }
         _distance = 0f;
@@ -76,13 +76,16 @@ public class ObstacleGenerator : IObstacleGenerator ,  System.IDisposable
         {
             GameObject obj;
             IObstaclePresenter presenter;
-            var obstacleDataIndex = Random.Range(0, _obstacleDataSet.Count());
-            if (_objectPool.ContainsKey(obstacleDataIndex))
+            var ramdomIndex = Random.Range(0, _obstacleDataSet.Count());
+            //修正予定。
+            ObstacleData obstacleData = _obstacleDataSet[ramdomIndex];
+            var obstacleID = obstacleData.ObstacleInfo.ObstacleID;
+            if (_objectPool.ContainsKey(obstacleID))
             {
-                _objectPool[obstacleDataIndex].Get(out obj);
+                _objectPool[obstacleID].Get(out obj);
                 if (!_instanceReference.ContainsKey(obj))
                 {
-                    BindObstacleReference(obj, obstacleDataIndex, out presenter);
+                    BindObstacleReference(obj, obstacleData, out presenter);
                     presenter.Position
                         .Subscribe(x => _obstaclePosition[presenter] = x).AddTo(_disposable);
                 }
@@ -93,9 +96,9 @@ public class ObstacleGenerator : IObstacleGenerator ,  System.IDisposable
             }
             else
             {
-                _objectPool.Add(obstacleDataIndex, InisializeObjectPool(obstacleDataIndex));
-                _objectPool[obstacleDataIndex].Get(out obj);
-                BindObstacleReference(obj, obstacleDataIndex, out presenter);
+                _objectPool.Add(obstacleID, InisializeObjectPool(obstacleData));
+                _objectPool[obstacleID].Get(out obj);
+                BindObstacleReference(obj, obstacleData, out presenter);
                 presenter.Position.Subscribe(x => _obstaclePosition[presenter] = x).AddTo(_disposable);
             }
 
@@ -114,14 +117,14 @@ public class ObstacleGenerator : IObstacleGenerator ,  System.IDisposable
                 _presenterReference[pair.Value].UpdateObstacleMove(deltaTime, speed);
                 if (pair.Key.transform.position.y < -_obstacleGeneratorSetting.ObstacleFrameOutRange)
                 {
-                    _objectPool[_presenterReference[pair.Value].DataIndex].Release(pair.Key);
+                    _objectPool[_presenterReference[pair.Value].ObstacleID].Release(pair.Key);
                 }
             }
         }
     }
-    ObjectPool<GameObject> InisializeObjectPool(int obstacleDataIndex)
+    ObjectPool<GameObject> InisializeObjectPool(ObstacleData obstacleData)
     {
-        var target = _obstacleDataSet[obstacleDataIndex];
+        var target = obstacleData;
         var obstaclePool = new ObjectPool<GameObject>(
             createFunc: () =>
             {
@@ -146,9 +149,9 @@ public class ObstacleGenerator : IObstacleGenerator ,  System.IDisposable
         obstaclePool.Release(obj);
         return obstaclePool;
     }
-    void BindObstacleReference(GameObject obj, int obstacleDataIndex, out IObstaclePresenter presenter)
+    void BindObstacleReference(GameObject obj, ObstacleData obstacleData, out IObstaclePresenter presenter)
     {
-        presenter = _obstaclePresenterFactory.Invoke(_obstacleDataSet[obstacleDataIndex] , obstacleDataIndex);
+        presenter = _obstaclePresenterFactory.Invoke(obstacleData);
         presenter.SetTransform(obj.transform);
         int presenterID = presenter.ModelID;
         _presenterReference.Add(presenterID, presenter);

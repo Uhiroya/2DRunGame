@@ -27,11 +27,12 @@ namespace MyScriptableObjectClass
     {
         //GeneratorのRelease関数呼び出しで出現させたい。
         [SerializeField] GameObject _destroyEffect;
+        [SerializeField] int _obstacleID;
         [SerializeField] ItemType _itemType;
         [SerializeField] float _hitRange;
         [SerializeField] float _score;
-
         public GameObject DestroyEffect => _destroyEffect;
+        public int ObstacleID => _obstacleID;
         public ItemType ItemType => _itemType;
         public float HitRange => _hitRange;
         public float Score => _score;

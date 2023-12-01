@@ -8,7 +8,7 @@ using MyScriptableObjectClass;
 public interface IObstaclePresenter
 {
     int ModelID { get; }
-    int DataIndex { get; }
+    int ObstacleID { get; }
     ObstaclePublicInfo ObstacleInfo { get; }
     IReadOnlyReactiveProperty<Vector2> Position { get; } 
     void SetTransform(Transform transform);
@@ -24,7 +24,7 @@ public class ObstaclePresenter : IObstaclePresenter
         _model = model;
     }
     public int ModelID => _model.ModelID;
-    public int DataIndex => _model.DataIndex;
+    public int ObstacleID => _model.ObstacleID;
     public readonly ReactiveProperty<Vector2> _position = new();
     public IReadOnlyReactiveProperty<Vector2> Position => _position;
     public void SetTransform(Transform transform)
