@@ -39,7 +39,7 @@ public class ObstacleGenerator : IObstacleGenerator ,  System.IDisposable
     /// <summary>
     /// Obstacleの種類毎のオブジェクトプール
     /// </summary>
-    ///<param name = "name" > ObstacleDataSetのIndex </ param >
+    ///<param name = "name" > ObstacleID </ param >
     Dictionary<int, ObjectPool<GameObject>> _objectPool = new();
     /// <summary>
     /// ObstaclePresenter(Model)のユニークIDとの参照関係
