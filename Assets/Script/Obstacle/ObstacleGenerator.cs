@@ -7,112 +7,98 @@ using System.Linq;
 using VContainer;
 using VContainer.Unity;
 using MyScriptableObjectClass;
-public interface IObstacleGenerator 
+public interface IObstacleGenerator
 {
-    IReadOnlyReactiveDictionary<IObstaclePresenter, Vector2> ObstaclePosition { get; }
-    void UpdateObstacleMove(float deltaTime, float speed);
-    void Release(IObstaclePresenter obstaclePresenter);
-    void Reset();
+    public void ReleaseObstacle(IObstaclePresenter presenter);
+    GameObject GetObstacle(ObstacleData obstacleData, out IObstaclePresenter presenter);
 }
-public class ObstacleGenerator : IObstacleGenerator , IStartable , System.IDisposable
+public class ObstacleGenerator : IObstacleGenerator, System.IDisposable
 {
     Transform _parentTransform;
-    ObstacleGeneratorSetting _obstacleGeneratorSetting;
-    ObjectPool<IObstaclePresenter> _obstaclePool;
-    Dictionary<IObstaclePresenter,GameObject> _obstacleDataRef = new();
-    public Dictionary<IObstaclePresenter,GameObject> ObstacleDataRef => _obstacleDataRef;
-    /// <summary>
-    /// 次障害物を作成するまでの距離
-    /// </summary>
-    float _distance;
-    public readonly ReactiveDictionary<IObstaclePresenter,Vector2> _obstaclePosition = new();
-    public IReadOnlyReactiveDictionary<IObstaclePresenter, Vector2> ObstaclePosition => _obstaclePosition;
 
-    [Inject] IObjectResolver _container;
-    
-    public ObstacleGenerator( ObstacleGeneratorSetting obstacleGeneratorSetting, Transform parentTransform)
+    [Inject] readonly System.Func<ObstacleData, IObstaclePresenter> _obstaclePresenterFactory;
+    public ObstacleGenerator(Transform parentTransform)
     {
         _parentTransform = parentTransform;
-        _obstacleGeneratorSetting = obstacleGeneratorSetting;
     }
     CompositeDisposable _disposable = new();
     public void Dispose()
     {
         _disposable.Dispose();
     }
-    public void Start()
+    /// <summary>
+    /// Obstacleの種類毎のオブジェクトプール
+    /// </summary>
+    ///<param name = "name" > ObstacleID </ param >
+    Dictionary<int, ObjectPool<GameObject>> _objectPool = new();
+    Dictionary<GameObject, IObstaclePresenter> _objectToPresenterReference = new();
+    Dictionary<IObstaclePresenter , GameObject> _presenterToObjectReference = new();
+    /// <summary>
+    /// オブジェクトプールの初期化
+    /// </summary>
+    /// <param name="obstacleData"></param>
+    /// <returns></returns>
+    ObjectPool<GameObject> InisializeObjectPool(ObstacleData obstacleData)
     {
-        _obstaclePool = new(
+        var target = obstacleData;
+        var obstaclePool = new ObjectPool<GameObject>(
             createFunc: () =>
             {
-                var target = _container.Resolve<IObstaclePresenter>();
-                var obj = Object.Instantiate(target.ObstacleData.Obstacle, _parentTransform);
-                target.SetTransform(obj.transform);
-                _obstacleDataRef.Add(target , obj);
-                target.Position.Subscribe(x => _obstaclePosition[target] = x).AddTo(_disposable);
-                return target;
+                return Object.Instantiate(target.Obstacle, _parentTransform);
             },// プールが空のときに新しいインスタンスを生成する処理
             actionOnGet: target =>
             {
-                _obstacleDataRef[target].SetActive(true);
+                target.SetActive(true);
             },// プールから取り出されたときの処理 
             actionOnRelease: target =>
             {
-                _obstacleDataRef[target].SetActive(false);
+                target.SetActive(false);
             }
             ,// プールに戻したときの処理
             actionOnDestroy: target =>
             {
-                Object.Destroy(_obstacleDataRef[target]);
-                _obstacleDataRef.Remove(target);
-            }, // プールがmaxSizeを超えたときの処理
-            collectionCheck: true, // 同一インスタンスが登録されていないかチェックするかどうか
-            defaultCapacity: 10,   // デフォルトの容量
-            maxSize: 100
+                ReleaseObstacle(_objectToPresenterReference[target]);
+                Object.Destroy(target);
+            } // プールがmaxSizeを超えたときの処理
         );
         //一つ目を作っておかないと初回生成が重い
-        _obstaclePool.Get(out var obj);
-        _obstaclePool.Release(obj);
+        obstaclePool.Get(out var obj);
+        obstaclePool.Release(obj);
+        return obstaclePool;
     }
-    public void Release(IObstaclePresenter obstaclePresenter)
+    public void ReleaseObstacle(IObstaclePresenter presenter)
     {
-        _obstaclePool.Release(obstaclePresenter);
+        _objectPool[presenter.ObstacleID]
+            .Release(_presenterToObjectReference[presenter]);
     }
-
-    public void Reset()
+    public GameObject GetObstacle(ObstacleData obstacleData , out IObstaclePresenter presenter)
     {
-        foreach (var pair in _obstacleDataRef)
+        GameObject obj;
+        if (_objectPool.ContainsKey(obstacleData.ObstacleID))
         {
-            if (pair.Value.activeSelf)
+            _objectPool[obstacleData.ObstacleID].Get(out obj);
+            if (!_objectToPresenterReference.ContainsKey(obj))
             {
-                _obstaclePool.Release(pair.Key);
+                MakePresenter(obj, obstacleData, out presenter);
+            }
+            else
+            {
+                presenter = _objectToPresenterReference[obj];
             }
         }
-        _distance = 0f;
+        else
+        {
+            _objectPool.Add(obstacleData.ObstacleID, InisializeObjectPool(obstacleData));
+            _objectPool[obstacleData.ObstacleID].Get(out obj);
+            MakePresenter(obj, obstacleData, out presenter);
+        }
+        return obj;
     }
-    public void UpdateObstacleMove(float deltaTime, float speed)
+    void MakePresenter(GameObject obj, ObstacleData obstacleData, out IObstaclePresenter presenter)
     {
-        _distance += deltaTime * speed * InGameConst.WindowHeight;
-        if (_distance > _obstacleGeneratorSetting.ObstacleMakePerDistance)
-        {
-            _obstaclePool.Get(out var obj);
-             obj.SetObstacle(
-                Random.Range(InGameConst.GroundXMargin, InGameConst.WindowWidth - InGameConst.GroundXMargin)
-                , InGameConst.WindowHeight + _obstacleGeneratorSetting.ObstacleFrameOutRange
-                );
-            _distance = 0;
-        }
-
-        foreach (var pair in _obstacleDataRef)
-        {
-            if (pair.Value.activeSelf)
-            {
-                pair.Key.UpdateObstacleMove(deltaTime, speed);
-                if (pair.Value.transform.position.y < -_obstacleGeneratorSetting.ObstacleFrameOutRange)
-                {
-                    _obstaclePool.Release(pair.Key);
-                }
-            }
-        }
+        presenter = _obstaclePresenterFactory.Invoke(obstacleData);
+        presenter.SetTransform(obj.transform);
+        _objectToPresenterReference.Add(obj, presenter);
+        _presenterToObjectReference.Add(presenter, obj);
     }
 }

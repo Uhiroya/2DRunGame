@@ -8,31 +8,41 @@ using MyScriptableObjectClass;
 public interface IObstacleModel
 {
     IReadOnlyReactiveProperty<Vector2> Position { get; }
-    public void SetTransform(Transform transform);
-    public void Set(float posX, float posY);
-    public void Move(float deltaTime, float speed);
+    ObstaclePublicInfo ObstacleInfo { get; }
+    int ModelID { get; }
+    int ObstacleID { get; }
+    void SetTransform(Transform transform);
+    void Set(float posX, float posY);
+    void Move(float deltaTime, float speed);
 }
 public class ObstacleModel : IObstacleModel
 {
+    static int _nextModelID = 0;
+    int _modelID = 0;
+    ObstacleData _obstacleData;
+    public ObstaclePublicInfo ObstacleInfo => _obstacleData.ObstacleInfo;
     Transform _transform;
-    ObstacleParam _obstacleParam;
-    public ObstacleModel(ObstacleParam obstacleParam)
+    public int ModelID => _modelID;
+    public int ObstacleID => _obstacleData.ObstacleID;
+    public ObstacleModel(ObstacleData obstacleData)
     {
-        _obstacleParam = obstacleParam;
+        _obstacleData = obstacleData;
+        _modelID = _nextModelID;
+        _nextModelID ++;
+    }
+    public void SetTransform(Transform transform)
+    {
+        _transform = transform;
     }
     public readonly ReactiveProperty<Vector2> _position = new(Vector2.zero);
     public IReadOnlyReactiveProperty<Vector2> Position => _position;
     float _xMoveRange;
     float _defaultPositionX = 0f;
     float _time;
-    public void SetTransform(Transform transform)
-    {
-        _transform = transform;
-    }
     public void Set(float posX, float posY)
     {
         //SetX
-        _xMoveRange = _obstacleParam.XMoveArea * InGameConst.WindowWidth / 2;
+        _xMoveRange = (_obstacleData.XMoveArea) * (InGameConst.WindowWidth - InGameConst.GroundXMargin * 2) / 2;
         //障害物の移動距離がマップに収まるように制限する。
         if (posX - _xMoveRange < InGameConst.GroundXMargin)
         {
@@ -55,10 +65,10 @@ public class ObstacleModel : IObstacleModel
     {
         //X移動
         _time += deltaTime;
-        var theta = (_time * speed * _obstacleParam.XMoveSpeed) % (Mathf.PI * 2);
+        var theta = (_time * speed * _obstacleData.XMoveSpeed) % (Mathf.PI * 2);
         var newPos = _defaultPositionX + _xMoveRange * Mathf.Sin(theta);
         //Y移動
-        var moveAmount = deltaTime * speed * InGameConst.WindowHeight * _obstacleParam.YMoveSpeed;
+        var moveAmount = deltaTime * speed * InGameConst.WindowHeight * _obstacleData.YMoveSpeed;
         var position = new Vector3(newPos, _transform.position.y - moveAmount);
         _transform.position = position;
         _position.Value = position;

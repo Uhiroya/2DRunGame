@@ -1,4 +1,3 @@
-[System.Serializable]
 public enum GameFlowState
 {
     None,
@@ -7,7 +6,6 @@ public enum GameFlowState
     InGame,
     Result,
 }
-[System.Serializable]
 public enum PlayerCondition
 {
     None,
@@ -16,8 +14,7 @@ public enum PlayerCondition
     OnDead,
     Dead,
 }
-[System.Serializable]
-public enum ObstacleType
+public enum ItemType
 {
     None,
     Enemy,

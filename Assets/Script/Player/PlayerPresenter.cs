@@ -7,10 +7,12 @@ using Cysharp.Threading.Tasks;
 public interface IPlayerPresenter
 {
     IReadOnlyReactiveProperty<PlayerCondition> PlayerState { get; }
+    
     Vector2 PlayerPosition { get;}
     float PlayerHitRange { get;}
     event System.Action PlayerDeath;
-    void Move(float x);
+    void SetInputX(float x);
+    
     void SetSpeedRate(float speedRate);
     void Reset();
     void GameStart();
@@ -18,10 +20,8 @@ public interface IPlayerPresenter
 
 }
 [RequireComponent(typeof(Rigidbody2D))]
-public class PlayerPresenter : IInitializable , IPlayerPresenter , System.IDisposable
+public class PlayerPresenter : IInitializable , IFixedTickable , IPlayerPresenter , System.IDisposable
 {
-
-    
     public IReadOnlyReactiveProperty<PlayerCondition> PlayerState => _model.PlayerState;
     public event System.Action PlayerDeath;
     public float PlayerHitRange => _model.PlayerHitRange;
@@ -31,6 +31,7 @@ public class PlayerPresenter : IInitializable , IPlayerPresenter , System.IDispo
     IPlayerView _view;
 
     CompositeDisposable _disposable;
+    float _currentInputX;
     [Inject]
     public PlayerPresenter(IPlayerModel model , IPlayerView view)
     {
@@ -45,6 +46,18 @@ public class PlayerPresenter : IInitializable , IPlayerPresenter , System.IDispo
     public void Initialize()
     {
         Bind();
+    }
+    public void FixedTick()
+    {
+        switch (_model.PlayerState.Value)
+        {
+            case PlayerCondition.Alive:
+                _model.Move(_currentInputX);
+                break;
+            default: 
+                break;
+        }
+        
     }
 
     public void Bind()
@@ -70,9 +83,9 @@ public class PlayerPresenter : IInitializable , IPlayerPresenter , System.IDispo
     {
         _model.Reset();
     }
-    public void Move(float x)
+    public void SetInputX(float x)
     {
-        _model.Move(x);
+        _currentInputX = x;
     }
     public void SetSpeedRate(float speedRate)
     {
@@ -90,4 +103,6 @@ public class PlayerPresenter : IInitializable , IPlayerPresenter , System.IDispo
     {
         PlayerDeath?.Invoke();
     }
+
+
 }
