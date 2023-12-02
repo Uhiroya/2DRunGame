@@ -147,7 +147,7 @@ public class GamePresenter : IInitializable ,IStartable ,ITickable , System.IDis
         switch (obstacle.ObstacleInfo.ItemType)
         {
             case ItemType.Item:
-                _model.AddScore(obstacle.ObstacleInfo.Score);
+                _model.AddItemScore(obstacle.ObstacleInfo.Score);
                 break;
             case ItemType.Enemy:
                 _playerPresenter.HitObject();

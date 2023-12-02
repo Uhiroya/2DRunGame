@@ -14,6 +14,7 @@ public interface IObstacleManager
     IReadOnlyReactiveDictionary<IObstaclePresenter, Vector2> ObstaclePosition { get; }
     void UpdateObstacleMove(float deltaTime, float speed);
     void ObstacleSetInitializePosition(in IObstaclePresenter presenter);
+    void HitObstacle(in IObstaclePresenter presenter);
     void Reset();
 }
 public class ObstacleManager : IObstacleManager ,  System.IDisposable
@@ -93,6 +94,10 @@ public class ObstacleManager : IObstacleManager ,  System.IDisposable
             , InGameConst.WindowHeight + _obstacleGeneratorSetting.ObstacleFrameOutRange
             );
     }
+    public void HitObstacle(in IObstaclePresenter presenter)
+    {
+        presenter.SetObstacle( 0f, -_obstacleGeneratorSetting.ObstacleFrameOutRange);
+    }
     void ReleaseObstacle(IObstaclePresenter presenter)
     {
         _obstacleGenerator.ReleaseObstacle(presenter);
@@ -108,5 +113,7 @@ public class ObstacleManager : IObstacleManager ,  System.IDisposable
     {
         _disposable.Dispose();
     }
+
+
 }
 

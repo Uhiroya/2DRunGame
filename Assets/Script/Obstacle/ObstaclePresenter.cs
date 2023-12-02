@@ -18,11 +18,14 @@ public interface IObstaclePresenter
 public class ObstaclePresenter : IObstaclePresenter
 {
     IObstacleModel _model;
+    IObstacleView _view;
     public ObstaclePublicInfo ObstacleInfo => _model.ObstacleInfo;
-    public ObstaclePresenter(IObstacleModel model)
+    public ObstaclePresenter(IObstacleModel model , IObstacleView view)
     {
         _model = model;
+        _view = view;
     }
+
     public int ModelID => _model.ModelID;
     public int ObstacleID => _model.ObstacleID;
     public readonly ReactiveProperty<Vector2> _position = new();

@@ -7,12 +7,10 @@ using Cysharp.Threading.Tasks;
 public interface IPlayerPresenter
 {
     IReadOnlyReactiveProperty<PlayerCondition> PlayerState { get; }
-    
     Vector2 PlayerPosition { get;}
     float PlayerHitRange { get;}
     event System.Action PlayerDeath;
     void SetInputX(float x);
-    
     void SetSpeedRate(float speedRate);
     void Reset();
     void GameStart();

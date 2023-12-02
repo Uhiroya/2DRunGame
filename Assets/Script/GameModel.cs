@@ -14,7 +14,8 @@ public interface IGameModel
     void ChangeStateToInGame();
     void ChangeStateToResult();
     void ManualUpdate(float deltaTime);
-    void AddScore(float deltaTime);
+    void AddDistanceScore(float deltaTime);
+    void AddItemScore(float score);
     void AddSpeed(float deltaTime);
     void GameStart();
     void GameStop();
@@ -53,12 +54,16 @@ public class GameModel : IGameModel
     }
     public void ManualUpdate(float deltaTime)
     {
-        AddScore(deltaTime);
+        AddDistanceScore(deltaTime);
         AddSpeed(deltaTime);
     }
-    public void AddScore(float deltaTime)
+    public void AddDistanceScore(float deltaTime)
     {
         _score.Value += _gameModelSetting.ScoreRatePerSecond * deltaTime;
+    }
+    public void AddItemScore(float score)
+    {
+        _score.Value += score;
     }
     public void AddSpeed(float deltaTime)
     {
