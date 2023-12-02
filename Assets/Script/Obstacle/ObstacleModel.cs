@@ -23,7 +23,7 @@ public class ObstacleModel : IObstacleModel
     public ObstaclePublicInfo ObstacleInfo => _obstacleData.ObstacleInfo;
     Transform _transform;
     public int ModelID => _modelID;
-    public int ObstacleID => _obstacleData.ObstacleInfo.ObstacleID;
+    public int ObstacleID => _obstacleData.ObstacleID;
     public ObstacleModel(ObstacleData obstacleData)
     {
         _obstacleData = obstacleData;

@@ -7,121 +7,37 @@ using System.Linq;
 using VContainer;
 using VContainer.Unity;
 using MyScriptableObjectClass;
-public interface IObstacleGenerator 
+public interface IObstacleGenerator
 {
-    IReadOnlyReactiveDictionary<IObstaclePresenter, Vector2> ObstaclePosition { get; }
-    void UpdateObstacleMove(float deltaTime, float speed);
-    void Release(IObstaclePresenter obstaclePresenter);
-    void Reset();
+    public void ReleaseObstacle(IObstaclePresenter presenter);
+    GameObject GetObstacle(ObstacleData obstacleData, out IObstaclePresenter presenter);
 }
-public class ObstacleGenerator : IObstacleGenerator ,  System.IDisposable
+public class ObstacleGenerator : IObstacleGenerator, System.IDisposable
 {
     Transform _parentTransform;
-    ObstacleGeneratorSetting _obstacleGeneratorSetting;
 
-    [Inject] readonly System.Func<ObstacleData ,IObstaclePresenter> _obstaclePresenterFactory;
-    public ObstacleGenerator(ObstacleGeneratorSetting obstacleGeneratorSetting, Transform parentTransform)
+    [Inject] readonly System.Func<ObstacleData, IObstaclePresenter> _obstaclePresenterFactory;
+    public ObstacleGenerator(Transform parentTransform)
     {
         _parentTransform = parentTransform;
-        _obstacleGeneratorSetting = obstacleGeneratorSetting;
     }
     CompositeDisposable _disposable = new();
     public void Dispose()
     {
         _disposable.Dispose();
     }
-
-    /// <summary>
-    /// 次障害物を作成するまでの距離
-    /// </summary>
-    float _distance;
-    List<ObstacleData> _obstacleDataSet => _obstacleGeneratorSetting.ObstacleDataSet;
     /// <summary>
     /// Obstacleの種類毎のオブジェクトプール
     /// </summary>
     ///<param name = "name" > ObstacleID </ param >
     Dictionary<int, ObjectPool<GameObject>> _objectPool = new();
+    Dictionary<GameObject, IObstaclePresenter> _objectToPresenterReference = new();
+    Dictionary<IObstaclePresenter , GameObject> _presenterToObjectReference = new();
     /// <summary>
-    /// ObstaclePresenter(Model)のユニークIDとの参照関係
+    /// オブジェクトプールの初期化
     /// </summary>
-    Dictionary<int, IObstaclePresenter> _presenterReference = new();
-    Dictionary<GameObject , int> _instanceReference = new();
-    Dictionary<int ,GameObject> _instanceReverseReference = new();
-    
-
-    public readonly ReactiveDictionary<IObstaclePresenter, Vector2> _obstaclePosition = new();
-    public IReadOnlyReactiveDictionary<IObstaclePresenter, Vector2> ObstaclePosition => _obstaclePosition;
-    public void Release(IObstaclePresenter obstaclePresenter)
-    {
-        _objectPool[obstaclePresenter.ObstacleID]
-            .Release(_instanceReverseReference[obstaclePresenter.ModelID]);
-    }
-
-    public void Reset()
-    {
-        foreach (var pair in _instanceReference)
-        {
-            if (pair.Key.activeSelf)
-            {
-                _objectPool[_presenterReference[pair.Value].ObstacleID].Release(pair.Key);
-            }
-        }
-        _distance = 0f;
-    }
-
-    public void UpdateObstacleMove(float deltaTime, float speed)
-    {
-        _distance += deltaTime * speed * InGameConst.WindowHeight;
-        if (_distance > _obstacleGeneratorSetting.ObstacleMakePerDistance)
-        {
-            GameObject obj;
-            IObstaclePresenter presenter;
-            var ramdomIndex = Random.Range(0, _obstacleDataSet.Count());
-            //修正予定。
-            ObstacleData obstacleData = _obstacleDataSet[ramdomIndex];
-            var obstacleID = obstacleData.ObstacleInfo.ObstacleID;
-            if (_objectPool.ContainsKey(obstacleID))
-            {
-                _objectPool[obstacleID].Get(out obj);
-                if (!_instanceReference.ContainsKey(obj))
-                {
-                    BindObstacleReference(obj, obstacleData, out presenter);
-                    presenter.Position
-                        .Subscribe(x => _obstaclePosition[presenter] = x).AddTo(_disposable);
-                }
-                else
-                {
-                    presenter = _presenterReference[_instanceReference[obj]];
-                }
-            }
-            else
-            {
-                _objectPool.Add(obstacleID, InisializeObjectPool(obstacleData));
-                _objectPool[obstacleID].Get(out obj);
-                BindObstacleReference(obj, obstacleData, out presenter);
-                presenter.Position.Subscribe(x => _obstaclePosition[presenter] = x).AddTo(_disposable);
-            }
-
-
-            presenter.SetObstacle(
-                Random.Range(InGameConst.GroundXMargin, InGameConst.WindowWidth - InGameConst.GroundXMargin)
-                , InGameConst.WindowHeight + _obstacleGeneratorSetting.ObstacleFrameOutRange
-                );
-            _distance = 0;
-        }
-
-        foreach (var pair in _instanceReference)
-        {
-            if (pair.Key.activeSelf)
-            {
-                _presenterReference[pair.Value].UpdateObstacleMove(deltaTime, speed);
-                if (pair.Key.transform.position.y < -_obstacleGeneratorSetting.ObstacleFrameOutRange)
-                {
-                    _objectPool[_presenterReference[pair.Value].ObstacleID].Release(pair.Key);
-                }
-            }
-        }
-    }
+    /// <param name="obstacleData"></param>
+    /// <returns></returns>
     ObjectPool<GameObject> InisializeObjectPool(ObstacleData obstacleData)
     {
         var target = obstacleData;
@@ -141,6 +57,7 @@ public class ObstacleGenerator : IObstacleGenerator ,  System.IDisposable
             ,// プールに戻したときの処理
             actionOnDestroy: target =>
             {
+                ReleaseObstacle(_objectToPresenterReference[target]);
                 Object.Destroy(target);
             } // プールがmaxSizeを超えたときの処理
         );
@@ -149,13 +66,39 @@ public class ObstacleGenerator : IObstacleGenerator ,  System.IDisposable
         obstaclePool.Release(obj);
         return obstaclePool;
     }
-    void BindObstacleReference(GameObject obj, ObstacleData obstacleData, out IObstaclePresenter presenter)
+    public void ReleaseObstacle(IObstaclePresenter presenter)
+    {
+        _objectPool[presenter.ObstacleID]
+            .Release(_presenterToObjectReference[presenter]);
+    }
+    public GameObject GetObstacle(ObstacleData obstacleData , out IObstaclePresenter presenter)
+    {
+        GameObject obj;
+        if (_objectPool.ContainsKey(obstacleData.ObstacleID))
+        {
+            _objectPool[obstacleData.ObstacleID].Get(out obj);
+            if (!_objectToPresenterReference.ContainsKey(obj))
+            {
+                MakePresenter(obj, obstacleData, out presenter);
+            }
+            else
+            {
+                presenter = _objectToPresenterReference[obj];
+            }
+        }
+        else
+        {
+            _objectPool.Add(obstacleData.ObstacleID, InisializeObjectPool(obstacleData));
+            _objectPool[obstacleData.ObstacleID].Get(out obj);
+            MakePresenter(obj, obstacleData, out presenter);
+        }
+        return obj;
+    }
+    void MakePresenter(GameObject obj, ObstacleData obstacleData, out IObstaclePresenter presenter)
     {
         presenter = _obstaclePresenterFactory.Invoke(obstacleData);
         presenter.SetTransform(obj.transform);
-        int presenterID = presenter.ModelID;
-        _presenterReference.Add(presenterID, presenter);
-        _instanceReference.Add(obj, presenterID);
-        _instanceReverseReference.Add(presenterID, obj);
+        _objectToPresenterReference.Add(obj, presenter);
+        _presenterToObjectReference.Add(presenter, obj);
     }
 }

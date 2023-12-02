@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: New Obstacle Data 1
   m_EditorClassIdentifier: 
   _obstacle: {fileID: 3951436707410769295, guid: be6e4760444f27648a565fbfe4417be5, type: 3}
+  _obstacleID: 1
   _obstacleInfo:
     _destroyEffect: {fileID: 3242437969426385444, guid: 5ce95eef410467a4cabe3a776dd322ef, type: 3}
-    _obstacleID: 1
     _itemType: 1
     _hitRange: 40
     _score: 0

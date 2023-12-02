@@ -21,12 +21,12 @@ public class GamePresenter : IInitializable ,IStartable ,ITickable , System.IDis
     IGameModel _model;
     IGameView _view;
     IPlayerPresenter _playerPresenter;
-    IObstacleGenerator _obstacleGenerator;
+    IObstacleManager _obstacleGenerator;
     /// <summary>
     /// コンストラクタ
     /// </summary>
     public GamePresenter(Transform parentTransform 
-        ,IGameModel model , IGameView view ,IPlayerPresenter playerPresenter, IObstacleGenerator obstacleGenerator)
+        ,IGameModel model , IGameView view ,IPlayerPresenter playerPresenter, IObstacleManager obstacleGenerator)
     {
         _parentTransform  = parentTransform;
         _model = model ;
@@ -143,7 +143,7 @@ public class GamePresenter : IInitializable ,IStartable ,ITickable , System.IDis
     /// <param name="obstacle"></param>
     public void HitObstacle(IObstaclePresenter obstacle)
     {
-        _obstacleGenerator.Release(obstacle);
+        
         switch (obstacle.ObstacleInfo.ItemType)
         {
             case ItemType.Item:
@@ -157,7 +157,7 @@ public class GamePresenter : IInitializable ,IStartable ,ITickable , System.IDis
             default:
                 break;
         }
-        
+        _obstacleGenerator.ObstacleSetInitializePosition(in obstacle);
     }
 
     /// <summary>アニメーションイベントから呼び出される。</summary>

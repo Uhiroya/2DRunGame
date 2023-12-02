@@ -25,5 +25,5 @@ MonoBehaviour:
     - {fileID: 11400000, guid: b6e07446a8b27a648933fca0b0101236, type: 2}
     - {fileID: 11400000, guid: aad717cea47733844ae2d55576127ddd, type: 2}
     - {fileID: 11400000, guid: eca701b008a6219458a22ad3ee6cca16, type: 2}
-    _obstacleMakePerDistance: 500
-    _obstacleFrameOutRange: 30
+    _obstacleMakePerDistance: 600
+    _obstacleFrameOutRange: 100

@@ -73,8 +73,10 @@ public class GameLifetimeScope : LifetimeScope
             .WithParameter("deadAnimationTime", _deadAnimation.length)
             .WithParameter("animator", _animator);
         builder.RegisterEntryPoint<ObstacleGenerator>(Lifetime.Singleton).AsSelf().As<IObstacleGenerator>()
-            .WithParameter("obstacleGeneratorSetting", _gameSettings.ObstacleGeneratorSetting)
             .WithParameter("parentTransform", _obstacleParent);
+        builder.RegisterEntryPoint<ObstacleManager>(Lifetime.Singleton).AsSelf().As<IObstacleManager>()
+            .WithParameter("obstacleGeneratorSetting", _gameSettings.ObstacleGeneratorSetting);
+
         //builder.RegisterFactory<ObstacleParam, IObstacleModel>(parm => new ObstacleModel(parm));
         builder.RegisterFactory<ObstacleData, IObstaclePresenter>((data) => new ObstaclePresenter(new ObstacleModel(data)));
     }
