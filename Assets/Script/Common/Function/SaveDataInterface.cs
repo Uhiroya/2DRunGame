@@ -8,7 +8,7 @@ public static class SaveDataInterface
 {
     static readonly string DataPath = Application.dataPath + "/StreamingAssets/";
     
-    public static bool JsonLoad<T>(out T data) where T : ISaveData ,new()
+    public static bool LoadJson<T>(out T data) where T : ISaveData ,new()
     {
         data = new T();
         if(File.Exists(DataPath + data.FileName))
@@ -25,7 +25,7 @@ public static class SaveDataInterface
             return false;
         }
     }
-    public static void JsonSave<T>(T data) where T : ISaveData
+    public static void SaveJson<T>(T data) where T : ISaveData
     {
         string jsonData = JsonUtility.ToJson(data);
         File.WriteAllText(DataPath + data.FileName, jsonData);
@@ -38,6 +38,14 @@ public interface ISaveData
 [Serializable]
 public class SaveData : ISaveData
 {
-    public string FileName => "SaveData.json";
-    public float HighScore;
+    public string FileName => this.GetType().Name + ".json";
+    float _highScore;
+    public float HighScore => _highScore;
+    public void SaveScore(float score)
+    {
+        if(score > _highScore)
+        {
+            _highScore = score;
+        }
+    }
 }

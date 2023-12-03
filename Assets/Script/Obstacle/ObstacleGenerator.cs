@@ -77,13 +77,13 @@ public class ObstacleGenerator : IObstacleGenerator, System.IDisposable
         if (_objectPool.ContainsKey(obstacleData.ObstacleID))
         {
             _objectPool[obstacleData.ObstacleID].Get(out obj);
-            if (!_objectToPresenterReference.ContainsKey(obj))
+            if (_objectToPresenterReference.ContainsKey(obj))
             {
-                MakePresenter(obj, obstacleData, out presenter);
+                presenter = _objectToPresenterReference[obj];      
             }
             else
             {
-                presenter = _objectToPresenterReference[obj];
+                MakePresenter(obj, obstacleData, out presenter);
             }
         }
         else

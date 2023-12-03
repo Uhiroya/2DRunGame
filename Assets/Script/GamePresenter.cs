@@ -21,7 +21,7 @@ public class GamePresenter : IInitializable ,IStartable ,ITickable , System.IDis
     IGameModel _model;
     IGameView _view;
     IPlayerPresenter _playerPresenter;
-    IObstacleManager _obstacleGenerator;
+    IObstacleManager _obstacleManager;
     /// <summary>
     /// コンストラクタ
     /// </summary>
@@ -32,7 +32,7 @@ public class GamePresenter : IInitializable ,IStartable ,ITickable , System.IDis
         _model = model ;
         _view = view ;
         _playerPresenter = playerPresenter;
-        _obstacleGenerator = obstacleGenerator;
+        _obstacleManager = obstacleGenerator;
     }
     /// <summary>
     /// その他メンバ変数
@@ -101,7 +101,7 @@ public class GamePresenter : IInitializable ,IStartable ,ITickable , System.IDis
                                 _hitEffect = null;
                             }
                             _playerPresenter.Reset();
-                            _obstacleGenerator.Reset();
+                            _obstacleManager.Reset();
                             _model.GameStop();
                             _view.ShowResultUI();
                             break;
@@ -111,7 +111,7 @@ public class GamePresenter : IInitializable ,IStartable ,ITickable , System.IDis
                 })
             .AddTo(_disposable);
         //衝突判定
-        _obstacleGenerator.ObstaclePosition.
+        _obstacleManager.ObstaclePosition.
             ObserveReplace()
             .Where(x =>
             {
@@ -131,7 +131,7 @@ public class GamePresenter : IInitializable ,IStartable ,ITickable , System.IDis
             case PlayerCondition.Alive:
                 _view.ManualUpdate(Time.deltaTime);
                 _model.ManualUpdate(Time.deltaTime);
-                _obstacleGenerator.UpdateObstacleMove(Time.deltaTime, _model.GameSpeed.Value);
+                _obstacleManager.UpdateObstacleMove(Time.deltaTime, _model.GameSpeed.Value);
                 break;
             default:
                 break;
@@ -157,7 +157,7 @@ public class GamePresenter : IInitializable ,IStartable ,ITickable , System.IDis
             default:
                 break;
         }
-        _obstacleGenerator.ObstacleSetInitializePosition(in obstacle);
+        _obstacleManager.ObstacleSetInitializePosition(in obstacle);
     }
 
     /// <summary>アニメーションイベントから呼び出される。</summary>

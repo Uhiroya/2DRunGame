@@ -37,7 +37,7 @@ public class GameModel : IGameModel
         _gameState = new(GameFlowState.Inisialize);
         _gameSpeed = new(0f);
         _score = new(0f);
-        SaveDataInterface.JsonLoad(out _saveData);
+        SaveDataInterface.LoadJson(out _saveData);
     }
     public void ChangeStateToTitle()
         => _gameState.Value = GameFlowState.Title;
@@ -46,11 +46,8 @@ public class GameModel : IGameModel
     public void ChangeStateToResult()
     {
         _gameState.Value = GameFlowState.Result;
-        if(_saveData.HighScore < Score.Value)
-        {
-            _saveData.HighScore = Score.Value;
-            SaveDataInterface.JsonSave(_saveData);
-        }
+        _saveData.SaveScore(Score.Value);
+        SaveDataInterface.SaveJson(_saveData);
     }
     public void ManualUpdate(float deltaTime)
     {
