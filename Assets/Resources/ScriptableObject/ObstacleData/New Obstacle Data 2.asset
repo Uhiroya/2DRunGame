@@ -10,15 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e0a6ccc900ac5d546bf92efabedade19, type: 3}
-  m_Name: New Obstacle Data 1
+  m_Name: New Obstacle Data 2
   m_EditorClassIdentifier: 
-  _obstacle: {fileID: 3951436707410769295, guid: be6e4760444f27648a565fbfe4417be5, type: 3}
-  _obstacleID: 1
+  _obstacle: {fileID: 3951436707410769295, guid: 06a6d31dbedbd664c85bde0f6dfc7b1e, type: 3}
+  _obstacleID: 2
   _obstacleInfo:
-    _destroyEffect: {fileID: 3242437969426385444, guid: 5ce95eef410467a4cabe3a776dd322ef, type: 3}
     _itemType: 1
     _hitRange: 40
     _score: 0
-  _xMoveArea: 1
-  _xMoveSpeed: 2
+  _destroyEffect: {fileID: 3242437969426385444, guid: 5ce95eef410467a4cabe3a776dd322ef, type: 3}
+  _destroyAnimation: {fileID: 7400000, guid: 6b1037512038a05499920930e41b603a, type: 2}
+  _xMoveArea: 0.346
+  _xMoveSpeed: -1.16
   _yMoveSpeed: 1

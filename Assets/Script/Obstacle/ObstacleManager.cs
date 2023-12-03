@@ -17,7 +17,7 @@ public interface IObstacleManager
     void HitObstacle(in IObstaclePresenter presenter);
     void Reset();
 }
-public class ObstacleManager : IObstacleManager ,  System.IDisposable
+public class ObstacleManager : IObstacleManager ,  IDisposable
 {
     IObstacleGenerator _obstacleGenerator;
     ObstacleGeneratorSetting _obstacleGeneratorSetting;
@@ -33,7 +33,6 @@ public class ObstacleManager : IObstacleManager ,  System.IDisposable
     public IReadOnlyReactiveDictionary<IObstaclePresenter, Vector2> ObstaclePosition => _obstaclePosition;
 
     List<IObstaclePresenter> _activePresenterList = new();
-
     List<IObstaclePresenter> _removeObstacleList = new();
     /// <summary>
     /// 障害物を生成する距離

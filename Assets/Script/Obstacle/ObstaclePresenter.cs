@@ -10,25 +10,25 @@ public interface IObstaclePresenter
     int ModelID { get; }
     int ObstacleID { get; }
     ObstaclePublicInfo ObstacleInfo { get; }
-    IReadOnlyReactiveProperty<Vector2> Position { get; } 
+    IReadOnlyReactiveProperty<Vector2> Position { get; }
     void SetTransform(Transform transform);
     void SetObstacle(float posX, float posY);
     void UpdateObstacleMove(float deltaTime, float speed);
+    void InstantiateDestroyEffect();
 }
 public class ObstaclePresenter : IObstaclePresenter
 {
     IObstacleModel _model;
     IObstacleView _view;
-    public ObstaclePublicInfo ObstacleInfo => _model.ObstacleInfo;
     public ObstaclePresenter(IObstacleModel model , IObstacleView view)
     {
         _model = model;
         _view = view;
     }
-
     public int ModelID => _model.ModelID;
     public int ObstacleID => _model.ObstacleID;
-    public readonly ReactiveProperty<Vector2> _position = new();
+    public ObstaclePublicInfo ObstacleInfo => _model.ObstacleInfo;
+    readonly ReactiveProperty<Vector2> _position = new();
     public IReadOnlyReactiveProperty<Vector2> Position => _position;
     public void SetTransform(Transform transform)
     {
@@ -43,5 +43,8 @@ public class ObstaclePresenter : IObstaclePresenter
     {
         _model.Move(deltaTime, speed);
     }
-
+    public void InstantiateDestroyEffect()
+    {
+       _model.InstantiateDestroyEffect();
+    }
 }

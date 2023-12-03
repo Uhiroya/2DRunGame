@@ -38,8 +38,8 @@ public interface ISaveData
 [Serializable]
 public class SaveData : ISaveData
 {
-    public string FileName => this.GetType().Name + ".json";
-    float _highScore;
+    public string FileName =>  this.GetType().Name + ".json";
+    public float _highScore;
     public float HighScore => _highScore;
     public void SaveScore(float score)
     {

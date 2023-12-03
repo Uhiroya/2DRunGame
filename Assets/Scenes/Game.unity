@@ -410,7 +410,6 @@ MonoBehaviour:
   _deadAnimation: {fileID: 7400000, guid: 1e9798d898a9d0e49a7663f986ae3fcc, type: 2}
   _animator: {fileID: 923217635}
   _obstacleParent: {fileID: 936137284}
-  _obstacleData: {fileID: 11400000, guid: 77b0014605f5ad843a5e9267448e14c9, type: 2}
 --- !u!4 &124276873
 Transform:
   m_ObjectHideFlags: 0
@@ -1218,7 +1217,6 @@ GameObject:
   - component: {fileID: 923217637}
   - component: {fileID: 923217636}
   - component: {fileID: 923217635}
-  - component: {fileID: 923217640}
   - component: {fileID: 923217639}
   - component: {fileID: 923217641}
   m_Layer: 5
@@ -1328,24 +1326,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &923217640
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 923217633}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d6f45ae30db06fe46b6a524bfeae5b3c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  StartAnimationEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  FinishAnimationEvent:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!58 &923217641
 CircleCollider2D:
   m_ObjectHideFlags: 0

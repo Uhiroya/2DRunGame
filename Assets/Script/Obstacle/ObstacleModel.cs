@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -14,6 +11,7 @@ public interface IObstacleModel
     void SetTransform(Transform transform);
     void Set(float posX, float posY);
     void Move(float deltaTime, float speed);
+    void InstantiateDestroyEffect();
 }
 public class ObstacleModel : IObstacleModel
 {
@@ -28,13 +26,13 @@ public class ObstacleModel : IObstacleModel
     {
         _obstacleData = obstacleData;
         _modelID = _nextModelID;
-        _nextModelID ++;
+        _nextModelID++;
     }
     public void SetTransform(Transform transform)
     {
         _transform = transform;
     }
-    public readonly ReactiveProperty<Vector2> _position = new(Vector2.zero);
+    readonly ReactiveProperty<Vector2> _position = new(Vector2.zero);
     public IReadOnlyReactiveProperty<Vector2> Position => _position;
     float _xMoveRange;
     float _defaultPositionX = 0f;
@@ -72,6 +70,19 @@ public class ObstacleModel : IObstacleModel
         var position = new Vector3(newPos, _transform.position.y - moveAmount);
         _transform.position = position;
         _position.Value = position;
+    }
+    public void InstantiateDestroyEffect()
+    {
+        if (_obstacleData.DestroyEffect == null) return;
+        var obj = Object.Instantiate(_obstacleData.DestroyEffect, (Vector3)_position.Value, Quaternion.identity, _transform.parent);
+        if (_obstacleData.DestroyAnimation == null)
+        {
+            Object.Destroy(obj, 1f);
+        }
+        else
+        {
+            Object.Destroy(obj, _obstacleData.DestroyAnimation.length);
+        }
     }
 }
 

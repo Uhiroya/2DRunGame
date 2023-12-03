@@ -70,8 +70,7 @@ public class GamePresenter : IInitializable ,IStartable ,ITickable , System.IDis
                 {
                     _view.SetUVSpeed(x);
                     _playerPresenter.SetSpeedRate(x);
-                }
-                )
+                })
             .AddTo(_disposable);
 
         _model.Score
@@ -151,8 +150,7 @@ public class GamePresenter : IInitializable ,IStartable ,ITickable , System.IDis
                 break;
             case ItemType.Enemy:
                 _playerPresenter.HitObject();
-                _hitEffect = Object.Instantiate(obstacle.ObstacleInfo.DestroyEffect
-                    , _playerPresenter.PlayerPosition, Quaternion.identity, _parentTransform);
+                obstacle.InstantiateDestroyEffect();
                 break;
             default:
                 break;
