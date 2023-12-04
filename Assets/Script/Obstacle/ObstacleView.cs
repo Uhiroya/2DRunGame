@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 public interface IObstacleView
 {
-    void Idle();
-    void OnRight();
-    void OnLeft();
+    void SetAnimator(Animator animator);
+    void SetXMovement(float xMovement);
 }
 /// <summary>
 /// Animatorは全ての障害物に持たせるようにする。！！
@@ -14,22 +13,17 @@ public interface IObstacleView
 public class ObstacleView :IObstacleView
 {
     Animator _animator;
-    public ObstacleView(Animator animator = null)
+    public ObstacleView()
+    {
+    }
+    public void SetAnimator(Animator animator)
     {
         _animator = animator;
-        
     }
-    public void Idle()
+    public void SetXMovement(float xMovement)
     {
-        
-    }
-    public void OnRight()
-    {
-        
-    }
-    public void OnLeft()
-    {
-        
+        if (_animator == null) return;
+        _animator.SetFloat("XMovement", xMovement);
     }
 
 }

@@ -98,6 +98,7 @@ public class ObstacleGenerator : IObstacleGenerator, System.IDisposable
     {
         presenter = _obstaclePresenterFactory.Invoke(obstacleData);
         presenter.SetTransform(obj.transform);
+        presenter.SetAnimator(obj.GetComponent<Animator>());
         _objectToPresenterReference.Add(obj, presenter);
         _presenterToObjectReference.Add(presenter, obj);
     }

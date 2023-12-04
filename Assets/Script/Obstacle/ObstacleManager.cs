@@ -13,7 +13,7 @@ public interface IObstacleManager
 {
     IReadOnlyReactiveDictionary<IObstaclePresenter, Vector2> ObstaclePosition { get; }
     void UpdateObstacleMove(float deltaTime, float speed);
-    void ObstacleSetInitializePosition(in IObstaclePresenter presenter);
+    void SetObstacleInitializePosition(in IObstaclePresenter presenter);
     void HitObstacle(in IObstaclePresenter presenter);
     void Reset();
 }
@@ -53,7 +53,7 @@ public class ObstacleManager : IObstacleManager ,  IDisposable
              _obstacleGenerator.GetObstacle(_obstacleDataSet[ramdomIndex], out IObstaclePresenter presenter);
             var disposable = presenter.Position.Subscribe(x => _obstaclePosition[presenter] = x);
             _presenterDisposablePair.Add(presenter, disposable);
-            ObstacleSetInitializePosition(in presenter);
+            SetObstacleInitializePosition(in presenter);
             _activePresenterList.Add(presenter);
             _makeObstacleDistance = 0;
         }
@@ -86,7 +86,7 @@ public class ObstacleManager : IObstacleManager ,  IDisposable
         _removeObstacleList.Clear();
         _makeObstacleDistance = 0f;
     }
-    public void ObstacleSetInitializePosition(in IObstaclePresenter presenter)
+    public void SetObstacleInitializePosition(in IObstaclePresenter presenter)
     {
         presenter.SetObstacle(
             UnityEngine.Random.Range(InGameConst.GroundXMargin, InGameConst.WindowWidth - InGameConst.GroundXMargin)

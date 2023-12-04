@@ -12,6 +12,7 @@ public interface IObstaclePresenter
     ObstaclePublicInfo ObstacleInfo { get; }
     IReadOnlyReactiveProperty<Vector2> Position { get; }
     void SetTransform(Transform transform);
+    void SetAnimator(Animator animator);
     void SetObstacle(float posX, float posY);
     void UpdateObstacleMove(float deltaTime, float speed);
     void InstantiateDestroyEffect();
@@ -32,8 +33,17 @@ public class ObstaclePresenter : IObstaclePresenter
     public IReadOnlyReactiveProperty<Vector2> Position => _position;
     public void SetTransform(Transform transform)
     {
-        _model.Position.Subscribe(x => _position.Value = x );
+        _model.Position.Subscribe(pos =>
+            {
+                Debug.Log(pos.x - _position.Value.x);
+                _view.SetXMovement(pos.x - _position.Value.x);
+                _position.Value = pos;
+            });
         _model.SetTransform(transform);
+    }
+    public void SetAnimator(Animator animator)
+    {
+        _view.SetAnimator(animator);
     }
     public void SetObstacle(float posX, float posY)
     {

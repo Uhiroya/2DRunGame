@@ -155,7 +155,7 @@ public class GamePresenter : IInitializable ,IStartable ,ITickable , System.IDis
             default:
                 break;
         }
-        _obstacleManager.ObstacleSetInitializePosition(in obstacle);
+        _obstacleManager.SetObstacleInitializePosition(in obstacle);
     }
 
     /// <summary>アニメーションイベントから呼び出される。</summary>

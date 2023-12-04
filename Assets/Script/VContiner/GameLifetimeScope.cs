@@ -76,7 +76,7 @@ public class GameLifetimeScope : LifetimeScope
         builder.RegisterFactory<ObstacleData, IObstaclePresenter>((data) =>
         {
             data.Obstacle.TryGetComponent<Animator>(out var animator);
-            return new ObstaclePresenter(new ObstacleModel(data) , new ObstacleView(animator));
+            return new ObstaclePresenter(new ObstacleModel(data) , new ObstacleView());
         });
     }
 }
