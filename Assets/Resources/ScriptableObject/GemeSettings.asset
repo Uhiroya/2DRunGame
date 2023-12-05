@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _gameModelSetting:
     _scoreRatePerSecond: 30
-    _speedUpRate: 0.01
+    _speedUpRate: 0.015
   _gameViewSetting:
     _resultScoreCountUpTime: 1
   _playerModelSetting:
@@ -30,5 +30,5 @@ MonoBehaviour:
     - {fileID: 11400000, guid: e14440d020caac445b5e964c2aed6313, type: 2}
     - {fileID: 11400000, guid: 8767a35da3814304ea296829dd219f2d, type: 2}
     - {fileID: 11400000, guid: 13f2972f4d8193d4bad9db48ada028a3, type: 2}
-    _obstacleMakePerDistance: 500
+    _obstacleMakePerDistance: 1000
     _obstacleFrameOutRange: 100
