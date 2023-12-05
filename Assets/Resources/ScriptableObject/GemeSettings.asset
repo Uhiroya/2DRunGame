@@ -23,10 +23,12 @@ MonoBehaviour:
   _obstacleGeneratorSetting:
     _obstacleObjects:
     - {fileID: 11400000, guid: b6e07446a8b27a648933fca0b0101236, type: 2}
-    - {fileID: 11400000, guid: aad717cea47733844ae2d55576127ddd, type: 2}
-    - {fileID: 11400000, guid: eca701b008a6219458a22ad3ee6cca16, type: 2}
+    - {fileID: 11400000, guid: 0994ffa996400e4448f40448c1b58339, type: 2}
+    - {fileID: 11400000, guid: c2676fb0ff47cd04db87ee30bbecd3d5, type: 2}
+    - {fileID: 11400000, guid: 355dfb3b18f7675488bbb0645e5976dc, type: 2}
+    - {fileID: 11400000, guid: f0c4e76db6df5014c80e6ec334a5a37c, type: 2}
     - {fileID: 11400000, guid: e14440d020caac445b5e964c2aed6313, type: 2}
     - {fileID: 11400000, guid: 8767a35da3814304ea296829dd219f2d, type: 2}
     - {fileID: 11400000, guid: 13f2972f4d8193d4bad9db48ada028a3, type: 2}
-    _obstacleMakePerDistance: 2500
+    _obstacleMakePerDistance: 500
     _obstacleFrameOutRange: 100

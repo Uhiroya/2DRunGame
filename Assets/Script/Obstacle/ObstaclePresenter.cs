@@ -35,7 +35,6 @@ public class ObstaclePresenter : IObstaclePresenter
     {
         _model.Position.Subscribe(pos =>
             {
-                Debug.Log(pos.x - _position.Value.x);
                 _view.SetXMovement(pos.x - _position.Value.x);
                 _position.Value = pos;
             });

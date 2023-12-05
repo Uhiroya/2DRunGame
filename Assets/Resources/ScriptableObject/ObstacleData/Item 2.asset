@@ -10,15 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e0a6ccc900ac5d546bf92efabedade19, type: 3}
-  m_Name: New Obstacle Data 3
+  m_Name: Item 2
   m_EditorClassIdentifier: 
-  _obstacle: {fileID: 3951436707410769295, guid: acf6b3b5421e46e4cbeb3669b34417ff, type: 3}
-  _obstacleID: 3
+  _obstacle: {fileID: 3951436707410769295, guid: b1ae3d879ab18e64681b09442b2d5257, type: 3}
+  _obstacleID: 5
   _obstacleInfo:
-    _destroyEffect: {fileID: 0}
     _itemType: 2
-    _hitRange: 40
-    _score: 100
-  _xMoveArea: 0.346
+    _hitRange: 35
+    _score: 300
+  _destroyEffect: {fileID: 0}
+  _destroyAnimation: {fileID: 0}
+  _xMoveArea: 0.564
   _xMoveSpeed: 1
   _yMoveSpeed: 1
