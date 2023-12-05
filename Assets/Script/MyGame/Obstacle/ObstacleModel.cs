@@ -1,0 +1,88 @@
+using UniRx;
+using UnityEngine;
+using UnityEngine.UIElements;
+using MyScriptableObjectClass;
+public interface IObstacleModel
+{
+    IReadOnlyReactiveProperty<Vector2> Position { get; }
+    ObstaclePublicInfo ObstacleInfo { get; }
+    int ModelID { get; }
+    int ObstacleID { get; }
+    void SetTransform(Transform transform);
+    void Set(float posX, float posY);
+    void Move(float deltaTime, float speed);
+    void InstantiateDestroyEffect();
+}
+public class ObstacleModel : IObstacleModel
+{
+    static int _nextModelID = 0;
+    int _modelID = 0;
+    ObstacleData _obstacleData;
+    public ObstaclePublicInfo ObstacleInfo => _obstacleData.ObstacleInfo;
+    Transform _transform;
+    public int ModelID => _modelID;
+    public int ObstacleID => _obstacleData.ObstacleID;
+    public ObstacleModel(ObstacleData obstacleData)
+    {
+        _obstacleData = obstacleData;
+        _modelID = _nextModelID;
+        _nextModelID++;
+    }
+    public void SetTransform(Transform transform)
+    {
+        _transform = transform;
+    }
+    readonly ReactiveProperty<Vector2> _position = new(Vector2.zero);
+    public IReadOnlyReactiveProperty<Vector2> Position => _position;
+    float _xMoveRange;
+    float _defaultPositionX = 0f;
+    float _time;
+    public void Set(float posX, float posY)
+    {
+        //SetX
+        _xMoveRange = (_obstacleData.XMoveArea) * (InGameConst.WindowWidth - InGameConst.GroundXMargin * 2) / 2;
+        //障害物の移動距離がマップに収まるように制限する。
+        if (posX - _xMoveRange < InGameConst.GroundXMargin)
+        {
+            _defaultPositionX = InGameConst.GroundXMargin + _xMoveRange;
+        }
+        else if (posX + _xMoveRange > InGameConst.WindowWidth - InGameConst.GroundXMargin)
+        {
+            _defaultPositionX = InGameConst.WindowWidth - InGameConst.GroundXMargin - _xMoveRange;
+        }
+        else
+        {
+            _defaultPositionX = posX;
+        }
+        //SetX , SetY
+        var position = new Vector3(posX, posY);
+        _transform.position = position;
+        _position.Value = position;
+    }
+    public void Move(float deltaTime, float speed)
+    {
+        //X移動
+        _time += deltaTime;
+        var theta = (_time * speed * _obstacleData.XMoveSpeed) % (Mathf.PI * 2);
+        var newPos = _defaultPositionX + _xMoveRange * Mathf.Sin(theta);
+        //Y移動
+        var moveAmount = deltaTime * speed * InGameConst.WindowHeight * _obstacleData.YMoveSpeed;
+        var position = new Vector3(newPos, _transform.position.y - moveAmount);
+        _transform.position = position;
+        _position.Value = position;
+    }
+    public void InstantiateDestroyEffect()
+    {
+        if (_obstacleData.DestroyEffect == null) return;
+        var obj = Object.Instantiate(_obstacleData.DestroyEffect, (Vector3)_position.Value, Quaternion.identity, _transform.parent);
+        if (_obstacleData.DestroyAnimation == null)
+        {
+            Object.Destroy(obj, 1f);
+        }
+        else
+        {
+            Object.Destroy(obj, _obstacleData.DestroyAnimation.length);
+        }
+    }
+}
+

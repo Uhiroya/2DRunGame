@@ -34,9 +34,6 @@ public class GameLifetimeScope : LifetimeScope
     [Header("ObstacleGenerator")]
     [SerializeField] Transform _obstacleParent;
     
-    [Header("ObstaclePresenter")]
-    [SerializeField] ObstacleData _obstacleData;
-    //ObstacleParam _obstacleParam => _obstacleData.Param;
     private void Start()
     {
         var _iPlayerPresenter = Container.Resolve<IPlayerPresenter>();
@@ -51,8 +48,7 @@ public class GameLifetimeScope : LifetimeScope
     protected override void Configure(IContainerBuilder builder)
     {
         builder.RegisterComponent(_gameManager);
-        builder.RegisterEntryPoint<GamePresenter>(Lifetime.Singleton).AsSelf().As<IGamePresenter>()
-            .WithParameter("parentTransform", _obstacleParent);
+        builder.RegisterEntryPoint<GamePresenter>(Lifetime.Singleton).AsSelf().As<IGamePresenter>();
         builder.Register<GameModel>(Lifetime.Singleton).AsSelf().As<IGameModel>()
              .WithParameter("gameModelSetting", _gameSettings.GameModelSetting);
         builder.Register<GameView>(Lifetime.Singleton).AsSelf().As<IGameView>()
@@ -76,8 +72,10 @@ public class GameLifetimeScope : LifetimeScope
             .WithParameter("parentTransform", _obstacleParent);
         builder.RegisterEntryPoint<ObstacleManager>(Lifetime.Singleton).AsSelf().As<IObstacleManager>()
             .WithParameter("obstacleGeneratorSetting", _gameSettings.ObstacleGeneratorSetting);
-
-        //builder.RegisterFactory<ObstacleParam, IObstacleModel>(parm => new ObstacleModel(parm));
-        builder.RegisterFactory<ObstacleData, IObstaclePresenter>((data) => new ObstaclePresenter(new ObstacleModel(data)));
+        builder.RegisterFactory<ObstacleData, IObstaclePresenter>((data) =>
+        {
+            data.Obstacle.TryGetComponent<Animator>(out var animator);
+            return new ObstaclePresenter(new ObstacleModel(data) , new ObstacleView());
+        });
     }
 }
