@@ -48,8 +48,7 @@ public class GameLifetimeScope : LifetimeScope
     protected override void Configure(IContainerBuilder builder)
     {
         builder.RegisterComponent(_gameManager);
-        builder.RegisterEntryPoint<GamePresenter>(Lifetime.Singleton).AsSelf().As<IGamePresenter>()
-            .WithParameter("parentTransform", _obstacleParent);
+        builder.RegisterEntryPoint<GamePresenter>(Lifetime.Singleton).AsSelf().As<IGamePresenter>();
         builder.Register<GameModel>(Lifetime.Singleton).AsSelf().As<IGameModel>()
              .WithParameter("gameModelSetting", _gameSettings.GameModelSetting);
         builder.Register<GameView>(Lifetime.Singleton).AsSelf().As<IGameView>()

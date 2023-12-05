@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Enemy 1
   m_EditorClassIdentifier: 
   _obstacle: {fileID: 3951436707410769295, guid: 53dd094cb08015f4dbbbd23a9c48871b, type: 3}
-  _obstacleID: 0
+  _obstacleID: 1
   _obstacleInfo:
     _itemType: 1
     _hitRange: 40

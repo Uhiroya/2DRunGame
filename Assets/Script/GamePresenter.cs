@@ -5,7 +5,6 @@ using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 using Cysharp.Threading.Tasks;
-using UnityEngine.SceneManagement;
 
 public interface IGamePresenter
 {
@@ -17,7 +16,6 @@ public class GamePresenter : IInitializable ,IStartable ,ITickable , System.IDis
     /// <summary>
     /// VContainerで注入される
     /// </summary>
-    Transform _parentTransform;
     IGameModel _model;
     IGameView _view;
     IPlayerPresenter _playerPresenter;
@@ -25,10 +23,9 @@ public class GamePresenter : IInitializable ,IStartable ,ITickable , System.IDis
     /// <summary>
     /// コンストラクタ
     /// </summary>
-    public GamePresenter(Transform parentTransform 
-        ,IGameModel model , IGameView view ,IPlayerPresenter playerPresenter, IObstacleManager obstacleGenerator)
+    public GamePresenter(IGameModel model , IGameView view 
+        ,IPlayerPresenter playerPresenter, IObstacleManager obstacleGenerator)
     {
-        _parentTransform  = parentTransform;
         _model = model ;
         _view = view ;
         _playerPresenter = playerPresenter;
