@@ -8,7 +8,7 @@ public interface IObstacleView
     void Pause();
     void Resume();
 }
-public class ObstacleView :IObstacleView ,IPauseable
+public class ObstacleView :IObstacleView
 {
     Animator _animator;
     public ObstacleView()
@@ -25,7 +25,6 @@ public class ObstacleView :IObstacleView ,IPauseable
     }
     public void Pause()
     {
-        Debug.Log("animPause");
         if (_animator == null) return;
         _animator.speed = 0f;
     }

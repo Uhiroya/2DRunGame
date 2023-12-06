@@ -1,17 +1,20 @@
 public enum GameFlowState
 {
     None,
-    Inisialize,
+    Initialize,
     Title,
+    GameStart,
     InGame,
+    Pause,
     Waiting,
     Result,
 }
 public enum PlayerCondition
 {
     None,
-    Waiting,
+    Initialize,
     Alive,
+    Pause,
     OnDead,
     Dead,
 }

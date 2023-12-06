@@ -6,13 +6,15 @@ using Cysharp.Threading.Tasks;
 
 public interface IPlayerView
 {
+    void OnInitialize();
     void OnWaiting();
     void OnWalk();
     UniTask OnDead();
 }
-public class PlayerView : IPlayerView ,IPauseable
+public class PlayerView : IPlayerView
 {
     float _deadAnimationTime;
+    static readonly int _hashInitialize = Animator.StringToHash("Initialize");
     static readonly int _hashWaiting = Animator.StringToHash("Waiting");
     static readonly int _hashWalking = Animator.StringToHash("Walking");
     static readonly int _hashDead = Animator.StringToHash("Dead");
@@ -22,6 +24,8 @@ public class PlayerView : IPlayerView ,IPauseable
         _deadAnimationTime = deadAnimationTime;
         _animator = animator;
     }
+    public void OnInitialize()
+        => _animator.SetTrigger(_hashInitialize);
     public void OnWaiting()
         => _animator.SetTrigger(_hashWaiting);
     public void OnWalk()
@@ -30,15 +34,5 @@ public class PlayerView : IPlayerView ,IPauseable
     {
         _animator.SetTrigger(_hashDead);
         await UniTask.Delay((int)(_deadAnimationTime * 1000)); 
-    }
-
-    public void Pause()
-    {
-        _animator.speed = 0f;
-    }
-
-    public void Resume()
-    {
-        _animator.speed = 1f;
     }
 }

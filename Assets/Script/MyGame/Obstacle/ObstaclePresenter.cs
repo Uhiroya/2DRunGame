@@ -5,7 +5,7 @@ using UniRx.Triggers;
 using UnityEngine;
 using VContainer;
 using MyScriptableObjectClass;
-public interface IObstaclePresenter : IPauseable
+public interface IObstaclePresenter
 {
     int ModelID { get; }
     int ObstacleID { get; }
@@ -16,6 +16,8 @@ public interface IObstaclePresenter : IPauseable
     void SetObstacle(float posX, float posY);
     void UpdateObstacleMove(float deltaTime, float speed);
     void InstantiateDestroyEffect();
+    void Pause();
+    void Resume();
 }
 public class ObstaclePresenter : IObstaclePresenter 
 {

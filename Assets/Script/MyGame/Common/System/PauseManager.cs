@@ -20,7 +20,6 @@ public class PauseManager : IPauseManager
     {
         if (!_isPause)
         {
-            Debug.Log("Pause");
             _isPause = true;
             foreach (IPauseable pausable in _pauseables)
             {

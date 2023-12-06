@@ -9,19 +9,18 @@ public interface IPlayerPresenter
     IReadOnlyReactiveProperty<PlayerCondition> PlayerState { get; }
     Vector2 PlayerPosition { get;}
     float PlayerHitRange { get;}
-    event System.Action PlayerDeath;
     void SetInputX(float x);
     void SetSpeedRate(float speedRate);
     void Reset();
+    void InitializePlayer();
     void GameStart();
     void HitObject();
 
 }
 [RequireComponent(typeof(Rigidbody2D))]
-public class PlayerPresenter : IInitializable , IFixedTickable , IPlayerPresenter , System.IDisposable
+public class PlayerPresenter : IPlayerPresenter ,IPauseable , IFixedTickable, System.IDisposable
 {
     public IReadOnlyReactiveProperty<PlayerCondition> PlayerState => _model.PlayerState;
-    public event System.Action PlayerDeath;
     public float PlayerHitRange => _model.PlayerHitRange;
     Vector2 _playerPosition;
     public Vector2 PlayerPosition => _playerPosition;
@@ -36,14 +35,11 @@ public class PlayerPresenter : IInitializable , IFixedTickable , IPlayerPresente
         _disposable = new();
         _model =  model;
         _view = view;
+        Bind();
     }
     public void Dispose()
     {
         _disposable.Dispose();
-    }
-    public void Initialize()
-    {
-        Bind();
     }
     public void FixedTick()
     {
@@ -62,20 +58,29 @@ public class PlayerPresenter : IInitializable , IFixedTickable , IPlayerPresente
     {
         //プレイヤー移動の監視
         _model.PositionX.Subscribe(x => _playerPosition = new Vector2 (x, _model.PositionY)).AddTo(_disposable);
-        _model.PlayerState.Where(x => x == PlayerCondition.Waiting)
-             .Subscribe(x => _view.OnWaiting())
-             .AddTo(_disposable);
-        _model.PlayerState.Where(x => x == PlayerCondition.Alive)
-            .Subscribe(x => _view.OnWalk())
-            .AddTo(_disposable);   
-
-        _model.PlayerState.Where(x => x == PlayerCondition.OnDead)
-            .Subscribe(async x => 
+        _model.PlayerState
+            .Subscribe(
+            async x =>
             {
-                await _view.OnDead();
-                GameOver();
-            })
-            .AddTo(_disposable);   
+                switch(x)
+                {
+                    case PlayerCondition.Initialize:
+                        _view.OnInitialize();
+                        break;
+                    case PlayerCondition.Pause:
+                        _view.OnWaiting();
+                        break;
+                    case PlayerCondition.Alive:
+                        _view.OnWalk();
+                        break;
+                    case PlayerCondition.OnDead:
+                        await _view.OnDead();
+                        _model.SetPlayerCondition(PlayerCondition.Dead);
+                        break;
+                    default:
+                        break;
+                }
+            }).AddTo(_disposable);
     }
     public void Reset()
     {
@@ -89,6 +94,10 @@ public class PlayerPresenter : IInitializable , IFixedTickable , IPlayerPresente
     {
         _model.SetSpeedRate(speedRate);
     }
+    public void InitializePlayer()
+    {
+        _model.SetPlayerCondition(PlayerCondition.Initialize);
+    }
     public void GameStart()
     {
         _model.SetPlayerCondition(PlayerCondition.Alive);
@@ -97,10 +106,14 @@ public class PlayerPresenter : IInitializable , IFixedTickable , IPlayerPresente
     {
         _model.SetPlayerCondition(PlayerCondition.OnDead);
     }
-    public void GameOver()
+
+    public void Pause()
     {
-        PlayerDeath?.Invoke();
+        _model.SetPlayerCondition(PlayerCondition.Pause);
     }
 
-
+    public void Resume()
+    {
+        _model.SetPlayerCondition(PlayerCondition.Alive);
+    }
 }

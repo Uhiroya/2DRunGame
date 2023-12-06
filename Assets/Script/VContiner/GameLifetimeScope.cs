@@ -21,6 +21,7 @@ public class GameLifetimeScope : LifetimeScope
     [SerializeField] GameObject _resultUIGroup;
     [SerializeField] Text _highScoreText;
     [SerializeField] Text _resultScoreText;
+    [SerializeField] GameObject _pauseUI;
 
     [Header("_backGroundController")]
     [SerializeField] RawImage _backGroundImage;
@@ -42,7 +43,7 @@ public class GameLifetimeScope : LifetimeScope
         builder.Register<PauseManager>(Lifetime.Singleton)
             .As<IPauseManager>();
         builder.RegisterEntryPoint<GamePresenter>(Lifetime.Singleton)
-            .As<IGamePresenter>();
+            .As<IGamePresenter>().As<IPauseable>();
         builder.Register<GameModel>(Lifetime.Singleton)
             .As<IGameModel>()
              .WithParameter("gameModelSetting", _gameSettings.GameModelSetting);
@@ -54,7 +55,8 @@ public class GameLifetimeScope : LifetimeScope
             .WithParameter("scoreText", _scoreText)
             .WithParameter("resultUIGroup", _resultUIGroup)
             .WithParameter("resultScoreText", _resultScoreText)       
-            .WithParameter("highScoreText", _highScoreText);       
+            .WithParameter("highScoreText", _highScoreText)       
+            .WithParameter("pauseUI", _pauseUI);       
         builder.Register<BackGroundController>(Lifetime.Singleton)
             .As<IBackGroundController>()
             .WithParameter("image", _backGroundImage);
@@ -65,7 +67,7 @@ public class GameLifetimeScope : LifetimeScope
             .WithParameter("playerModelSetting", _gameSettings.PlayerModelSetting)
             .WithParameter("playerTransform", _playerTransform);
         builder.Register<PlayerView>(Lifetime.Singleton)
-            .As<IPlayerView>().As<IPauseable>()
+            .As<IPlayerView>()
             .WithParameter("deadAnimationTime", _deadAnimation.length)
             .WithParameter("animator", _animator);
         builder.RegisterEntryPoint<ObstacleGenerator>(Lifetime.Singleton)
