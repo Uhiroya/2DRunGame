@@ -11,7 +11,8 @@ public class GameLifetimeScope : LifetimeScope
     [SerializeField] GameSettings _gameSettings;
     [Header("GameManager")]
     [SerializeField] GameManager _gameManager;
-
+    [Header("InputProvider")]
+    [SerializeField] InputProvider _inputProvider;
     [Header("GameView")]
     [SerializeField] AnimationClip _titleAnimation;
     [SerializeField] AnimationClip _resultFadeAnimation;
@@ -34,24 +35,19 @@ public class GameLifetimeScope : LifetimeScope
     [Header("ObstacleGenerator")]
     [SerializeField] Transform _obstacleParent;
     
-    private void Start()
-    {
-        var _iPlayerPresenter = Container.Resolve<IPlayerPresenter>();
-        //入力の監視
-        this.UpdateAsObservable()
-             .Where(x => _iPlayerPresenter.PlayerState.Value == PlayerCondition.Alive)
-             .Select(x => Input.GetAxis("Horizontal"))
-             .Subscribe(x => { _iPlayerPresenter.SetInputX(x);})
-             .AddTo(this);
-        
-    }
     protected override void Configure(IContainerBuilder builder)
     {
         builder.RegisterComponent(_gameManager);
-        builder.RegisterEntryPoint<GamePresenter>(Lifetime.Singleton).AsSelf().As<IGamePresenter>();
-        builder.Register<GameModel>(Lifetime.Singleton).AsSelf().As<IGameModel>()
+        builder.RegisterComponent(_inputProvider);
+        builder.Register<PauseManager>(Lifetime.Singleton)
+            .As<IPauseManager>();
+        builder.RegisterEntryPoint<GamePresenter>(Lifetime.Singleton)
+            .As<IGamePresenter>();
+        builder.Register<GameModel>(Lifetime.Singleton)
+            .As<IGameModel>()
              .WithParameter("gameModelSetting", _gameSettings.GameModelSetting);
-        builder.Register<GameView>(Lifetime.Singleton).AsSelf().As<IGameView>()
+        builder.Register<GameView>(Lifetime.Singleton)
+            .As<IGameView>()
             .WithParameter("gameViewSetting", _gameSettings.GameViewSetting)
             .WithParameter("titleAnimationTime", _titleAnimation.length)
             .WithParameter("resultAnimationTime", _resultFadeAnimation.length + _resultEmphasisAnimation.length)
@@ -59,23 +55,33 @@ public class GameLifetimeScope : LifetimeScope
             .WithParameter("resultUIGroup", _resultUIGroup)
             .WithParameter("resultScoreText", _resultScoreText)       
             .WithParameter("highScoreText", _highScoreText);       
-        builder.Register<BackGroundController>(Lifetime.Singleton).AsSelf().As<IBackGroundController>()
+        builder.Register<BackGroundController>(Lifetime.Singleton)
+            .As<IBackGroundController>()
             .WithParameter("image", _backGroundImage);
-        builder.RegisterEntryPoint< PlayerPresenter>(Lifetime.Singleton).AsSelf().As<IPlayerPresenter>();
-        builder.Register<PlayerModel>(Lifetime.Singleton).As<IPlayerModel>()
+        builder.RegisterEntryPoint< PlayerPresenter>(Lifetime.Singleton)
+            .As<IPlayerPresenter>();
+        builder.Register<PlayerModel>(Lifetime.Singleton)
+            .As<IPlayerModel>()
             .WithParameter("playerModelSetting", _gameSettings.PlayerModelSetting)
             .WithParameter("playerTransform", _playerTransform);
-        builder.Register<PlayerView>(Lifetime.Singleton).As<IPlayerView>()
+        builder.Register<PlayerView>(Lifetime.Singleton)
+            .As<IPlayerView>().As<IPauseable>()
             .WithParameter("deadAnimationTime", _deadAnimation.length)
             .WithParameter("animator", _animator);
-        builder.RegisterEntryPoint<ObstacleGenerator>(Lifetime.Singleton).AsSelf().As<IObstacleGenerator>()
+        builder.RegisterEntryPoint<ObstacleGenerator>(Lifetime.Singleton)
+            .As<IObstacleGenerator>()
             .WithParameter("parentTransform", _obstacleParent);
-        builder.RegisterEntryPoint<ObstacleManager>(Lifetime.Singleton).AsSelf().As<IObstacleManager>()
+        builder.RegisterEntryPoint<ObstacleManager>(Lifetime.Singleton)
+            .As<IObstacleManager>().As<IPauseable>()
             .WithParameter("obstacleGeneratorSetting", _gameSettings.ObstacleGeneratorSetting);
-        builder.RegisterFactory<ObstacleData, IObstaclePresenter>((data) =>
-        {
-            data.Obstacle.TryGetComponent<Animator>(out var animator);
-            return new ObstaclePresenter(new ObstacleModel(data) , new ObstacleView());
-        });
+        builder.RegisterFactory<ObstacleData, IObstaclePresenter>((data) => new ObstaclePresenter(new ObstacleModel(data), new ObstacleView()));
+        //builder.RegisterFactory<ObstacleData, IObstaclePresenter>((container) =>
+        //{
+        //    var view = container.Resolve<IObstacleView>();
+        //    return data =>
+        //    {
+        //        return new ObstaclePresenter(new ObstacleModel(data), view);
+        //    };
+        //} , Lifetime.Transient);
     }
 }

@@ -398,6 +398,7 @@ MonoBehaviour:
   autoInjectGameObjects: []
   _gameSettings: {fileID: 11400000, guid: 8bca061bccbce1543bb925851143bf48, type: 2}
   _gameManager: {fileID: 175587346}
+  _inputProvider: {fileID: 175587348}
   _titleAnimation: {fileID: 7400000, guid: 4dfd2194441eb2e45a2cbfb87b64c03f, type: 2}
   _resultFadeAnimation: {fileID: 7400000, guid: 887b40eb539cd87469ac0115de49e344, type: 2}
   _resultEmphasisAnimation: {fileID: 7400000, guid: dd354d590a1753f4dbd0968eb0332439, type: 2}
@@ -503,8 +504,9 @@ GameObject:
   m_Component:
   - component: {fileID: 175587347}
   - component: {fileID: 175587346}
+  - component: {fileID: 175587348}
   m_Layer: 5
-  m_Name: GameManager
+  m_Name: GameSystem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -537,6 +539,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &175587348
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 175587345}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: faee9ceefe9445b40a90be2d14763958, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &376229090
 GameObject:
   m_ObjectHideFlags: 0

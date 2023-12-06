@@ -17,7 +17,7 @@ public interface IObstacleManager
     void HitObstacle(in IObstaclePresenter presenter);
     void Reset();
 }
-public class ObstacleManager : IObstacleManager ,  IDisposable
+public class ObstacleManager : IObstacleManager ,  IDisposable ,IPauseable
 {
     IObstacleGenerator _obstacleGenerator;
     ObstacleGeneratorSetting _obstacleGeneratorSetting;
@@ -45,6 +45,7 @@ public class ObstacleManager : IObstacleManager ,  IDisposable
     /// <param name="speed"></param>
     public void UpdateObstacleMove(float deltaTime, float speed)
     {
+        if(_isPause) return;
         _makeObstacleDistance += deltaTime * speed * InGameConst.WindowHeight;
         //一定距離(distance)毎に障害物を生成する
         if (_makeObstacleDistance > _obstacleGeneratorSetting.ObstacleMakePerDistance)
@@ -112,7 +113,11 @@ public class ObstacleManager : IObstacleManager ,  IDisposable
     {
         _disposable.Dispose();
     }
-
-
+    bool _isPause = false;
+    public void Pause()
+    {
+        _isPause = true;
+    }
+    public void Resume() => _isPause = false;
 }
 

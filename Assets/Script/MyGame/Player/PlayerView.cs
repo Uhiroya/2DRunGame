@@ -10,7 +10,7 @@ public interface IPlayerView
     void OnWalk();
     UniTask OnDead();
 }
-public class PlayerView : IPlayerView
+public class PlayerView : IPlayerView ,IPauseable
 {
     float _deadAnimationTime;
     static readonly int _hashWaiting = Animator.StringToHash("Waiting");
@@ -30,5 +30,15 @@ public class PlayerView : IPlayerView
     {
         _animator.SetTrigger(_hashDead);
         await UniTask.Delay((int)(_deadAnimationTime * 1000)); 
+    }
+
+    public void Pause()
+    {
+        _animator.speed = 0f;
+    }
+
+    public void Resume()
+    {
+        _animator.speed = 1f;
     }
 }
