@@ -49,7 +49,7 @@ public class GamePresenter : IInitializable ,IStartable ,ITickable , System.IDis
         _model.ChangeStateToTitle();
     }
     /// <summary>
-    /// インスタンスを生成する人にDisposeしてもらう.。
+    /// VContainerから呼び出される
     /// </summary>
     public void Dispose()
     {
@@ -87,7 +87,6 @@ public class GamePresenter : IInitializable ,IStartable ,ITickable , System.IDis
                             _view.ShowHighScore(_model.HighScore);
                             break;
                         case GameFlowState.InGame:
-                            _model.GameStart();
                             _playerPresenter.GameStart();
                             break;
                         case GameFlowState.Result:
@@ -98,7 +97,6 @@ public class GamePresenter : IInitializable ,IStartable ,ITickable , System.IDis
                             }
                             _playerPresenter.Reset();
                             _obstacleManager.Reset();
-                            _model.GameStop();
                             _view.ShowResultUI();
                             break;
                         default:

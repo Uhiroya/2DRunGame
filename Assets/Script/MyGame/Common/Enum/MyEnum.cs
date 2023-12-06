@@ -4,6 +4,7 @@ public enum GameFlowState
     Inisialize,
     Title,
     InGame,
+    Waiting,
     Result,
 }
 public enum PlayerCondition
