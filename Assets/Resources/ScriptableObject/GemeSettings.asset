@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: GemeSettings
   m_EditorClassIdentifier: 
   _gameModelSetting:
-    _scoreRatePerSecond: 30
+    _startSpeed: 0.5
     _speedUpRate: 0.015
+    _scoreRatePerSecond: 30
   _gameViewSetting:
     _resultScoreCountUpTime: 1
   _playerModelSetting:

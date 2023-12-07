@@ -4,77 +4,102 @@ using UnityEngine;
 using UniRx;
 using System.Drawing;
 using MyScriptableObjectClass;
+using System;
 public interface IGameModel
 {
     IReadOnlyReactiveProperty<GameFlowState> GameState { get; }
     IReadOnlyReactiveProperty<float> GameSpeed { get; }
     IReadOnlyReactiveProperty<float> Score { get; }
     float HighScore { get; }
-    void ChangeStateToTitle();
-    void ChangeStateToInGame();
-    void ChangeStateToResult();
+    void ChangeState(GameFlowState state);
     void ManualUpdate(float deltaTime);
-    void AddDistanceScore(float deltaTime);
     void AddItemScore(float score);
-    void AddSpeed(float deltaTime);
-    void GameStart();
-    void GameStop();
 }
-public class GameModel : IGameModel
+public class GameModel : IGameModel , IDisposable
 {
     GameModelSetting _gameModelSetting;
-    private readonly ReactiveProperty<GameFlowState> _gameState;
-    public IReadOnlyReactiveProperty<GameFlowState> GameState => _gameState;
-    private readonly ReactiveProperty<float> _gameSpeed ;
-    public IReadOnlyReactiveProperty<float> GameSpeed => _gameSpeed;
-    private readonly ReactiveProperty<float> _score;
-    public IReadOnlyReactiveProperty<float> Score => _score;
-    private SaveData _saveData;
+    SaveData _saveData;
+
+    readonly ReactiveProperty<GameFlowState> _gameState;
+    readonly ReactiveProperty<float> _gameSpeed ;
+    readonly ReactiveProperty<float> _score;
+    float _currentSpeed;
     public float HighScore => _saveData.HighScore;
+    public IReadOnlyReactiveProperty<GameFlowState> GameState => _gameState;
+    public IReadOnlyReactiveProperty<float> GameSpeed => _gameSpeed;
+    public IReadOnlyReactiveProperty<float> Score => _score;
     public GameModel(GameModelSetting gameModelSetting)
     {
         _gameModelSetting = gameModelSetting;
-        _gameState = new(GameFlowState.Inisialize);
+        _gameState = new(GameFlowState.Initialize);
         _gameSpeed = new(0f);
         _score = new(0f);
         SaveDataInterface.LoadJson(out _saveData);
+        _disposable = new();
+        Bind();
     }
-    public void ChangeStateToTitle()
-        => _gameState.Value = GameFlowState.Title;
-    public void ChangeStateToInGame()
-        => _gameState.Value = GameFlowState.InGame;
-    public void ChangeStateToResult()
+    void Bind()
     {
-        _gameState.Value = GameFlowState.Result;
-        _saveData.SaveScore(Score.Value);
-        SaveDataInterface.SaveJson(_saveData);
+        GameState.Subscribe(
+            x =>
+            {
+                switch (x)
+                {
+                    case GameFlowState.Initialize:
+                        _currentSpeed = _gameModelSetting.StartSpeed;
+                        break;
+                    case GameFlowState.InGame:
+                        _gameSpeed.Value = _currentSpeed;
+                        break;
+                    case GameFlowState.Pause:
+                        _currentSpeed = _gameSpeed.Value;
+                        break;
+                    case GameFlowState.Result:
+                        _gameSpeed.Value = 0f;
+                        _currentSpeed = _gameModelSetting.StartSpeed;
+                        _saveData.SaveScore(Score.Value);
+                        SaveDataInterface.SaveJson(_saveData);
+                        _score.Value = 0f;
+                        break;
+                    default:
+                        break;
+                }
+            })
+        .AddTo(_disposable);
+    }
+    public void ChangeState(GameFlowState state)
+    {
+#if UNITY_EDITOR
+        Debug.Log(state);
+#endif
+        _gameState.Value = state;
     }
     public void ManualUpdate(float deltaTime)
     {
-        AddDistanceScore(deltaTime);
-        AddSpeed(deltaTime);
-    }
-    public void AddDistanceScore(float deltaTime)
-    {
-        _score.Value += _gameModelSetting.ScoreRatePerSecond * deltaTime;
+        AddScoreByDistance(deltaTime);
+        AddSpeedByDistance(deltaTime);
     }
     public void AddItemScore(float score)
     {
         _score.Value += score;
     }
-    public void AddSpeed(float deltaTime)
+    void AddScoreByDistance(float deltaTime)
     {
-        _gameSpeed.Value += _gameModelSetting.SpeedUpRate * deltaTime; ;
+        _score.Value += _gameModelSetting.ScoreRatePerSecond * deltaTime;
     }
-    public void GameStart()
+    void AddSpeedByDistance(float deltaTime)
     {
-        _gameSpeed.Value = 0.5f;
-        _score.Value = 0f;
-    }
-    public void GameStop()
-    {
-        _gameSpeed.Value = 0f;
+        _gameSpeed.Value += _gameModelSetting.SpeedUpRate * deltaTime;
     }
 
+
+    /// <summary>
+    /// VContainerから呼び出される
+    /// </summary>
+    CompositeDisposable _disposable;
+    public void Dispose()
+    {
+        _disposable.Dispose();
+    }
 }
 

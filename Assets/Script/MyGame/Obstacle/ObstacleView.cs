@@ -5,11 +5,9 @@ public interface IObstacleView
 {
     void SetAnimator(Animator animator);
     void SetXMovement(float xMovement);
+    void Pause();
+    void Resume();
 }
-/// <summary>
-/// Animatorは全ての障害物に持たせるようにする。！！
-/// Viewには勝手に判断させない。
-/// </summary>
 public class ObstacleView :IObstacleView
 {
     Animator _animator;
@@ -25,5 +23,15 @@ public class ObstacleView :IObstacleView
         if (_animator == null) return;
         _animator.SetFloat("XMovement", xMovement);
     }
+    public void Pause()
+    {
+        if (_animator == null) return;
+        _animator.speed = 0f;
+    }
 
+    public void Resume()
+    {
+        if (_animator == null) return;
+        _animator.speed = 1f;
+    }
 }

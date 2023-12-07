@@ -8,15 +8,13 @@ using MyScriptableObjectClass;
 public interface IGameView
 {
     void ManualUpdate(float deltaTime);
-
     void SetUVSpeed(float speed);
-
     void SetScore(float currentScore);
-
     void ShowResultUI();
-
     UniTaskVoid ShowHighScore(float highScore);
     UniTaskVoid ShowResultScore(float score);
+    void Pause();
+    void Resume();
 }
 public class GameView : IGameView
 {
@@ -28,11 +26,10 @@ public class GameView : IGameView
     GameObject _resultUIGroup;
     Text _highScoreText;
     Text _resultScoreText;
-    
-   
+    GameObject _pauseUI;
     public GameView(GameViewSetting gameViewSetting ,float titleAnimationTime, float resultAnimationTime 
         ,IBackGroundController background , Text scoreText , GameObject resultUIGroup
-        ,Text resultScoreText , Text highScoreText)
+        ,Text resultScoreText , Text highScoreText ,GameObject pauseUI)
     {
         _gameViewSetting = gameViewSetting;
         _titleAnimationTime = titleAnimationTime;
@@ -42,6 +39,7 @@ public class GameView : IGameView
         _resultUIGroup = resultUIGroup;
         _resultScoreText = resultScoreText;
         _highScoreText = highScoreText;
+        _pauseUI = pauseUI;
     }
     public void ManualUpdate(float deltaTime)
     {
@@ -66,7 +64,7 @@ public class GameView : IGameView
         _ = DOVirtual.Float(
             0f,
             highScore,
-            _gameViewSetting.ResultScoreCountUpTime,
+            _gameViewSetting.ScoreCountUpTime,
             value => _highScoreText.text = value.ToString("00000000")
         );
     }
@@ -77,8 +75,16 @@ public class GameView : IGameView
         _ = DOVirtual.Float(
             0f,
             score,
-            _gameViewSetting.ResultScoreCountUpTime,
+            _gameViewSetting.ScoreCountUpTime,
             value => _resultScoreText.text = value.ToString("00000000")
         );
+    }
+    public void Pause()
+    {
+        _pauseUI.SetActive(true);
+    }
+    public void Resume()
+    {
+        _pauseUI.SetActive(false);
     }
 }

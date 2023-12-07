@@ -19,16 +19,18 @@ namespace MyScriptableObjectClass
     [System.Serializable]
     public class GameModelSetting
     {
-        [SerializeField] float _scoreRatePerSecond;
+        [SerializeField] float _startSpeed;
         [SerializeField] float _speedUpRate;
-        public float ScoreRatePerSecond => _scoreRatePerSecond;
+        [SerializeField] float _scoreRatePerSecond;
+        public float StartSpeed => _startSpeed;
         public float SpeedUpRate => _speedUpRate;
+        public float ScoreRatePerSecond => _scoreRatePerSecond;
     }
     [System.Serializable]
     public class GameViewSetting
     {
         [SerializeField] float _resultScoreCountUpTime;
-        public float ResultScoreCountUpTime => _resultScoreCountUpTime;
+        public float ScoreCountUpTime => _resultScoreCountUpTime;
     }
     [System.Serializable]
     public class PlayerModelSetting

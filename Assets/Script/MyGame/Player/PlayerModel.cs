@@ -40,7 +40,7 @@ public class PlayerModel : IPlayerModel , IDisposable
             .Skip(1)
             .Subscribe(x => { ClumpX(); })
             .AddTo(_disposable);
-        _playerState = new(PlayerCondition.Waiting);   
+        _playerState = new(PlayerCondition.Initialize);   
     }
     CompositeDisposable _disposable = new();
     public void Dispose()

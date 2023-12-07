@@ -16,8 +16,10 @@ public interface IObstaclePresenter
     void SetObstacle(float posX, float posY);
     void UpdateObstacleMove(float deltaTime, float speed);
     void InstantiateDestroyEffect();
+    void Pause();
+    void Resume();
 }
-public class ObstaclePresenter : IObstaclePresenter
+public class ObstaclePresenter : IObstaclePresenter 
 {
     IObstacleModel _model;
     IObstacleView _view;
@@ -55,5 +57,15 @@ public class ObstaclePresenter : IObstaclePresenter
     public void InstantiateDestroyEffect()
     {
        _model.InstantiateDestroyEffect();
+    }
+
+    public void Pause()
+    {
+        _view.Pause();
+    }
+
+    public void Resume()
+    {
+        _view.Resume();
     }
 }

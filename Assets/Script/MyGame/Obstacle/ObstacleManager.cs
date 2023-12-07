@@ -9,7 +9,7 @@ using VContainer.Unity;
 using MyScriptableObjectClass;
 using System;
 
-public interface IObstacleManager 
+public interface IObstacleManager
 {
     IReadOnlyReactiveDictionary<IObstaclePresenter, Vector2> ObstaclePosition { get; }
     void UpdateObstacleMove(float deltaTime, float speed);
@@ -17,17 +17,17 @@ public interface IObstacleManager
     void HitObstacle(in IObstaclePresenter presenter);
     void Reset();
 }
-public class ObstacleManager : IObstacleManager ,  IDisposable
+public class ObstacleManager : IObstacleManager, IDisposable, IPauseable
 {
     IObstacleGenerator _obstacleGenerator;
     ObstacleGeneratorSetting _obstacleGeneratorSetting;
-    public ObstacleManager(ObstacleGeneratorSetting obstacleGeneratorSetting , IObstacleGenerator obstacleGenerator)
+    public ObstacleManager(ObstacleGeneratorSetting obstacleGeneratorSetting, IObstacleGenerator obstacleGenerator)
     {
         _obstacleGenerator = obstacleGenerator;
         _obstacleGeneratorSetting = obstacleGeneratorSetting;
     }
     List<ObstacleData> _obstacleDataSet => _obstacleGeneratorSetting.ObstacleDataSet;
-    Dictionary<IObstaclePresenter,IDisposable> _presenterDisposablePair = new();
+    Dictionary<IObstaclePresenter, IDisposable> _presenterDisposablePair = new();
     //障害物全てのポジションの更新を受け取り、公開する。
     public readonly ReactiveDictionary<IObstaclePresenter, Vector2> _obstaclePosition = new();
     public IReadOnlyReactiveDictionary<IObstaclePresenter, Vector2> ObstaclePosition => _obstaclePosition;
@@ -50,7 +50,7 @@ public class ObstacleManager : IObstacleManager ,  IDisposable
         if (_makeObstacleDistance > _obstacleGeneratorSetting.ObstacleMakePerDistance)
         {
             var ramdomIndex = UnityEngine.Random.Range(0, _obstacleDataSet.Count());
-             _obstacleGenerator.GetObstacle(_obstacleDataSet[ramdomIndex], out IObstaclePresenter presenter);
+            _obstacleGenerator.GetObstacle(_obstacleDataSet[ramdomIndex], out IObstaclePresenter presenter);
             var disposable = presenter.Position.Subscribe(x => _obstaclePosition[presenter] = x);
             _presenterDisposablePair.Add(presenter, disposable);
             SetObstacleInitializePosition(in presenter);
@@ -95,7 +95,7 @@ public class ObstacleManager : IObstacleManager ,  IDisposable
     }
     public void HitObstacle(in IObstaclePresenter presenter)
     {
-        presenter.SetObstacle( 0f, -_obstacleGeneratorSetting.ObstacleFrameOutRange);
+        presenter.SetObstacle(0f, -_obstacleGeneratorSetting.ObstacleFrameOutRange);
     }
     void ReleaseObstacle(IObstaclePresenter presenter)
     {
@@ -112,7 +112,22 @@ public class ObstacleManager : IObstacleManager ,  IDisposable
     {
         _disposable.Dispose();
     }
-
-
+    /// <summary>
+    /// ObstaclePresenterとObstacleViewにはIPausableを実装せずにここから呼び出している。
+    /// </summary>
+    public void Pause()
+    {
+        foreach (var presenter in _activePresenterList)
+        {
+            presenter.Pause();
+        }
+    }
+    public void Resume()
+    {
+        foreach (var presenter in _activePresenterList)
+        {
+            presenter.Resume();
+        }
+    }
 }
 
