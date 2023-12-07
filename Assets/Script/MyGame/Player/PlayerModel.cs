@@ -8,29 +8,33 @@ public interface IPlayerModel
 {
     IReadOnlyReactiveProperty<PlayerCondition> PlayerState { get; }
     float PlayerHitRange { get; }
-    float PositionY { get;}
+    float PositionY { get; }
     IReadOnlyReactiveProperty<float> PositionX { get; }
-    void SetPlayerCondition(PlayerCondition condition);
+    void Initialize();
+    void GameStart();
+    void Dying();
+    void Dead();
+    void Pause();
+    void Resume();
     void SetSpeedRate(float speedRate);
     void Move(float x);
     void Reset();
 }
 
-public class PlayerModel : IPlayerModel , IDisposable
+public class PlayerModel : IPlayerModel, IDisposable
 {
-    
     Transform _playerTransform;
     PlayerModelSetting _playerModelSetting;
 
     float _speedRate;
     float _positionY;
     public float PlayerHitRange => _playerModelSetting.PlayerHitRange;
-    public float PositionY => _positionY ;
+    public float PositionY => _positionY;
     readonly ReactiveProperty<float> _positionX;
     public IReadOnlyReactiveProperty<float> PositionX => _positionX;
     readonly ReactiveProperty<PlayerCondition> _playerState;
     public IReadOnlyReactiveProperty<PlayerCondition> PlayerState => _playerState;
-    public PlayerModel(PlayerModelSetting playerModelSetting , Transform playerTransform)
+    public PlayerModel(PlayerModelSetting playerModelSetting, Transform playerTransform)
     {
         _playerTransform = playerTransform;
         _playerModelSetting = playerModelSetting;
@@ -40,14 +44,15 @@ public class PlayerModel : IPlayerModel , IDisposable
             .Skip(1)
             .Subscribe(x => { ClumpX(); })
             .AddTo(_disposable);
-        _playerState = new(PlayerCondition.Initialize);   
+        _playerState = new(PlayerCondition.Initialize);
     }
     CompositeDisposable _disposable = new();
     public void Dispose()
     {
         _disposable.Dispose();
     }
-    public void SetPlayerCondition(PlayerCondition condition)
+
+    void SetPlayerCondition(PlayerCondition condition)
     {
         _playerState.Value = condition;
     }
@@ -73,6 +78,35 @@ public class PlayerModel : IPlayerModel , IDisposable
     {
         var position = _playerTransform.position;
         var clampX = Mathf.Clamp(position.x, InGameConst.GroundXMargin, InGameConst.WindowWidth - InGameConst.GroundXMargin);
-        _playerTransform.position = new Vector2(clampX,position.y);
+        _playerTransform.position = new Vector2(clampX, position.y);
+    }
+
+    public void Initialize()
+    {
+        SetPlayerCondition(PlayerCondition.Initialize);
+    }
+
+    public void GameStart()
+    {
+        SetPlayerCondition(PlayerCondition.Alive);
+    }
+
+    public void Dying()
+    {
+        SetPlayerCondition(PlayerCondition.Dying);
+    }
+    public void Dead()
+    {
+        SetPlayerCondition(PlayerCondition.Dead);
+    }
+
+    public void Pause()
+    {
+        SetPlayerCondition(PlayerCondition.Pause);
+    }
+
+    public void Resume()
+    {
+        SetPlayerCondition(PlayerCondition.Alive);
     }
 }

@@ -1,9 +1,11 @@
+//ステートマシンを利用することでよりスマートに書くことが出来るはず。
 public enum GameFlowState
 {
     None,
     Initialize,
     Title,
-    GameStart,
+    GameInitialize,
+    GameInitializeEnd,
     InGame,
     Pause,
     Waiting,
@@ -15,7 +17,7 @@ public enum PlayerCondition
     Initialize,
     Alive,
     Pause,
-    OnDead,
+    Dying,
     Dead,
 }
 public enum ItemType

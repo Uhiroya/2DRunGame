@@ -7,18 +7,16 @@ using Cysharp.Threading.Tasks;
 public interface IPlayerPresenter
 {
     IReadOnlyReactiveProperty<PlayerCondition> PlayerState { get; }
-    Vector2 PlayerPosition { get;}
-    float PlayerHitRange { get;}
+    Vector2 PlayerPosition { get; }
+    float PlayerHitRange { get; }
+    void OnGameFlowStateChanged(GameFlowState gameFlowState);
     void SetInputX(float x);
     void SetSpeedRate(float speedRate);
-    void Reset();
-    void InitializePlayer();
-    void GameStart();
-    void HitObject();
+    void Dying();
 
 }
 [RequireComponent(typeof(Rigidbody2D))]
-public class PlayerPresenter : IPlayerPresenter ,IPauseable , IFixedTickable, System.IDisposable
+public class PlayerPresenter : IPlayerPresenter, IPauseable, IFixedTickable, System.IDisposable
 {
     public IReadOnlyReactiveProperty<PlayerCondition> PlayerState => _model.PlayerState;
     public float PlayerHitRange => _model.PlayerHitRange;
@@ -30,10 +28,10 @@ public class PlayerPresenter : IPlayerPresenter ,IPauseable , IFixedTickable, Sy
     CompositeDisposable _disposable;
     float _currentInputX;
     [Inject]
-    public PlayerPresenter(IPlayerModel model , IPlayerView view)
+    public PlayerPresenter(IPlayerModel model, IPlayerView view)
     {
         _disposable = new();
-        _model =  model;
+        _model = model;
         _view = view;
         Bind();
     }
@@ -48,44 +46,38 @@ public class PlayerPresenter : IPlayerPresenter ,IPauseable , IFixedTickable, Sy
             case PlayerCondition.Alive:
                 _model.Move(_currentInputX);
                 break;
-            default: 
+            default:
                 break;
         }
-        
+
     }
 
-    public void Bind()
+    void Bind()
     {
         //プレイヤー移動の監視
-        _model.PositionX.Subscribe(x => _playerPosition = new Vector2 (x, _model.PositionY)).AddTo(_disposable);
-        _model.PlayerState
-            .Subscribe(
-            async x =>
-            {
-                switch(x)
-                {
-                    case PlayerCondition.Initialize:
-                        _view.OnInitialize();
-                        break;
-                    case PlayerCondition.Pause:
-                        _view.OnWaiting();
-                        break;
-                    case PlayerCondition.Alive:
-                        _view.OnWalk();
-                        break;
-                    case PlayerCondition.OnDead:
-                        await _view.OnDead();
-                        _model.SetPlayerCondition(PlayerCondition.Dead);
-                        break;
-                    default:
-                        break;
-                }
-            }).AddTo(_disposable);
+        _model.PositionX.Subscribe(x => _playerPosition = new Vector2(x, _model.PositionY)).AddTo(_disposable);
+        //modelとviewのバインド
+        _model.PlayerState.Subscribe(x => _view.OnPlayerConditionChanged(x)).AddTo(_disposable);
+        _view.OnFinishDeadAnimation += _model.Dead;
     }
-    public void Reset()
+    public void OnGameFlowStateChanged(GameFlowState gameFlowState)
     {
-        _model.Reset();
+        switch (gameFlowState)
+        {
+            case GameFlowState.Title:
+                InitializePlayer();
+                break;
+            case GameFlowState.GameInitialize:
+                GameStart();
+                break;
+            case GameFlowState.Result:
+                Reset();
+                break;
+            default:
+                break;
+        }
     }
+
     public void SetInputX(float x)
     {
         _currentInputX = x;
@@ -94,26 +86,32 @@ public class PlayerPresenter : IPlayerPresenter ,IPauseable , IFixedTickable, Sy
     {
         _model.SetSpeedRate(speedRate);
     }
-    public void InitializePlayer()
+
+    public void Dying()
     {
-        _model.SetPlayerCondition(PlayerCondition.Initialize);
-    }
-    public void GameStart()
-    {
-        _model.SetPlayerCondition(PlayerCondition.Alive);
-    }
-    public void HitObject()
-    {
-        _model.SetPlayerCondition(PlayerCondition.OnDead);
+        _model.Dying();
     }
 
     public void Pause()
     {
-        _model.SetPlayerCondition(PlayerCondition.Pause);
+        _model.Pause();
     }
 
     public void Resume()
     {
-        _model.SetPlayerCondition(PlayerCondition.Alive);
+        _model.Resume();
+    }
+
+    void InitializePlayer()
+    {
+        _model.Initialize();
+    }
+    void GameStart()
+    {
+        _model.GameStart();
+    }
+    void Reset()
+    {
+        _model.Reset();
     }
 }

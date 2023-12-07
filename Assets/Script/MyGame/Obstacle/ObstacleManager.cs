@@ -12,6 +12,7 @@ using System;
 public interface IObstacleManager
 {
     IReadOnlyReactiveDictionary<IObstaclePresenter, Vector2> ObstaclePosition { get; }
+    void OnGameFlowStateChanged(GameFlowState gameFlowState);
     void UpdateObstacleMove(float deltaTime, float speed);
     void SetObstacleInitializePosition(in IObstaclePresenter presenter);
     void HitObstacle(in IObstaclePresenter presenter);
@@ -38,6 +39,18 @@ public class ObstacleManager : IObstacleManager, IDisposable, IPauseable
     /// 障害物を生成する距離
     /// </summary>
     float _makeObstacleDistance;
+    
+    public void OnGameFlowStateChanged(GameFlowState gameFlowState)
+    {
+        switch (gameFlowState)
+        {
+            case GameFlowState.Result:
+                Reset();
+                break;
+            default:
+                break;
+        }
+    }
     /// <summary>
     /// アップデートタイミングによって障害物の生成及び移動を行うメソッド
     /// </summary>

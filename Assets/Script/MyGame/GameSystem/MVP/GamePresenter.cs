@@ -40,12 +40,12 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
     /// <summary>ボタンから呼び出される。</summary>
     public void GoTitle()
     {
-        _model.ChangeState(GameFlowState.Title);
+        _model.GoTitle();
     }
     /// <summary>ボタンから呼び出される。</summary>
     public void GameStart()
     {
-        _model.ChangeState(GameFlowState.GameStart);
+        _model.GameStart();
     }
     /// <summary>
     ///VContainerから呼び出される
@@ -57,7 +57,7 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
     }
     public void Start()
     {
-        _model.ChangeState(GameFlowState.Title);
+        _model.GoTitle();
     }
     public void Tick()
     {
@@ -82,6 +82,13 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
     void Bind()
     {
         //modelとviewのバインド
+        _model.HighScore
+            .Subscribe(
+                x =>
+                {
+                    _view.SetHighScore(x);
+                })
+            .AddTo(_disposable);
         _model.GameSpeed
             .Subscribe(
                 x =>
@@ -103,24 +110,9 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
             .Subscribe(
                 x =>
                 {
-                    switch (x)
-                    {
-                        case GameFlowState.Title:
-                            _view.ShowHighScore(_model.HighScore);
-                            _playerPresenter.InitializePlayer();
-                            break;
-                        case GameFlowState.GameStart:
-                            _playerPresenter.GameStart();
-                            _model.ChangeState(GameFlowState.InGame);
-                            break;
-                        case GameFlowState.Result:
-                            _playerPresenter.Reset();
-                            _obstacleManager.Reset();
-                            _view.ShowResultUI();
-                            break;
-                        default:
-                            break;
-                    }
+                    _view.OnGameFlowStateChanged(x);
+                    _playerPresenter.OnGameFlowStateChanged(x);
+                    _obstacleManager.OnGameFlowStateChanged(x);
                 })
             .AddTo(_disposable);
 
@@ -129,18 +121,7 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
             .Subscribe(
             x =>
             {
-                switch(x)
-                {
-                    case PlayerCondition.OnDead:
-                        _model.ChangeState(GameFlowState.Waiting);
-                        break;
-                    case PlayerCondition.Dead:                       
-                        _view.ShowResultScore(_model.Score.Value);
-                        _model.ChangeState(GameFlowState.Result);
-                        break;
-                    default:
-                        break;
-                }
+                _model.OnPlayerConditionChanged(x);
             })
             .AddTo(_disposable);
 
@@ -167,7 +148,7 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
                 _model.AddItemScore(obstacle.ObstacleInfo.Score);
                 break;
             case ItemType.Enemy:
-                _playerPresenter.HitObject();
+                _playerPresenter.Dying();
                 obstacle.InstantiateDestroyEffect();
                 break;
             default:
@@ -177,13 +158,13 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
     }
     public void Pause()
     {
-        _model.ChangeState(GameFlowState.Pause);
+        _model.Pause();
         _view.Pause();
     }
 
     public void Resume()
     {
-        _model.ChangeState(GameFlowState.InGame);
+        _model.Resume();
         _view.Resume();
     }
 }
