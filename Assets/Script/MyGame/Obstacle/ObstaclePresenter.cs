@@ -10,7 +10,7 @@ public interface IObstaclePresenter
     int ModelID { get; }
     int ObstacleID { get; }
     ObstaclePublicInfo ObstacleInfo { get; }
-    IReadOnlyReactiveProperty<Vector2> Position { get; }
+    Circle GetCollider();
     void SetTransform(Transform transform);
     void SetAnimator(Animator animator);
     void SetObstacle(float posX, float posY);
@@ -31,15 +31,8 @@ public class ObstaclePresenter : IObstaclePresenter
     public int ModelID => _model.ModelID;
     public int ObstacleID => _model.ObstacleID;
     public ObstaclePublicInfo ObstacleInfo => _model.ObstacleInfo;
-    readonly ReactiveProperty<Vector2> _position = new();
-    public IReadOnlyReactiveProperty<Vector2> Position => _position;
     public void SetTransform(Transform transform)
     {
-        _model.Position.Subscribe(pos =>
-            {
-                _view.SetXMovement(pos.x - _position.Value.x);
-                _position.Value = pos;
-            });
         _model.SetTransform(transform);
     }
     public void SetAnimator(Animator animator)
@@ -58,7 +51,10 @@ public class ObstaclePresenter : IObstaclePresenter
     {
        _model.InstantiateDestroyEffect();
     }
-
+    public Circle GetCollider()
+    {
+        return _model.GetCollider();
+    }
     public void Pause()
     {
         _view.Pause();

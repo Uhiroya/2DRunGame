@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 using MyScriptableObjectClass;
+using UnityEngine.UIElements;
+
 public interface IPlayerModel
 {
     IReadOnlyReactiveProperty<PlayerCondition> PlayerState { get; }
-    float PlayerHitRange { get; }
-    float PositionY { get; }
-    IReadOnlyReactiveProperty<float> PositionX { get; }
+    Circle GetCollider();
     void Initialize();
     void GameStart();
     void Dying();
@@ -27,24 +27,17 @@ public class PlayerModel : IPlayerModel, IDisposable
     PlayerModelSetting _playerModelSetting;
 
     float _speedRate;
-    float _positionY;
-    public float PlayerHitRange => _playerModelSetting.PlayerHitRange;
-    public float PositionY => _positionY;
-    readonly ReactiveProperty<float> _positionX;
-    public IReadOnlyReactiveProperty<float> PositionX => _positionX;
+    Vector2 _position;
+    Circle _collider;
     readonly ReactiveProperty<PlayerCondition> _playerState;
     public IReadOnlyReactiveProperty<PlayerCondition> PlayerState => _playerState;
     public PlayerModel(PlayerModelSetting playerModelSetting, Transform playerTransform)
     {
         _playerTransform = playerTransform;
         _playerModelSetting = playerModelSetting;
-        _positionY = _playerTransform.position.y;
-        _positionX = new(0f);
-        _positionX
-            .Skip(1)
-            .Subscribe(x => { ClumpX(); })
-            .AddTo(_disposable);
+        _position = _playerTransform.position;
         _playerState = new(PlayerCondition.Initialize);
+        _collider = new Circle(_position , _playerModelSetting.PlayerHitRange);
     }
     CompositeDisposable _disposable = new();
     public void Dispose()
@@ -62,28 +55,22 @@ public class PlayerModel : IPlayerModel, IDisposable
     }
     public void Move(float x)
     {
-        _playerTransform.position += new Vector3(x * _playerModelSetting.PlayerDefaultSpeed * _speedRate, 0f);
-        _positionX.Value = _playerTransform.position.x;
+        var nextPosX = _position.x + x * _playerModelSetting.PlayerDefaultSpeed * _speedRate;
+        //移動制限
+        nextPosX = Mathf.Clamp(nextPosX, InGameConst.GroundXMargin, InGameConst.WindowWidth - InGameConst.GroundXMargin);
+        _position = new Vector2(nextPosX, _position.y);
+        _collider.SetCenter(_position);
+        _playerTransform.position = _position;
     }
-    public void Reset()
+    public Circle GetCollider()
     {
-        _playerTransform.position = new Vector3(InGameConst.WindowWidth / 2, 0f, 0f);
-        _positionX.Value = InGameConst.WindowWidth / 2;
-        _playerState.Value = 0f;
-    }
-    /// <summary>
-    /// 移動制限
-    /// </summary>
-    void ClumpX()
-    {
-        var position = _playerTransform.position;
-        var clampX = Mathf.Clamp(position.x, InGameConst.GroundXMargin, InGameConst.WindowWidth - InGameConst.GroundXMargin);
-        _playerTransform.position = new Vector2(clampX, position.y);
+        return _collider;
     }
 
     public void Initialize()
     {
         SetPlayerCondition(PlayerCondition.Initialize);
+        Reset();
     }
 
     public void GameStart()
@@ -108,5 +95,10 @@ public class PlayerModel : IPlayerModel, IDisposable
     public void Resume()
     {
         SetPlayerCondition(PlayerCondition.Alive);
+    }
+    public void Reset()
+    {
+        _playerTransform.position = new Vector3(InGameConst.WindowWidth / 2, 0f, 0f);
+        _position = new Vector2(InGameConst.WindowWidth / 2, _position.y);
     }
 }

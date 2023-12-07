@@ -7,8 +7,7 @@ using Cysharp.Threading.Tasks;
 public interface IPlayerPresenter
 {
     IReadOnlyReactiveProperty<PlayerCondition> PlayerState { get; }
-    Vector2 PlayerPosition { get; }
-    float PlayerHitRange { get; }
+    Circle GetCollider();
     void OnGameFlowStateChanged(GameFlowState gameFlowState);
     void SetInputX(float x);
     void SetSpeedRate(float speedRate);
@@ -19,9 +18,7 @@ public interface IPlayerPresenter
 public class PlayerPresenter : IPlayerPresenter, IPauseable, IFixedTickable, System.IDisposable
 {
     public IReadOnlyReactiveProperty<PlayerCondition> PlayerState => _model.PlayerState;
-    public float PlayerHitRange => _model.PlayerHitRange;
-    Vector2 _playerPosition;
-    public Vector2 PlayerPosition => _playerPosition;
+
     IPlayerModel _model;
     IPlayerView _view;
 
@@ -54,8 +51,6 @@ public class PlayerPresenter : IPlayerPresenter, IPauseable, IFixedTickable, Sys
 
     void Bind()
     {
-        //プレイヤー移動の監視
-        _model.PositionX.Subscribe(x => _playerPosition = new Vector2(x, _model.PositionY)).AddTo(_disposable);
         //modelとviewのバインド
         _model.PlayerState.Subscribe(x => _view.OnPlayerConditionChanged(x)).AddTo(_disposable);
         _view.OnFinishDeadAnimation += _model.Dead;
@@ -68,16 +63,17 @@ public class PlayerPresenter : IPlayerPresenter, IPauseable, IFixedTickable, Sys
                 InitializePlayer();
                 break;
             case GameFlowState.GameInitialize:
-                GameStart();
-                break;
-            case GameFlowState.Result:
                 Reset();
+                GameStart();
                 break;
             default:
                 break;
         }
     }
-
+    public Circle GetCollider()
+    {
+        return _model.GetCollider();
+    }
     public void SetInputX(float x)
     {
         _currentInputX = x;

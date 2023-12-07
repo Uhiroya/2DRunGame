@@ -11,7 +11,7 @@ using System;
 
 public interface IObstacleManager
 {
-    IReadOnlyReactiveDictionary<IObstaclePresenter, Vector2> ObstaclePosition { get; }
+    List<(Circle, IObstaclePresenter)> GetObstacleColliders();
     void OnGameFlowStateChanged(GameFlowState gameFlowState);
     void UpdateObstacleMove(float deltaTime, float speed);
     void SetObstacleInitializePosition(in IObstaclePresenter presenter);
@@ -28,10 +28,6 @@ public class ObstacleManager : IObstacleManager, IDisposable, IPauseable
         _obstacleGeneratorSetting = obstacleGeneratorSetting;
     }
     List<ObstacleData> _obstacleDataSet => _obstacleGeneratorSetting.ObstacleDataSet;
-    Dictionary<IObstaclePresenter, IDisposable> _presenterDisposablePair = new();
-    //障害物全てのポジションの更新を受け取り、公開する。
-    public readonly ReactiveDictionary<IObstaclePresenter, Vector2> _obstaclePosition = new();
-    public IReadOnlyReactiveDictionary<IObstaclePresenter, Vector2> ObstaclePosition => _obstaclePosition;
 
     List<IObstaclePresenter> _activePresenterList = new();
     List<IObstaclePresenter> _removeObstacleList = new();
@@ -64,8 +60,6 @@ public class ObstacleManager : IObstacleManager, IDisposable, IPauseable
         {
             var ramdomIndex = UnityEngine.Random.Range(0, _obstacleDataSet.Count());
             _obstacleGenerator.GetObstacle(_obstacleDataSet[ramdomIndex], out IObstaclePresenter presenter);
-            var disposable = presenter.Position.Subscribe(x => _obstaclePosition[presenter] = x);
-            _presenterDisposablePair.Add(presenter, disposable);
             SetObstacleInitializePosition(in presenter);
             _activePresenterList.Add(presenter);
             _makeObstacleDistance = 0;
@@ -74,7 +68,7 @@ public class ObstacleManager : IObstacleManager, IDisposable, IPauseable
         foreach (var presenter in _activePresenterList)
         {
             presenter.UpdateObstacleMove(deltaTime, speed);
-            if (presenter.Position.Value.y < -_obstacleGeneratorSetting.ObstacleFrameOutRange)
+            if (presenter.GetCollider().GetCenter().y < -_obstacleGeneratorSetting.ObstacleFrameOutRange)
             {
                 _removeObstacleList.Add(presenter);
             }
@@ -113,8 +107,6 @@ public class ObstacleManager : IObstacleManager, IDisposable, IPauseable
     void ReleaseObstacle(IObstaclePresenter presenter)
     {
         _obstacleGenerator.ReleaseObstacle(presenter);
-        _presenterDisposablePair[presenter].Dispose();
-        _presenterDisposablePair.Remove(presenter);
         _activePresenterList.Remove(presenter);
     }
     /// <summary>
@@ -141,6 +133,15 @@ public class ObstacleManager : IObstacleManager, IDisposable, IPauseable
         {
             presenter.Resume();
         }
+    }
+    public List<(Circle , IObstaclePresenter)> GetObstacleColliders()
+    {
+        List<(Circle, IObstaclePresenter)> obstacleColliders = new();
+        foreach (var presenter in _activePresenterList)
+        {
+            obstacleColliders.Add((presenter.GetCollider() , presenter));
+        }
+        return obstacleColliders;
     }
 }
 

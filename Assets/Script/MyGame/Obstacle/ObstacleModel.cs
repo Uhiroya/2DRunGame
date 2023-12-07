@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 using MyScriptableObjectClass;
 public interface IObstacleModel
 {
-    IReadOnlyReactiveProperty<Vector2> Position { get; }
+    Circle GetCollider();
     ObstaclePublicInfo ObstacleInfo { get; }
     int ModelID { get; }
     int ObstacleID { get; }
@@ -32,11 +32,14 @@ public class ObstacleModel : IObstacleModel
     {
         _transform = transform;
     }
-    readonly ReactiveProperty<Vector2> _position = new(Vector2.zero);
-    public IReadOnlyReactiveProperty<Vector2> Position => _position;
+    Circle _collider;
     float _xMoveRange;
     float _defaultPositionX = 0f;
     float _time;
+    public Circle GetCollider()
+    {
+        return _collider;
+    }
     public void Set(float posX, float posY)
     {
         //SetX
@@ -57,7 +60,7 @@ public class ObstacleModel : IObstacleModel
         //SetX , SetY
         var position = new Vector3(posX, posY);
         _transform.position = position;
-        _position.Value = position;
+        _collider = new(position , ObstacleInfo.HitRange);
     }
     public void Move(float deltaTime, float speed)
     {
@@ -69,12 +72,12 @@ public class ObstacleModel : IObstacleModel
         var moveAmount = deltaTime * speed * InGameConst.WindowHeight * _obstacleData.YMoveSpeed;
         var position = new Vector3(newPos, _transform.position.y - moveAmount);
         _transform.position = position;
-        _position.Value = position;
+        _collider.SetCenter( position);
     }
     public void InstantiateDestroyEffect()
     {
         if (_obstacleData.DestroyEffect == null) return;
-        var obj = Object.Instantiate(_obstacleData.DestroyEffect, (Vector3)_position.Value, Quaternion.identity, _transform.parent);
+        var obj = Object.Instantiate(_obstacleData.DestroyEffect, _transform.position, Quaternion.identity, _transform.parent);
         if (_obstacleData.DestroyAnimation == null)
         {
             Object.Destroy(obj, 1f);

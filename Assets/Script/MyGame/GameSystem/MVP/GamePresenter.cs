@@ -67,6 +67,7 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
                 _view.ManualUpdate(Time.deltaTime);
                 _model.ManualUpdate(Time.deltaTime);
                 _obstacleManager.UpdateObstacleMove(Time.deltaTime, _model.GameSpeed.Value);
+                CheckHit();
                 break;
             default:
                 break;
@@ -124,18 +125,19 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
                 _model.OnPlayerConditionChanged(x);
             })
             .AddTo(_disposable);
-
-        //衝突判定
-        _obstacleManager.ObstaclePosition.
-            ObserveReplace()
-            .Where(x =>
+    }
+    /// <summary>
+    /// 衝突判定
+    /// </summary>
+    void CheckHit()
+    {
+        foreach (var collider in _obstacleManager.GetObstacleColliders())
+        {
+            if (_playerPresenter.GetCollider().IsHit(collider.Item1))
             {
-                //Modelで判定するべき？
-                return Vector2.Distance(x.NewValue, _playerPresenter.PlayerPosition)
-                        < x.Key.ObstacleInfo.HitRange + _playerPresenter.PlayerHitRange;
-            })
-            .Subscribe(x => HitObstacle(x.Key))
-            .AddTo(_disposable);
+                HitObstacle(collider.Item2);
+            }
+        }
     }
     /// <summary>
     /// 衝突時の処理。
