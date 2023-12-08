@@ -5,7 +5,9 @@ using UniRx.Triggers;
 using UnityEngine;
 using VContainer;
 using MyScriptableObjectClass;
-public interface IObstaclePresenter
+using System;
+
+public interface IObstaclePresenter : IDisposable
 {
     int ModelID { get; }
     int ObstacleID { get; }
@@ -23,10 +25,17 @@ public class ObstaclePresenter : IObstaclePresenter
 {
     IObstacleModel _model;
     IObstacleView _view;
+
+    CompositeDisposable _disposable = new();
+    public void Dispose()
+    {
+        _disposable.Dispose();
+    }
     public ObstaclePresenter(IObstacleModel model , IObstacleView view)
     {
         _model = model;
         _view = view;
+        _model.Theta.Subscribe(x => _view.SetTheta(x)).AddTo(_disposable);
     }
     public int ModelID => _model.ModelID;
     public int ObstacleID => _model.ObstacleID;

@@ -27,7 +27,6 @@ public class PlayerModel : IPlayerModel, IDisposable
     PlayerModelSetting _playerModelSetting;
 
     float _speedRate;
-    Vector2 _position;
     Circle _collider;
     readonly ReactiveProperty<PlayerCondition> _playerState;
     public IReadOnlyReactiveProperty<PlayerCondition> PlayerState => _playerState;
@@ -35,9 +34,8 @@ public class PlayerModel : IPlayerModel, IDisposable
     {
         _playerTransform = playerTransform;
         _playerModelSetting = playerModelSetting;
-        _position = _playerTransform.position;
         _playerState = new(PlayerCondition.Initialize);
-        _collider = new Circle(_position , _playerModelSetting.PlayerHitRange);
+        _collider = new Circle(_playerTransform.position, _playerModelSetting.PlayerHitRange);
     }
     CompositeDisposable _disposable = new();
     public void Dispose()
@@ -55,12 +53,13 @@ public class PlayerModel : IPlayerModel, IDisposable
     }
     public void Move(float x)
     {
-        var nextPosX = _position.x + x * _playerModelSetting.PlayerDefaultSpeed * _speedRate;
+        var position = _collider.GetCenter();
+        var nextPosX = position.x + x * _playerModelSetting.PlayerDefaultSpeed * _speedRate;
         //移動制限
         nextPosX = Mathf.Clamp(nextPosX, InGameConst.GroundXMargin, InGameConst.WindowWidth - InGameConst.GroundXMargin);
-        _position = new Vector2(nextPosX, _position.y);
-        _collider.SetCenter(_position);
-        _playerTransform.position = _position;
+        position = new Vector2(nextPosX, position.y);
+        _collider.SetCenter(position);
+        _playerTransform.position = position;
     }
     public Circle GetCollider()
     {
@@ -98,7 +97,8 @@ public class PlayerModel : IPlayerModel, IDisposable
     }
     public void Reset()
     {
-        _playerTransform.position = new Vector3(InGameConst.WindowWidth / 2, 0f, 0f);
-        _position = new Vector2(InGameConst.WindowWidth / 2, _position.y);
+        var resetPos = new Vector2(InGameConst.WindowWidth / 2, _collider.GetCenter().y);
+        _playerTransform.position = resetPos;
+        _collider.SetCenter(resetPos);
     }
 }

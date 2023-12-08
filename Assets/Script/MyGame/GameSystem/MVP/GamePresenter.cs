@@ -18,6 +18,7 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
     IGameView _view;
     IPlayerPresenter _playerPresenter;
     IObstacleManager _obstacleManager;
+    ICollisionChecker _collisionChecker;
     /// <summary>
     /// メンバ変数
     /// </summary>
@@ -26,12 +27,13 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
     /// コンストラクタ
     /// </summary>
     public GamePresenter(IGameModel model , IGameView view 
-        ,IPlayerPresenter playerPresenter, IObstacleManager obstacleGenerator)
+        ,IPlayerPresenter playerPresenter, IObstacleManager obstacleGenerator , ICollisionChecker collisionChecker)
     {
         _model = model ;
         _view = view ;
         _playerPresenter = playerPresenter;
         _obstacleManager = obstacleGenerator;
+        _collisionChecker = collisionChecker;
     }
     /// <summary>
     /// 公開プロパティ、メソッド
@@ -67,7 +69,7 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
                 _view.ManualUpdate(Time.deltaTime);
                 _model.ManualUpdate(Time.deltaTime);
                 _obstacleManager.UpdateObstacleMove(Time.deltaTime, _model.GameSpeed.Value);
-                CheckHit();
+                _collisionChecker.ManualUpdate();
                 break;
             default:
                 break;
@@ -125,24 +127,12 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
                 _model.OnPlayerConditionChanged(x);
             })
             .AddTo(_disposable);
+        _collisionChecker.OnCollisionEnter += CollisionObstacle;
     }
     /// <summary>
-    /// 衝突判定
+    /// 衝突時に呼び出される。
     /// </summary>
-    void CheckHit()
-    {
-        foreach (var collider in _obstacleManager.GetObstacleColliders())
-        {
-            if (_playerPresenter.GetCollider().IsHit(collider.Item1))
-            {
-                HitObstacle(collider.Item2);
-            }
-        }
-    }
-    /// <summary>
-    /// 衝突時の処理。
-    /// </summary>
-    void HitObstacle(IObstaclePresenter obstacle)
+    void CollisionObstacle(IObstaclePresenter obstacle)
     {
         switch (obstacle.ObstacleInfo.ItemType)
         {

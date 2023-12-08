@@ -8,6 +8,7 @@ public interface IObstacleModel
     ObstaclePublicInfo ObstacleInfo { get; }
     int ModelID { get; }
     int ObstacleID { get; }
+    IReadOnlyReactiveProperty<float> Theta { get; }
     void SetTransform(Transform transform);
     void Set(float posX, float posY);
     void Move(float deltaTime, float speed);
@@ -22,11 +23,15 @@ public class ObstacleModel : IObstacleModel
     Transform _transform;
     public int ModelID => _modelID;
     public int ObstacleID => _obstacleData.ObstacleID;
+
+    readonly ReactiveProperty<float> _theta;
+    public IReadOnlyReactiveProperty<float> Theta => _theta;
     public ObstacleModel(ObstacleData obstacleData)
     {
         _obstacleData = obstacleData;
         _modelID = _nextModelID;
         _nextModelID++;
+        _theta = new();
     }
     public void SetTransform(Transform transform)
     {
@@ -66,8 +71,8 @@ public class ObstacleModel : IObstacleModel
     {
         //X移動
         _time += deltaTime;
-        var theta = (_time * speed * _obstacleData.XMoveSpeed) % (Mathf.PI * 2);
-        var newPos = _defaultPositionX + _xMoveRange * Mathf.Sin(theta);
+        _theta.Value = (_time * speed * _obstacleData.XMoveSpeed) % (Mathf.PI * 2);
+        var newPos = _defaultPositionX + _xMoveRange * Mathf.Sin(_theta.Value);
         //Y移動
         var moveAmount = deltaTime * speed * InGameConst.WindowHeight * _obstacleData.YMoveSpeed;
         var position = new Vector3(newPos, _transform.position.y - moveAmount);
