@@ -7,7 +7,7 @@ using Cysharp.Threading.Tasks;
 public interface IPlayerPresenter
 {
     IReadOnlyReactiveProperty<PlayerCondition> PlayerState { get; }
-    Circle GetCollider();
+    MyCircleCollider GetCollider();
     void OnGameFlowStateChanged(GameFlowState gameFlowState);
     void SetInputX(float x);
     void SetSpeedRate(float speedRate);
@@ -70,7 +70,7 @@ public class PlayerPresenter : IPlayerPresenter, IPauseable, IFixedTickable, Sys
                 break;
         }
     }
-    public Circle GetCollider()
+    public MyCircleCollider GetCollider()
     {
         return _model.GetCollider();
     }

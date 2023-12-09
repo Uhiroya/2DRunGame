@@ -16,7 +16,7 @@ public class ObstacleGenerator : IObstacleGenerator, System.IDisposable
 {
     Transform _parentTransform;
 
-    [Inject] readonly System.Func<ObstacleData, IObstaclePresenter> _obstaclePresenterFactory;
+    [Inject] readonly System.Func<Transform ,ObstacleData , IObstaclePresenter> _obstaclePresenterFactory;
     public ObstacleGenerator(Transform parentTransform)
     {
         _parentTransform = parentTransform;
@@ -97,8 +97,7 @@ public class ObstacleGenerator : IObstacleGenerator, System.IDisposable
     }
     void MakePresenter(GameObject obj, ObstacleData obstacleData, out IObstaclePresenter presenter)
     {
-        presenter = _obstaclePresenterFactory.Invoke(obstacleData);
-        presenter.SetTransform(obj.transform);
+        presenter = _obstaclePresenterFactory.Invoke(obj.transform ,obstacleData);
         presenter.SetAnimator(obj.GetComponent<Animator>());
         _objectToPresenterReference.Add(obj, presenter);
         _presenterToObjectReference.Add(presenter, obj);

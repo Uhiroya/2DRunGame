@@ -11,11 +11,12 @@ using System;
 
 public interface IObstacleManager
 {
-    List<(Circle, IObstaclePresenter)> GetObstacleColliders();
+    event Action<float> OnCollisionItemEvent;
+    event Action OnCollisionEnemyEvent;
+    List<MyCircleCollider> GetObstacleColliders();
     void OnGameFlowStateChanged(GameFlowState gameFlowState);
     void UpdateObstacleMove(float deltaTime, float speed);
-    void SetObstacleInitializePosition(in IObstaclePresenter presenter);
-    void HitObstacle(in IObstaclePresenter presenter);
+    void HitObstacle(int hitID);
     void Reset();
 }
 public class ObstacleManager : IObstacleManager, IDisposable, IPauseable
@@ -29,13 +30,15 @@ public class ObstacleManager : IObstacleManager, IDisposable, IPauseable
     }
     List<ObstacleData> _obstacleDataSet => _obstacleGeneratorSetting.ObstacleDataSet;
 
-    List<IObstaclePresenter> _activePresenterList = new();
-    List<IObstaclePresenter> _removeObstacleList = new();
+    Dictionary<int, IObstaclePresenter> _activePresenterList = new(30);
+    Dictionary<int, IObstaclePresenter> _removeObstacleList = new();
     /// <summary>
     /// 障害物を生成する距離
     /// </summary>
     float _makeObstacleDistance;
     
+    public event Action<float> OnCollisionItemEvent;
+    public event Action OnCollisionEnemyEvent;
     public void OnGameFlowStateChanged(GameFlowState gameFlowState)
     {
         switch (gameFlowState)
@@ -60,20 +63,21 @@ public class ObstacleManager : IObstacleManager, IDisposable, IPauseable
         {
             var ramdomIndex = UnityEngine.Random.Range(0, _obstacleDataSet.Count());
             _obstacleGenerator.GetObstacle(_obstacleDataSet[ramdomIndex], out IObstaclePresenter presenter);
-            SetObstacleInitializePosition(in presenter);
-            _activePresenterList.Add(presenter);
+            SetObstacleInitializePosition(presenter);
+            _activePresenterList.Add(presenter.Collider.id ,presenter);
             _makeObstacleDistance = 0;
         }
         //障害物をスクロールさせる。
-        foreach (var presenter in _activePresenterList)
+        foreach (var pair in _activePresenterList)
         {
+            var presenter = pair.Value;
             presenter.UpdateObstacleMove(deltaTime, speed);
-            if (presenter.GetCollider().GetCenter().y < -_obstacleGeneratorSetting.ObstacleFrameOutRange)
+            if (presenter.Collider.position.y < -_obstacleGeneratorSetting.ObstacleFrameOutRange)
             {
-                _removeObstacleList.Add(presenter);
+                _removeObstacleList.Add(pair.Key , pair.Value);
             }
         }
-        foreach (var presenter in _removeObstacleList)
+        foreach (var presenter in _removeObstacleList.Values)
         {
             ReleaseObstacle(presenter);
         }
@@ -81,11 +85,11 @@ public class ObstacleManager : IObstacleManager, IDisposable, IPauseable
     }
     public void Reset()
     {
-        foreach (var presenter in _activePresenterList)
+        foreach (var pair in _activePresenterList)
         {
-            _removeObstacleList.Add(presenter);
+            _removeObstacleList.Add(pair.Key, pair.Value);
         }
-        foreach (var presenter in _removeObstacleList)
+        foreach (var presenter in _removeObstacleList.Values)
         {
             ReleaseObstacle(presenter);
         }
@@ -93,21 +97,35 @@ public class ObstacleManager : IObstacleManager, IDisposable, IPauseable
         _removeObstacleList.Clear();
         _makeObstacleDistance = 0f;
     }
-    public void SetObstacleInitializePosition(in IObstaclePresenter presenter)
+    public void SetObstacleInitializePosition(IObstaclePresenter presenter)
     {
-        presenter.SetObstacle(
+        presenter.SetInitializePosition(new Vector2(
             UnityEngine.Random.Range(InGameConst.GroundXMargin, InGameConst.WindowWidth - InGameConst.GroundXMargin)
             , InGameConst.WindowHeight + _obstacleGeneratorSetting.ObstacleFrameOutRange
-            );
+            ));
     }
-    public void HitObstacle(in IObstaclePresenter presenter)
+    public void HitObstacle(int hitID)
     {
-        presenter.SetObstacle(0f, -_obstacleGeneratorSetting.ObstacleFrameOutRange);
+        var obstacle = _activePresenterList[hitID];
+        switch (obstacle.Collider.tag)
+        {
+            case CollisionTag.Item:
+                OnCollisionItemEvent?.Invoke(obstacle.Score);
+                break;
+            case CollisionTag.Enemy:
+                OnCollisionEnemyEvent.Invoke();
+                obstacle.InstantiateDestroyEffect();
+                break;
+            default:
+                break;
+        }
+        //画面外に飛ばして消去する
+        obstacle.SetPosition( new Vector2(0f, -_obstacleGeneratorSetting.ObstacleFrameOutRange));
     }
     void ReleaseObstacle(IObstaclePresenter presenter)
     {
         _obstacleGenerator.ReleaseObstacle(presenter);
-        _activePresenterList.Remove(presenter);
+        _activePresenterList.Remove(presenter.Collider.id);
     }
     /// <summary>
     /// VContainerによって破棄される
@@ -122,24 +140,24 @@ public class ObstacleManager : IObstacleManager, IDisposable, IPauseable
     /// </summary>
     public void Pause()
     {
-        foreach (var presenter in _activePresenterList)
+        foreach (var presenter in _activePresenterList.Values)
         {
             presenter.Pause();
         }
     }
     public void Resume()
     {
-        foreach (var presenter in _activePresenterList)
+        foreach (var presenter in _activePresenterList.Values)
         {
             presenter.Resume();
         }
     }
-    public List<(Circle , IObstaclePresenter)> GetObstacleColliders()
+    public List<MyCircleCollider> GetObstacleColliders()
     {
-        List<(Circle, IObstaclePresenter)> obstacleColliders = new();
-        foreach (var presenter in _activePresenterList)
+        List<MyCircleCollider> obstacleColliders = new(30);
+        foreach (var presenter in _activePresenterList.Values)
         {
-            obstacleColliders.Add((presenter.GetCollider() , presenter));
+            obstacleColliders.Add(presenter.Collider);
         }
         return obstacleColliders;
     }

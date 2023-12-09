@@ -2,7 +2,7 @@ using System;
 
 public interface ICollisionChecker
 {
-    event Action<IObstaclePresenter> OnCollisionEnter;
+    event Action<int> OnCollisionEnter;
     void ManualUpdate();
 }
 public class CollisionChecker : ICollisionChecker
@@ -19,17 +19,18 @@ public class CollisionChecker : ICollisionChecker
     {
         CheckCollision();
     }
-    public event Action<IObstaclePresenter> OnCollisionEnter;
+    public event Action<int> OnCollisionEnter;
     /// <summary>
     /// 衝突判定
     /// </summary>
     void CheckCollision()
     {
+        var playerCollider = _playerPresenter.GetCollider();
         foreach (var collider in _obstacleManager.GetObstacleColliders())
         {
-            if (_playerPresenter.GetCollider().IsHit(collider.Item1))
+            if (playerCollider.IsHit(collider))
             {
-                OnCollisionEnter?.Invoke(collider.Item2);
+                OnCollisionEnter?.Invoke(collider.id);
             }
         }
     }

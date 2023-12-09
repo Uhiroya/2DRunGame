@@ -78,7 +78,7 @@ public class GameLifetimeScope : LifetimeScope
         builder.RegisterEntryPoint<ObstacleManager>(Lifetime.Singleton)
             .As<IObstacleManager>().As<IPauseable>()
             .WithParameter("obstacleGeneratorSetting", _gameSettings.ObstacleGeneratorSetting);
-        builder.RegisterFactory<ObstacleData, IObstaclePresenter>((data) => new ObstaclePresenter(new ObstacleModel(data), new ObstacleView()));
+        builder.RegisterFactory<Transform ,ObstacleData, IObstaclePresenter>((transform ,data) => new ObstaclePresenter(new ObstacleModel(transform ,data), new ObstacleView()));
         //builder.RegisterFactory<ObstacleData, IObstaclePresenter>((container) =>
         //{
         //    var view = container.Resolve<IObstacleView>();

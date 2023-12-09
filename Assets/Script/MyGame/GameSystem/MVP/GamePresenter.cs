@@ -128,25 +128,15 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
             })
             .AddTo(_disposable);
         _collisionChecker.OnCollisionEnter += CollisionObstacle;
+        _obstacleManager.OnCollisionItemEvent += _model.AddItemScore;
+        _obstacleManager.OnCollisionEnemyEvent += _playerPresenter.Dying;
     }
     /// <summary>
     /// 衝突時に呼び出される。
     /// </summary>
-    void CollisionObstacle(IObstaclePresenter obstacle)
+    void CollisionObstacle(int hitID)
     {
-        switch (obstacle.ObstacleInfo.ItemType)
-        {
-            case ItemType.Item:
-                _model.AddItemScore(obstacle.ObstacleInfo.Score);
-                break;
-            case ItemType.Enemy:
-                _playerPresenter.Dying();
-                obstacle.InstantiateDestroyEffect();
-                break;
-            default:
-                break;
-        }
-        _obstacleManager.HitObstacle(in obstacle);
+        _obstacleManager.HitObstacle(hitID);
     }
     public void Pause()
     {

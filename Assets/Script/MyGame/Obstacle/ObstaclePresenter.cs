@@ -9,13 +9,12 @@ using System;
 
 public interface IObstaclePresenter : IDisposable
 {
-    int ModelID { get; }
     int ObstacleID { get; }
-    ObstaclePublicInfo ObstacleInfo { get; }
-    Circle GetCollider();
-    void SetTransform(Transform transform);
+    float Score { get; }
+    MyCircleCollider Collider { get; }
     void SetAnimator(Animator animator);
-    void SetObstacle(float posX, float posY);
+    void SetInitializePosition(Vector2 position);
+    void SetPosition(Vector2 position);
     void UpdateObstacleMove(float deltaTime, float speed);
     void InstantiateDestroyEffect();
     void Pause();
@@ -37,20 +36,20 @@ public class ObstaclePresenter : IObstaclePresenter
         _view = view;
         _model.Theta.Subscribe(x => _view.SetTheta(x)).AddTo(_disposable);
     }
-    public int ModelID => _model.ModelID;
-    public int ObstacleID => _model.ObstacleID;
-    public ObstaclePublicInfo ObstacleInfo => _model.ObstacleInfo;
-    public void SetTransform(Transform transform)
-    {
-        _model.SetTransform(transform);
-    }
+    public int ObstacleID => _model.ObstacleDataID;
+    public float Score => _model.Score;
+    public MyCircleCollider Collider => _model.Collider;
     public void SetAnimator(Animator animator)
     {
         _view.SetAnimator(animator);
     }
-    public void SetObstacle(float posX, float posY)
+    public void SetInitializePosition(Vector2 position)
     {
-        _model.Set(posX, posY);
+        _model.SetInitializePosition(position);
+    }
+    public void SetPosition(Vector2 position)
+    {
+        _model.SetPosition(position);
     }
     public void UpdateObstacleMove(float deltaTime, float speed)
     {
@@ -59,10 +58,6 @@ public class ObstaclePresenter : IObstaclePresenter
     public void InstantiateDestroyEffect()
     {
        _model.InstantiateDestroyEffect();
-    }
-    public Circle GetCollider()
-    {
-        return _model.GetCollider();
     }
     public void Pause()
     {

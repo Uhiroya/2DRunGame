@@ -20,9 +20,11 @@ public enum PlayerCondition
     Dying,
     Dead,
 }
-public enum ItemType
+public enum CollisionTag
 {
     None,
+    Player,
     Enemy,
     Item,
+    OutField,
 }
