@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 [System.Serializable]
-public class MyCircleCollider
+public struct MyCircleCollider
 {
     private static int _id = 0;
     public readonly CollisionTag tag;
