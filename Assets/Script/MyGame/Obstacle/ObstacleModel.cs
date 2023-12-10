@@ -10,7 +10,6 @@ public interface IObstacleModel
     float Score { get; }
     IReadOnlyReactiveProperty<float> Theta { get; }
     void SetInitializePosition(Vector2 position);
-    void SetPosition(Vector2 position);
     void Move(float deltaTime, float speed);
     void InstantiateDestroyEffect();
 }
@@ -21,7 +20,6 @@ public class ObstacleModel : IObstacleModel
     public MyCircleCollider Collider => _collider;
     public int ObstacleDataID => _obstacleData.ObstacleID;
     public float Score => _obstacleData.Score;
-
     readonly ReactiveProperty<float> _theta;
     public IReadOnlyReactiveProperty<float> Theta => _theta;
     private readonly Transform _transform;
@@ -31,16 +29,10 @@ public class ObstacleModel : IObstacleModel
         _transform = transform;
         _collider = new(_obstacleData.CollisionType, transform, _obstacleData.HitRange);
         _theta = new();
-    }
-    
-    
+    } 
     float _xMoveRange;
     float _defaultPositionX = 0f;
     float _time;
-    public MyCircleCollider GetCollider()
-    {
-        return _collider;
-    }
     public void SetInitializePosition(Vector2 position)
     {
         var posX = position.x; 
@@ -62,11 +54,6 @@ public class ObstacleModel : IObstacleModel
         }
         //SetX , SetY
         _collider.position = new(posX, posY);
-    }
-
-    public void SetPosition(Vector2 position)
-    {
-        _collider.position = position;
     }
     public void Move(float deltaTime, float speed)
     {

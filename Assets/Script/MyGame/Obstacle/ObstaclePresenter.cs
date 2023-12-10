@@ -12,9 +12,9 @@ public interface IObstaclePresenter : IDisposable
     int ObstacleID { get; }
     float Score { get; }
     MyCircleCollider Collider { get; }
+    //View内のコンストラクタで設定できないか考える。
     void SetAnimator(Animator animator);
     void SetInitializePosition(Vector2 position);
-    void SetPosition(Vector2 position);
     void UpdateObstacleMove(float deltaTime, float speed);
     void InstantiateDestroyEffect();
     void Pause();
@@ -46,10 +46,6 @@ public class ObstaclePresenter : IObstaclePresenter
     public void SetInitializePosition(Vector2 position)
     {
         _model.SetInitializePosition(position);
-    }
-    public void SetPosition(Vector2 position)
-    {
-        _model.SetPosition(position);
     }
     public void UpdateObstacleMove(float deltaTime, float speed)
     {

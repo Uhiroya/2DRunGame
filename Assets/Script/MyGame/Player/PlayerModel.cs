@@ -9,7 +9,7 @@ using UnityEngine.UIElements;
 public interface IPlayerModel
 {
     IReadOnlyReactiveProperty<PlayerCondition> PlayerState { get; }
-    MyCircleCollider GetCollider();
+    MyCircleCollider Collider { get; }
     void Initialize();
     void GameStart();
     void Dying();
@@ -27,6 +27,7 @@ public class PlayerModel : IPlayerModel, IDisposable
 
     float _speedRate;
     MyCircleCollider _collider;
+    public MyCircleCollider Collider => _collider;
     readonly ReactiveProperty<PlayerCondition> _playerState;
     public IReadOnlyReactiveProperty<PlayerCondition> PlayerState => _playerState;
     public PlayerModel(PlayerModelSetting playerModelSetting, Transform playerTransform)
@@ -57,10 +58,6 @@ public class PlayerModel : IPlayerModel, IDisposable
         nextPosX = Mathf.Clamp(nextPosX, InGameConst.GroundXMargin, InGameConst.WindowWidth - InGameConst.GroundXMargin);
         position = new Vector2(nextPosX, position.y);
         _collider.position = position;
-    }
-    public MyCircleCollider GetCollider()
-    {
-        return _collider;
     }
 
     public void Initialize()

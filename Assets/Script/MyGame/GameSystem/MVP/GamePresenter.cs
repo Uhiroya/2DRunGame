@@ -134,9 +134,9 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
     /// <summary>
     /// 衝突時に呼び出される。
     /// </summary>
-    void CollisionObstacle(int hitID)
+    void CollisionObstacle(MyCircleCollider collider, CollisionTag collisionTag)
     {
-        _obstacleManager.HitObstacle(hitID);
+        _obstacleManager.CollisionObstacle(collider , collisionTag);
     }
     public void Pause()
     {
