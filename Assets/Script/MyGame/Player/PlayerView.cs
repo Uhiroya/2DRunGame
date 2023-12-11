@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using Cysharp.Threading.Tasks;
+using System;
 
 public interface IPlayerView
 {
+    event Action OnFinishDeadAnimation;
+    void OnPlayerConditionChanged(PlayerCondition playerCondition);
     void OnInitialize();
     void OnWaiting();
     void OnWalk();
@@ -23,6 +26,28 @@ public class PlayerView : IPlayerView
     {
         _deadAnimationTime = deadAnimationTime;
         _animator = animator;
+    }
+    public event Action OnFinishDeadAnimation;
+    public async void OnPlayerConditionChanged(PlayerCondition playerCondition)
+    {
+        switch (playerCondition)
+        {
+            case PlayerCondition.Initialize:
+                OnInitialize();
+                break;
+            case PlayerCondition.Pause:
+                OnWaiting();
+                break;
+            case PlayerCondition.Alive:
+                OnWalk();
+                break;
+            case PlayerCondition.Dying:
+                await OnDead();
+                OnFinishDeadAnimation.Invoke();
+                break;
+            default:
+                break;
+        }
     }
     public void OnInitialize()
         => _animator.SetTrigger(_hashInitialize);

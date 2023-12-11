@@ -4,10 +4,11 @@ using UnityEngine.UIElements;
 using MyScriptableObjectClass;
 public interface IObstacleModel
 {
-    IReadOnlyReactiveProperty<Vector2> Position { get; }
+    Circle GetCollider();
     ObstaclePublicInfo ObstacleInfo { get; }
     int ModelID { get; }
     int ObstacleID { get; }
+    IReadOnlyReactiveProperty<float> Theta { get; }
     void SetTransform(Transform transform);
     void Set(float posX, float posY);
     void Move(float deltaTime, float speed);
@@ -22,21 +23,28 @@ public class ObstacleModel : IObstacleModel
     Transform _transform;
     public int ModelID => _modelID;
     public int ObstacleID => _obstacleData.ObstacleID;
+
+    readonly ReactiveProperty<float> _theta;
+    public IReadOnlyReactiveProperty<float> Theta => _theta;
     public ObstacleModel(ObstacleData obstacleData)
     {
         _obstacleData = obstacleData;
         _modelID = _nextModelID;
         _nextModelID++;
+        _theta = new();
     }
     public void SetTransform(Transform transform)
     {
         _transform = transform;
     }
-    readonly ReactiveProperty<Vector2> _position = new(Vector2.zero);
-    public IReadOnlyReactiveProperty<Vector2> Position => _position;
+    Circle _collider;
     float _xMoveRange;
     float _defaultPositionX = 0f;
     float _time;
+    public Circle GetCollider()
+    {
+        return _collider;
+    }
     public void Set(float posX, float posY)
     {
         //SetX
@@ -57,24 +65,24 @@ public class ObstacleModel : IObstacleModel
         //SetX , SetY
         var position = new Vector3(posX, posY);
         _transform.position = position;
-        _position.Value = position;
+        _collider = new(position , ObstacleInfo.HitRange);
     }
     public void Move(float deltaTime, float speed)
     {
         //X移動
         _time += deltaTime;
-        var theta = (_time * speed * _obstacleData.XMoveSpeed) % (Mathf.PI * 2);
-        var newPos = _defaultPositionX + _xMoveRange * Mathf.Sin(theta);
+        _theta.Value = (_time * speed * _obstacleData.XMoveSpeed) % (Mathf.PI * 2);
+        var newPos = _defaultPositionX + _xMoveRange * Mathf.Sin(_theta.Value);
         //Y移動
         var moveAmount = deltaTime * speed * InGameConst.WindowHeight * _obstacleData.YMoveSpeed;
         var position = new Vector3(newPos, _transform.position.y - moveAmount);
         _transform.position = position;
-        _position.Value = position;
+        _collider.SetCenter( position);
     }
     public void InstantiateDestroyEffect()
     {
         if (_obstacleData.DestroyEffect == null) return;
-        var obj = Object.Instantiate(_obstacleData.DestroyEffect, (Vector3)_position.Value, Quaternion.identity, _transform.parent);
+        var obj = Object.Instantiate(_obstacleData.DestroyEffect, _transform.position, Quaternion.identity, _transform.parent);
         if (_obstacleData.DestroyAnimation == null)
         {
             Object.Destroy(obj, 1f);

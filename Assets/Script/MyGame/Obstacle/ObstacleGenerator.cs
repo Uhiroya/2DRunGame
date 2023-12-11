@@ -57,6 +57,7 @@ public class ObstacleGenerator : IObstacleGenerator, System.IDisposable
             ,// プールに戻したときの処理
             actionOnDestroy: target =>
             {
+                _objectToPresenterReference[target].Dispose();
                 ReleaseObstacle(_objectToPresenterReference[target]);
                 Object.Destroy(target);
             } // プールがmaxSizeを超えたときの処理

@@ -44,6 +44,8 @@ public class GameLifetimeScope : LifetimeScope
             .As<IPauseManager>();
         builder.RegisterEntryPoint<GamePresenter>(Lifetime.Singleton)
             .As<IGamePresenter>().As<IPauseable>();
+        builder.Register<CollisionChecker>(Lifetime.Singleton)
+            .As<ICollisionChecker>();
         builder.Register<GameModel>(Lifetime.Singleton)
             .As<IGameModel>()
              .WithParameter("gameModelSetting", _gameSettings.GameModelSetting);

@@ -4,7 +4,7 @@ using UnityEngine;
 public interface IObstacleView
 {
     void SetAnimator(Animator animator);
-    void SetXMovement(float xMovement);
+    void SetTheta(float theta);
     void Pause();
     void Resume();
 }
@@ -18,10 +18,10 @@ public class ObstacleView :IObstacleView
     {
         _animator = animator;
     }
-    public void SetXMovement(float xMovement)
+    public void SetTheta(float theta)
     {
         if (_animator == null) return;
-        _animator.SetFloat("XMovement", xMovement);
+        _animator.SetFloat("XMovement", Mathf.Cos(theta + Mathf.PI / 2));
     }
     public void Pause()
     {
