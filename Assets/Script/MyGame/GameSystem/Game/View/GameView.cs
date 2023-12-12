@@ -16,9 +16,9 @@ public interface IGameView
     UniTaskVoid ShowHighScore();
     void Pause();
     void Resume();
-    void ButtonSound();
-    void HitItemSound();
-    void HitEnemySound();
+    void PlayButtonSound();
+    void PlayHitItemSound();
+    void PlayHitEnemySound();
 
 }
 public class GameView : IGameView
@@ -124,18 +124,18 @@ public class GameView : IGameView
         _audioManager.ResumeBGM();
         _pauseUI.SetActive(false);
     }
-    public void ButtonSound()
+    public void PlayButtonSound()
     {
         _audioManager.PlaySE(SEType.Start);
         
     }
 
-    public void HitItemSound()
+    public void PlayHitItemSound()
     {
         _audioManager.PlaySE(SEType.HitItem);
     }
 
-    public void HitEnemySound()
+    public void PlayHitEnemySound()
     {
         _audioManager.PlaySE(SEType.HitEnemy);
     }

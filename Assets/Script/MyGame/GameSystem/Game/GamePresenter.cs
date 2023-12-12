@@ -130,17 +130,17 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
     {
         _collisionChecker.OnCollisionEnter += CollisionObstacle;
         _obstacleManager.OnCollisionItemEvent += _model.AddItemScore;
-        _obstacleManager.OnCollisionItemEvent += (x) => _view.HitItemSound();
+        _obstacleManager.OnCollisionItemEvent += (x) => _view.PlayHitItemSound();
         _obstacleManager.OnCollisionEnemyEvent += _playerPresenter.Dying;
-        _obstacleManager.OnCollisionEnemyEvent += _view.HitEnemySound;
+        _obstacleManager.OnCollisionEnemyEvent += _view.PlayHitEnemySound;
     }
     void UnBindEvent()
     {
         _collisionChecker.OnCollisionEnter -= CollisionObstacle;
         _obstacleManager.OnCollisionItemEvent -= _model.AddItemScore;
-        _obstacleManager.OnCollisionItemEvent -= (x) => _view.HitItemSound();
+        _obstacleManager.OnCollisionItemEvent -= (x) => _view.PlayHitItemSound();
         _obstacleManager.OnCollisionEnemyEvent -= _playerPresenter.Dying;
-        _obstacleManager.OnCollisionEnemyEvent -= _view.HitEnemySound;
+        _obstacleManager.OnCollisionEnemyEvent -= _view.PlayHitEnemySound;
     }
     /// <summary>
     /// 衝突時に呼び出される。
@@ -153,13 +153,13 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
     public void PressReturnButton()
     {
         _model.GoTitle();
-        _view.ButtonSound();
+        _view.PlayButtonSound();
     }
     /// <summary>ボタンから呼び出される。</summary>
     public void PressStartButton()
     {
         _model.GameStart();
-        _view.ButtonSound();
+        _view.PlayButtonSound();
     }
     public void Pause()
     {
