@@ -49,6 +49,7 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
     {
         _disposable = new();
         Bind();
+        RegisterEvent();
     }
     public void Start()
     {
@@ -71,16 +72,9 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
     public void Dispose()
     {
         _disposable.Dispose();
+        UnRegisterEvent();
     }
-    /// <summary>
-    /// バインド
-    /// </summary>
     void Bind()
-    {
-        BindOvserve();
-        BindEvent();
-    }
-    void BindOvserve()
     {
         //modelとviewのバインド
         _model.HighScore
@@ -126,7 +120,7 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
             })
             .AddTo(_disposable);
     }
-    void BindEvent()
+    void RegisterEvent()
     {
         _collisionChecker.OnCollisionEnter += CollisionObstacle;
         _obstacleManager.OnCollisionItemEvent += _model.AddItemScore;
@@ -134,7 +128,7 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
         _obstacleManager.OnCollisionEnemyEvent += _playerPresenter.Dying;
         _obstacleManager.OnCollisionEnemyEvent += _view.PlayHitEnemySound;
     }
-    void UnBindEvent()
+    void UnRegisterEvent()
     {
         _collisionChecker.OnCollisionEnter -= CollisionObstacle;
         _obstacleManager.OnCollisionItemEvent -= _model.AddItemScore;

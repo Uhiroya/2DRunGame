@@ -35,6 +35,7 @@ public class PlayerPresenter : IPlayerPresenter, IPauseable, IFixedTickable, Sys
     public void Dispose()
     {
         _disposable.Dispose();
+        UnBind();
     }
     public void FixedTick()
     {
@@ -54,6 +55,10 @@ public class PlayerPresenter : IPlayerPresenter, IPauseable, IFixedTickable, Sys
         //modelとviewのバインド
         _model.PlayerState.Subscribe(x => _view.OnPlayerConditionChanged(x)).AddTo(_disposable);
         _view.OnFinishDeadAnimation += _model.Dead;
+    }
+    void UnBind()
+    {
+        _view.OnFinishDeadAnimation -= _model.Dead;
     }
     public void OnGameFlowStateChanged(GameFlowState gameFlowState)
     {
