@@ -8,7 +8,7 @@ public class GameManager : SingletonMonobehavior<GameManager>
     [Inject] IGamePresenter _gamePresenter;
     protected override void Initialize() { }
     public void GoTitle()
-        => _gamePresenter.GoTitle();
+        => _gamePresenter.PressReturnButton();
     public void GameStart()
-        => _gamePresenter.GameStart();
+        => _gamePresenter.PressStartButton();
 }

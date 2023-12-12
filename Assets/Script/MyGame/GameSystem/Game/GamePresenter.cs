@@ -6,8 +6,8 @@ using Cysharp.Threading.Tasks;
 public interface IGamePresenter
 {
     GameFlowState NowGameState { get; }
-    public void GoTitle();
-    public void GameStart();
+    public void PressReturnButton();
+    public void PressStartButton();
 }
 public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStartable, ITickable, System.IDisposable
 {
@@ -19,6 +19,7 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
     IPlayerPresenter _playerPresenter;
     IObstacleManager _obstacleManager;
     ICollisionChecker _collisionChecker;
+
     /// <summary>
     /// メンバ変数
     /// </summary>
@@ -27,7 +28,8 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
     /// コンストラクタ
     /// </summary>
     public GamePresenter(IGameModel model , IGameView view 
-        ,IPlayerPresenter playerPresenter, IObstacleManager obstacleGenerator , ICollisionChecker collisionChecker)
+        ,IPlayerPresenter playerPresenter, IObstacleManager obstacleGenerator 
+        , ICollisionChecker collisionChecker)
     {
         _model = model ;
         _view = view ;
@@ -39,16 +41,7 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
     /// 公開プロパティ、メソッド
     /// </summary>
     public GameFlowState NowGameState => _model.GameState.Value;
-    /// <summary>ボタンから呼び出される。</summary>
-    public void GoTitle()
-    {
-        _model.GoTitle();
-    }
-    /// <summary>ボタンから呼び出される。</summary>
-    public void GameStart()
-    {
-        _model.GameStart();
-    }
+
     /// <summary>
     ///VContainerから呼び出される
     /// </summary>
@@ -83,6 +76,11 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
     /// バインド
     /// </summary>
     void Bind()
+    {
+        BindOvserve();
+        BindEvent();
+    }
+    void BindOvserve()
     {
         //modelとviewのバインド
         _model.HighScore
@@ -127,9 +125,22 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
                 _model.OnPlayerConditionChanged(x);
             })
             .AddTo(_disposable);
+    }
+    void BindEvent()
+    {
         _collisionChecker.OnCollisionEnter += CollisionObstacle;
         _obstacleManager.OnCollisionItemEvent += _model.AddItemScore;
+        _obstacleManager.OnCollisionItemEvent += (x) => _view.HitItemSound();
         _obstacleManager.OnCollisionEnemyEvent += _playerPresenter.Dying;
+        _obstacleManager.OnCollisionEnemyEvent += _view.HitEnemySound;
+    }
+    void UnBindEvent()
+    {
+        _collisionChecker.OnCollisionEnter -= CollisionObstacle;
+        _obstacleManager.OnCollisionItemEvent -= _model.AddItemScore;
+        _obstacleManager.OnCollisionItemEvent -= (x) => _view.HitItemSound();
+        _obstacleManager.OnCollisionEnemyEvent -= _playerPresenter.Dying;
+        _obstacleManager.OnCollisionEnemyEvent -= _view.HitEnemySound;
     }
     /// <summary>
     /// 衝突時に呼び出される。
@@ -137,6 +148,18 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
     void CollisionObstacle(MyCircleCollider collider, CollisionTag collisionTag)
     {
         _obstacleManager.CollisionObstacle(collider , collisionTag);
+    }
+    /// <summary>ボタンから呼び出される。</summary>
+    public void PressReturnButton()
+    {
+        _model.GoTitle();
+        _view.ButtonSound();
+    }
+    /// <summary>ボタンから呼び出される。</summary>
+    public void PressStartButton()
+    {
+        _model.GameStart();
+        _view.ButtonSound();
     }
     public void Pause()
     {

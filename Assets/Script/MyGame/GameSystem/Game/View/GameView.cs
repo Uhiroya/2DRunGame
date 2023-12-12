@@ -16,9 +16,14 @@ public interface IGameView
     UniTaskVoid ShowHighScore();
     void Pause();
     void Resume();
+    void ButtonSound();
+    void HitItemSound();
+    void HitEnemySound();
+
 }
 public class GameView : IGameView
 {
+    IAudioManager _audioManager;
     float _titleAnimationTime;
     float _resultAnimationTime;
     GameViewSetting _gameViewSetting;
@@ -28,10 +33,11 @@ public class GameView : IGameView
     Text _highScoreText;
     Text _resultScoreText;
     GameObject _pauseUI;
-    public GameView(GameViewSetting gameViewSetting ,float titleAnimationTime, float resultAnimationTime 
+    public GameView(IAudioManager audioManager,GameViewSetting gameViewSetting ,float titleAnimationTime, float resultAnimationTime 
         ,IBackGroundController background , Text scoreText , GameObject resultUIGroup
         ,Text resultScoreText , Text highScoreText ,GameObject pauseUI)
     {
+        _audioManager = audioManager;
         _gameViewSetting = gameViewSetting;
         _titleAnimationTime = titleAnimationTime;
         _resultAnimationTime = resultAnimationTime;
@@ -50,13 +56,20 @@ public class GameView : IGameView
         {
             case GameFlowState.Title:
                 _ = ShowHighScore();
+                _audioManager.PlayBGM(BGMType.Title);
+                break;
+            case GameFlowState.InGame:
+                _audioManager.PlayBGM(BGMType.InGame);
+                break;
+            case GameFlowState.Waiting:
+                _audioManager.StopBGM();
                 break;
             case GameFlowState.Result:
                 ShowResultUI();
+                _audioManager.PlayBGM(BGMType.Result);
                 break;
         }
     }
-
     public void ManualUpdate(float deltaTime)
     {
         _background.ManualUpdate(deltaTime);
@@ -103,12 +116,27 @@ public class GameView : IGameView
     }
     public void Pause()
     {
+        _audioManager.PauseBGM();
         _pauseUI.SetActive(true);
     }
     public void Resume()
     {
+        _audioManager.ResumeBGM();
         _pauseUI.SetActive(false);
     }
+    public void ButtonSound()
+    {
+        _audioManager.PlaySE(SEType.Start);
+        
+    }
 
+    public void HitItemSound()
+    {
+        _audioManager.PlaySE(SEType.HitItem);
+    }
 
+    public void HitEnemySound()
+    {
+        _audioManager.PlaySE(SEType.HitEnemy);
+    }
 }

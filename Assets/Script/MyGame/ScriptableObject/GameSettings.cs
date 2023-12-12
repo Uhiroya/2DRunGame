@@ -7,16 +7,24 @@ namespace MyScriptableObjectClass
     [System.Serializable]
     public class GameSettings : ScriptableObject
     {
+        [SerializeField] MyAudioSetting _audioSetting;
         [SerializeField] GameModelSetting _gameModelSetting;
         [SerializeField] GameViewSetting _gameViewSetting;
         [SerializeField] CollisionCheckerSetting _collisionCheckerSetting;
         [SerializeField] PlayerModelSetting _playerModelSetting;
         [SerializeField] ObstacleGeneratorSetting _obstacleGeneratorSetting;
+        public MyAudioSetting AudioSetting => _audioSetting;
         public GameModelSetting GameModelSetting => _gameModelSetting;
         public GameViewSetting GameViewSetting => _gameViewSetting;
         public CollisionCheckerSetting CollisionCheckerSetting => _collisionCheckerSetting;
         public PlayerModelSetting PlayerModelSetting => _playerModelSetting;
         public ObstacleGeneratorSetting ObstacleGeneratorSetting => _obstacleGeneratorSetting;
+    }
+    [System.Serializable]
+    public class MyAudioSetting
+    {
+        [SerializeField] AudioData _audioData;
+        public AudioData AudioData => _audioData;
     }
     [System.Serializable]
     public class GameModelSetting

@@ -9,10 +9,17 @@ public class GameLifetimeScope : LifetimeScope
 {
     [Header("GameSettings")]
     [SerializeField] GameSettings _gameSettings;
+
     [Header("GameManager")]
     [SerializeField] GameManager _gameManager;
+
     [Header("InputProvider")]
     [SerializeField] InputProvider _inputProvider;
+
+    [Header("AudioManager")]
+    [SerializeField] AudioSource _audioSESource;
+    [SerializeField] AudioSource _audioBGMSource;
+
     [Header("GameView")]
     [SerializeField] AnimationClip _titleAnimation;
     [SerializeField] AnimationClip _resultFadeAnimation;
@@ -39,7 +46,13 @@ public class GameLifetimeScope : LifetimeScope
     protected override void Configure(IContainerBuilder builder)
     {
         builder.RegisterComponent(_gameManager);
+        
         builder.RegisterComponent(_inputProvider);
+        builder.Register<AudioManager>(Lifetime.Singleton).As<IAudioManager>()
+            .WithParameter("audioSetting", _gameSettings.AudioSetting)
+            .WithParameter("audioSESource", _audioSESource)
+            .WithParameter("audioBGMSource", _audioBGMSource);
+            
         builder.Register<PauseManager>(Lifetime.Singleton)
             .As<IPauseManager>();
         builder.RegisterEntryPoint<GamePresenter>(Lifetime.Singleton)
