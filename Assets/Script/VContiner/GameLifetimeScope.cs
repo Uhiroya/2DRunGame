@@ -45,7 +45,8 @@ public class GameLifetimeScope : LifetimeScope
         builder.RegisterEntryPoint<GamePresenter>(Lifetime.Singleton)
             .As<IGamePresenter>().As<IPauseable>();
         builder.Register<CollisionChecker>(Lifetime.Singleton)
-            .As<ICollisionChecker>();
+            .As<ICollisionChecker>()
+            .WithParameter("collisionCheckerSetting", _gameSettings.CollisionCheckerSetting);
         builder.Register<GameModel>(Lifetime.Singleton)
             .As<IGameModel>()
              .WithParameter("gameModelSetting", _gameSettings.GameModelSetting);
@@ -78,7 +79,7 @@ public class GameLifetimeScope : LifetimeScope
         builder.RegisterEntryPoint<ObstacleManager>(Lifetime.Singleton)
             .As<IObstacleManager>().As<IPauseable>()
             .WithParameter("obstacleGeneratorSetting", _gameSettings.ObstacleGeneratorSetting);
-        builder.RegisterFactory<ObstacleData, IObstaclePresenter>((data) => new ObstaclePresenter(new ObstacleModel(data), new ObstacleView()));
+        builder.RegisterFactory<Transform ,ObstacleData, IObstaclePresenter>((transform ,data) => new ObstaclePresenter(new ObstacleModel(transform ,data), new ObstacleView()));
         //builder.RegisterFactory<ObstacleData, IObstaclePresenter>((container) =>
         //{
         //    var view = container.Resolve<IObstacleView>();

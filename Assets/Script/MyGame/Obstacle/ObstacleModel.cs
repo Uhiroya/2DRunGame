@@ -2,51 +2,41 @@ using UniRx;
 using UnityEngine;
 using UnityEngine.UIElements;
 using MyScriptableObjectClass;
+
 public interface IObstacleModel
 {
-    Circle GetCollider();
-    ObstaclePublicInfo ObstacleInfo { get; }
-    int ModelID { get; }
-    int ObstacleID { get; }
+    MyCircleCollider Collider { get; }
+    int ObstacleDataID { get; }
+    float Score { get; }
     IReadOnlyReactiveProperty<float> Theta { get; }
-    void SetTransform(Transform transform);
-    void Set(float posX, float posY);
+    void SetInitializePosition(Vector2 position);
     void Move(float deltaTime, float speed);
     void InstantiateDestroyEffect();
 }
 public class ObstacleModel : IObstacleModel
 {
-    static int _nextModelID = 0;
-    int _modelID = 0;
     ObstacleData _obstacleData;
-    public ObstaclePublicInfo ObstacleInfo => _obstacleData.ObstacleInfo;
-    Transform _transform;
-    public int ModelID => _modelID;
-    public int ObstacleID => _obstacleData.ObstacleID;
-
+    MyCircleCollider _collider;
+    public MyCircleCollider Collider => _collider;
+    public int ObstacleDataID => _obstacleData.ObstacleID;
+    public float Score => _obstacleData.Score;
     readonly ReactiveProperty<float> _theta;
     public IReadOnlyReactiveProperty<float> Theta => _theta;
-    public ObstacleModel(ObstacleData obstacleData)
+    private readonly Transform _transform;
+    public ObstacleModel(Transform transform , ObstacleData obstacleData)
     {
         _obstacleData = obstacleData;
-        _modelID = _nextModelID;
-        _nextModelID++;
-        _theta = new();
-    }
-    public void SetTransform(Transform transform)
-    {
         _transform = transform;
-    }
-    Circle _collider;
+        _collider = new(_obstacleData.CollisionType, transform, _obstacleData.HitRange);
+        _theta = new();
+    } 
     float _xMoveRange;
     float _defaultPositionX = 0f;
     float _time;
-    public Circle GetCollider()
+    public void SetInitializePosition(Vector2 position)
     {
-        return _collider;
-    }
-    public void Set(float posX, float posY)
-    {
+        var posX = position.x; 
+        var posY = position.y;
         //SetX
         _xMoveRange = (_obstacleData.XMoveArea) * (InGameConst.WindowWidth - InGameConst.GroundXMargin * 2) / 2;
         //障害物の移動距離がマップに収まるように制限する。
@@ -63,9 +53,7 @@ public class ObstacleModel : IObstacleModel
             _defaultPositionX = posX;
         }
         //SetX , SetY
-        var position = new Vector3(posX, posY);
-        _transform.position = position;
-        _collider = new(position , ObstacleInfo.HitRange);
+        _collider.position = new(posX, posY);
     }
     public void Move(float deltaTime, float speed)
     {
@@ -75,14 +63,12 @@ public class ObstacleModel : IObstacleModel
         var newPos = _defaultPositionX + _xMoveRange * Mathf.Sin(_theta.Value);
         //Y移動
         var moveAmount = deltaTime * speed * InGameConst.WindowHeight * _obstacleData.YMoveSpeed;
-        var position = new Vector3(newPos, _transform.position.y - moveAmount);
-        _transform.position = position;
-        _collider.SetCenter( position);
+        _collider.position = new Vector2(newPos, _collider.position.y - moveAmount);
     }
     public void InstantiateDestroyEffect()
     {
         if (_obstacleData.DestroyEffect == null) return;
-        var obj = Object.Instantiate(_obstacleData.DestroyEffect, _transform.position, Quaternion.identity, _transform.parent);
+        var obj = Object.Instantiate(_obstacleData.DestroyEffect, _collider.position, Quaternion.identity, _transform.parent);
         if (_obstacleData.DestroyAnimation == null)
         {
             Object.Destroy(obj, 1f);

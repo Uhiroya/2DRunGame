@@ -9,10 +9,12 @@ namespace MyScriptableObjectClass
     {
         [SerializeField] GameModelSetting _gameModelSetting;
         [SerializeField] GameViewSetting _gameViewSetting;
+        [SerializeField] CollisionCheckerSetting _collisionCheckerSetting;
         [SerializeField] PlayerModelSetting _playerModelSetting;
         [SerializeField] ObstacleGeneratorSetting _obstacleGeneratorSetting;
         public GameModelSetting GameModelSetting => _gameModelSetting;
         public GameViewSetting GameViewSetting => _gameViewSetting;
+        public CollisionCheckerSetting CollisionCheckerSetting => _collisionCheckerSetting;
         public PlayerModelSetting PlayerModelSetting => _playerModelSetting;
         public ObstacleGeneratorSetting ObstacleGeneratorSetting => _obstacleGeneratorSetting;
     }
@@ -33,6 +35,12 @@ namespace MyScriptableObjectClass
         public float ScoreCountUpTime => _resultScoreCountUpTime;
     }
     [System.Serializable]
+    public class CollisionCheckerSetting
+    {
+        [SerializeField] float _yFrameOut;
+        public float _YFrameOut => _yFrameOut;
+    }
+    [System.Serializable]
     public class PlayerModelSetting
     {
         [SerializeField] float _playerHitRange;
@@ -45,10 +53,10 @@ namespace MyScriptableObjectClass
     {
         [SerializeField] List<ObstacleData> _obstacleObjects;
         [SerializeField] float _obstacleMakePerDistance;
-        [SerializeField] float _obstacleFrameOutRange;
+        [SerializeField] float _obstacleSetYPosition;
         public List<ObstacleData> ObstacleDataSet => _obstacleObjects;
         public float ObstacleMakePerDistance => _obstacleMakePerDistance;
-        public float ObstacleFrameOutRange => _obstacleFrameOutRange;
+        public float ObstacleSetYPosition => _obstacleSetYPosition;
     }
 }
 

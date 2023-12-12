@@ -1,17 +1,21 @@
+using MyScriptableObjectClass;
 using System;
+using UnityEngine;
 
 public interface ICollisionChecker
 {
-    event Action<IObstaclePresenter> OnCollisionEnter;
+    event Action<MyCircleCollider, CollisionTag> OnCollisionEnter;
     void ManualUpdate();
 }
 public class CollisionChecker : ICollisionChecker
 {
+    CollisionCheckerSetting _collisionCheckerSetting;
     IPlayerPresenter _playerPresenter;
     IObstacleManager _obstacleManager;
 
-    public CollisionChecker(IPlayerPresenter playerPresenter, IObstacleManager obstacleGenerator)
+    public CollisionChecker(CollisionCheckerSetting collisionCheckerSetting, IPlayerPresenter playerPresenter, IObstacleManager obstacleGenerator)
     {
+        _collisionCheckerSetting = collisionCheckerSetting;
         _playerPresenter = playerPresenter;
         _obstacleManager = obstacleGenerator;
     }
@@ -19,17 +23,22 @@ public class CollisionChecker : ICollisionChecker
     {
         CheckCollision();
     }
-    public event Action<IObstaclePresenter> OnCollisionEnter;
+    public event Action<MyCircleCollider, CollisionTag> OnCollisionEnter;
     /// <summary>
     /// 衝突判定
     /// </summary>
     void CheckCollision()
     {
+        var playerCollider = _playerPresenter.Collider;
         foreach (var collider in _obstacleManager.GetObstacleColliders())
         {
-            if (_playerPresenter.GetCollider().IsHit(collider.Item1))
+            if (playerCollider.IsHit(collider))
             {
-                OnCollisionEnter?.Invoke(collider.Item2);
+                OnCollisionEnter?.Invoke(collider , playerCollider.tag);
+            }
+            if (collider.position.y < -_collisionCheckerSetting._YFrameOut)
+            {
+                OnCollisionEnter?.Invoke(collider, CollisionTag.OutField);
             }
         }
     }

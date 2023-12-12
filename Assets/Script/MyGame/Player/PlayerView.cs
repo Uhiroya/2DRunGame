@@ -8,7 +8,7 @@ using System;
 public interface IPlayerView
 {
     event Action OnFinishDeadAnimation;
-    void OnPlayerConditionChanged(PlayerCondition playerCondition);
+    UniTaskVoid OnPlayerConditionChanged(PlayerCondition playerCondition);
     void OnInitialize();
     void OnWaiting();
     void OnWalk();
@@ -28,7 +28,7 @@ public class PlayerView : IPlayerView
         _animator = animator;
     }
     public event Action OnFinishDeadAnimation;
-    public async void OnPlayerConditionChanged(PlayerCondition playerCondition)
+    public async UniTaskVoid OnPlayerConditionChanged(PlayerCondition playerCondition)
     {
         switch (playerCondition)
         {

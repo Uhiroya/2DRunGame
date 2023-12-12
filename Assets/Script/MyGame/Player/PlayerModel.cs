@@ -9,7 +9,7 @@ using UnityEngine.UIElements;
 public interface IPlayerModel
 {
     IReadOnlyReactiveProperty<PlayerCondition> PlayerState { get; }
-    Circle GetCollider();
+    MyCircleCollider Collider { get; }
     void Initialize();
     void GameStart();
     void Dying();
@@ -23,19 +23,18 @@ public interface IPlayerModel
 
 public class PlayerModel : IPlayerModel, IDisposable
 {
-    Transform _playerTransform;
     PlayerModelSetting _playerModelSetting;
 
     float _speedRate;
-    Circle _collider;
+    MyCircleCollider _collider;
+    public MyCircleCollider Collider => _collider;
     readonly ReactiveProperty<PlayerCondition> _playerState;
     public IReadOnlyReactiveProperty<PlayerCondition> PlayerState => _playerState;
     public PlayerModel(PlayerModelSetting playerModelSetting, Transform playerTransform)
     {
-        _playerTransform = playerTransform;
         _playerModelSetting = playerModelSetting;
         _playerState = new(PlayerCondition.Initialize);
-        _collider = new Circle(_playerTransform.position, _playerModelSetting.PlayerHitRange);
+        _collider = new MyCircleCollider(CollisionTag.Player ,playerTransform, _playerModelSetting.PlayerHitRange);
     }
     CompositeDisposable _disposable = new();
     public void Dispose()
@@ -53,17 +52,12 @@ public class PlayerModel : IPlayerModel, IDisposable
     }
     public void Move(float x)
     {
-        var position = _collider.GetCenter();
+        var position = _collider.position;
         var nextPosX = position.x + x * _playerModelSetting.PlayerDefaultSpeed * _speedRate;
         //移動制限
         nextPosX = Mathf.Clamp(nextPosX, InGameConst.GroundXMargin, InGameConst.WindowWidth - InGameConst.GroundXMargin);
         position = new Vector2(nextPosX, position.y);
-        _collider.SetCenter(position);
-        _playerTransform.position = position;
-    }
-    public Circle GetCollider()
-    {
-        return _collider;
+        _collider.position = position;
     }
 
     public void Initialize()
@@ -97,8 +91,7 @@ public class PlayerModel : IPlayerModel, IDisposable
     }
     public void Reset()
     {
-        var resetPos = new Vector2(InGameConst.WindowWidth / 2, _collider.GetCenter().y);
-        _playerTransform.position = resetPos;
-        _collider.SetCenter(resetPos);
+        var resetPos = new Vector2(InGameConst.WindowWidth / 2, _collider.position.y);
+        _collider.position = resetPos;
     }
 }

@@ -11,7 +11,9 @@ namespace MyScriptableObjectClass
         [SerializeField] GameObject _obstacle;
         [SerializeField] int _obstacleID;
         //Gamepresenterに処理させるために公開するデータ
-        [SerializeField] ObstaclePublicInfo _obstacleInfo;
+        [SerializeField] CollisionTag _itemType;
+        [SerializeField] float _hitRange;
+        [SerializeField] float _score;
         //Modelのみ
         [SerializeField] GameObject _destroyEffect;
         [SerializeField] AnimationClip _destroyAnimation;
@@ -20,8 +22,10 @@ namespace MyScriptableObjectClass
         [SerializeField] float _yMoveSpeed;
 
         public GameObject Obstacle => _obstacle;
-        public int ObstacleID => _obstacleID;   
-        public ObstaclePublicInfo ObstacleInfo => _obstacleInfo;
+        public int ObstacleID => _obstacleID;
+        public CollisionTag CollisionType => _itemType;
+        public float HitRange => _hitRange;
+        public float Score => _score;
         public GameObject DestroyEffect => _destroyEffect;
         public AnimationClip DestroyAnimation => _destroyAnimation;
         public float XMoveArea => _xMoveArea;
@@ -32,11 +36,11 @@ namespace MyScriptableObjectClass
     [System.Serializable]
     public class ObstaclePublicInfo
     {
-        [SerializeField] ItemType _itemType;
+        [SerializeField] CollisionTag _itemType;
         [SerializeField] float _hitRange;
         [SerializeField] float _score;
 
-        public ItemType ItemType => _itemType;
+        public CollisionTag ItemType => _itemType;
         public float HitRange => _hitRange;
         public float Score => _score;
     }
