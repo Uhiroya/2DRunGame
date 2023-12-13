@@ -30,12 +30,13 @@ public class PlayerPresenter : IPlayerPresenter, IPauseable, IFixedTickable, Sys
         _disposable = new();
         _model = model;
         _view = view;
+        RegisterEvent();
         Bind();
     }
     public void Dispose()
     {
         _disposable.Dispose();
-        UnBind();
+        UnRegisterEvent();
     }
     public void FixedTick()
     {
@@ -54,9 +55,13 @@ public class PlayerPresenter : IPlayerPresenter, IPauseable, IFixedTickable, Sys
     {
         //modelとviewのバインド
         _model.PlayerState.Subscribe(x => _view.OnPlayerConditionChanged(x)).AddTo(_disposable);
+        
+    }
+    void RegisterEvent()
+    {
         _view.OnFinishDeadAnimation += _model.Dead;
     }
-    void UnBind()
+    void UnRegisterEvent()
     {
         _view.OnFinishDeadAnimation -= _model.Dead;
     }

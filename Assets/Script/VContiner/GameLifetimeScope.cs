@@ -10,9 +10,6 @@ public class GameLifetimeScope : LifetimeScope
     [Header("GameSettings")]
     [SerializeField] GameSettings _gameSettings;
 
-    [Header("GameManager")]
-    [SerializeField] GameManager _gameManager;
-
     [Header("InputProvider")]
     [SerializeField] InputProvider _inputProvider;
 
@@ -21,6 +18,9 @@ public class GameLifetimeScope : LifetimeScope
     [SerializeField] AudioSource _audioBGMSource;
 
     [Header("GameView")]
+    [SerializeField] Button _startButton;
+    [SerializeField] Button _returnButton;
+    [SerializeField] Button _restartButton;
     [SerializeField] AnimationClip _titleAnimation;
     [SerializeField] AnimationClip _resultFadeAnimation;
     [SerializeField] AnimationClip _resultEmphasisAnimation;
@@ -45,14 +45,11 @@ public class GameLifetimeScope : LifetimeScope
     
     protected override void Configure(IContainerBuilder builder)
     {
-        builder.RegisterComponent(_gameManager);
-        
         builder.RegisterComponent(_inputProvider);
         builder.Register<AudioManager>(Lifetime.Singleton).As<IAudioManager>()
             .WithParameter("audioSetting", _gameSettings.AudioSetting)
             .WithParameter("audioSESource", _audioSESource)
             .WithParameter("audioBGMSource", _audioBGMSource);
-            
         builder.Register<PauseManager>(Lifetime.Singleton)
             .As<IPauseManager>();
         builder.RegisterEntryPoint<GamePresenter>(Lifetime.Singleton)
@@ -65,6 +62,9 @@ public class GameLifetimeScope : LifetimeScope
              .WithParameter("gameModelSetting", _gameSettings.GameModelSetting);
         builder.Register<GameView>(Lifetime.Singleton)
             .As<IGameView>()
+            .WithParameter("startButton", _startButton)
+            .WithParameter("returnButton", _returnButton)
+            .WithParameter("restartButton", _restartButton)
             .WithParameter("gameViewSetting", _gameSettings.GameViewSetting)
             .WithParameter("titleAnimationTime", _titleAnimation.length)
             .WithParameter("resultAnimationTime", _resultFadeAnimation.length + _resultEmphasisAnimation.length)

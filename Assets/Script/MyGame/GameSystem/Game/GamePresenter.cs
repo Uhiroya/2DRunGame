@@ -6,8 +6,6 @@ using Cysharp.Threading.Tasks;
 public interface IGamePresenter
 {
     GameFlowState NowGameState { get; }
-    public void PressReturnButton();
-    public void PressStartButton();
 }
 public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStartable, ITickable, System.IDisposable
 {
@@ -122,38 +120,38 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
     }
     void RegisterEvent()
     {
+        _view.OnPressStart += _model.GameStart;
+        _view.OnPressRestart += _model.GameStart;
+        _view.OnPressReturn += _model.GoTitle;
         _collisionChecker.OnCollisionEnter += CollisionObstacle;
-        _obstacleManager.OnCollisionItemEvent += _model.AddItemScore;
-        _obstacleManager.OnCollisionItemEvent += (x) => _view.PlayHitItemSound();
-        _obstacleManager.OnCollisionEnemyEvent += _playerPresenter.Dying;
-        _obstacleManager.OnCollisionEnemyEvent += _view.PlayHitEnemySound;
+        _obstacleManager.OnCollisionItemEvent += RegisterOnCollisionItemEvent;
+        _obstacleManager.OnCollisionEnemyEvent += RegisterOnCollisionEnemyEvent;
     }
     void UnRegisterEvent()
     {
+        _view.OnPressStart -= _model.GameStart;
+        _view.OnPressRestart -= _model.GameStart;
+        _view.OnPressReturn -= _model.GoTitle;
         _collisionChecker.OnCollisionEnter -= CollisionObstacle;
-        _obstacleManager.OnCollisionItemEvent -= _model.AddItemScore;
-        _obstacleManager.OnCollisionItemEvent -= (x) => _view.PlayHitItemSound();
-        _obstacleManager.OnCollisionEnemyEvent -= _playerPresenter.Dying;
-        _obstacleManager.OnCollisionEnemyEvent -= _view.PlayHitEnemySound;
+        _obstacleManager.OnCollisionItemEvent -= RegisterOnCollisionItemEvent;
+        _obstacleManager.OnCollisionEnemyEvent -= RegisterOnCollisionEnemyEvent;
+    }
+    void RegisterOnCollisionItemEvent(float score)
+    {
+        _model.AddItemScore(score);
+        _view.PlayHitItemSound();
+    }
+    void RegisterOnCollisionEnemyEvent()
+    {
+        _playerPresenter.Dying();
+        _view.PlayHitEnemySound();
     }
     /// <summary>
     /// 衝突時に呼び出される。
     /// </summary>
     void CollisionObstacle(MyCircleCollider collider, CollisionTag collisionTag)
     {
-        _obstacleManager.CollisionObstacle(collider , collisionTag);
-    }
-    /// <summary>ボタンから呼び出される。</summary>
-    public void PressReturnButton()
-    {
-        _model.GoTitle();
-        _view.PlayButtonSound();
-    }
-    /// <summary>ボタンから呼び出される。</summary>
-    public void PressStartButton()
-    {
-        _model.GameStart();
-        _view.PlayButtonSound();
+        _obstacleManager.CollisionObstacle(collider, collisionTag);
     }
     public void Pause()
     {

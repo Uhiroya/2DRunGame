@@ -5,68 +5,110 @@ using UnityEngine.UI;
 using DG.Tweening;
 using Cysharp.Threading.Tasks;
 using MyScriptableObjectClass;
+using System;
+
 public interface IGameView
 {
+    event Action OnPressStart;
+    event Action OnPressReturn;
+    event Action OnPressRestart;
+    void OnGameFlowStateChanged(GameFlowState gameFlowState);
     void ManualUpdate(float deltaTime);
     void SetUVSpeed(float speed);
     void SetHighScore(float highScore);
     void SetScore(float currentScore);
     void ShowResultUI();
-    void OnGameFlowStateChanged(GameFlowState gameFlowState);
     UniTaskVoid ShowHighScore();
     void Pause();
     void Resume();
-    void PlayButtonSound();
     void PlayHitItemSound();
     void PlayHitEnemySound();
 
 }
 public class GameView : IGameView
 {
-    IAudioManager _audioManager;
-    float _titleAnimationTime;
-    float _resultAnimationTime;
     GameViewSetting _gameViewSetting;
+    IAudioManager _audioManager;
     IBackGroundController _background;
+    Button _startButton;
+    Button _returnButton;
+    Button _restartButton;
     Text _scoreText;
-    GameObject _resultUIGroup;
     Text _highScoreText;
     Text _resultScoreText;
+    GameObject _resultUI;
     GameObject _pauseUI;
-    public GameView(IAudioManager audioManager,GameViewSetting gameViewSetting ,float titleAnimationTime, float resultAnimationTime 
-        ,IBackGroundController background , Text scoreText , GameObject resultUIGroup
-        ,Text resultScoreText , Text highScoreText ,GameObject pauseUI)
+    float _titleAnimationTime;
+    float _resultAnimationTime;
+    public GameView(
+        GameViewSetting gameViewSetting, IAudioManager audioManager, IBackGroundController background,
+        Button startButton, Button returnButton, Button restartButton, 
+        Text scoreText ,Text resultScoreText , Text highScoreText, 
+        GameObject resultUIGroup, GameObject pauseUI ,
+        float titleAnimationTime, float resultAnimationTime
+        )
     {
-        _audioManager = audioManager;
         _gameViewSetting = gameViewSetting;
+        _audioManager = audioManager;
+        _background = background;
+        _startButton = startButton;
+        _returnButton = returnButton;
+        _restartButton = restartButton;
+        _scoreText = scoreText; 
+        _highScoreText = highScoreText;
+        _resultScoreText = resultScoreText;
+        _resultUI = resultUIGroup;
+        _pauseUI = pauseUI;
         _titleAnimationTime = titleAnimationTime;
         _resultAnimationTime = resultAnimationTime;
-        _background = background;
-        _scoreText = scoreText; 
-        _resultUIGroup = resultUIGroup;
-        _resultScoreText = resultScoreText;
-        _highScoreText = highScoreText;
-        _pauseUI = pauseUI;
+
+        RegisterEvent();
     }
     float _highScore;
     float _latestScore;
+
+    public event Action OnPressStart;
+    public event Action OnPressReturn;
+    public event Action OnPressRestart;
+
+    void RegisterEvent()
+    {
+        _startButton.onClick.AddListener(OnClickStartButton);
+        _returnButton.onClick.AddListener(OnClickReturnButton);
+        _restartButton.onClick.AddListener(OnClickRestartButton);
+    }
+    void OnClickStartButton()
+    {
+        _audioManager.PlaySE(GameSE.Click);
+        OnPressStart?.Invoke();
+    }
+    void OnClickReturnButton()
+    {
+        _audioManager.PlaySE(GameSE.Click);
+        OnPressReturn?.Invoke();
+    }
+    void OnClickRestartButton()
+    {
+        _audioManager.PlaySE(GameSE.Click);
+        OnPressRestart?.Invoke();
+    }
     public void OnGameFlowStateChanged(GameFlowState gameFlowState)
     {
         switch (gameFlowState)
         {
             case GameFlowState.Title:
                 _ = ShowHighScore();
-                _audioManager.PlayBGM(BGMType.Title);
+                _audioManager.PlayBGM(GameBGM.Title);
                 break;
             case GameFlowState.InGame:
-                _audioManager.PlayBGM(BGMType.InGame);
+                _audioManager.PlayBGM(GameBGM.InGame);
                 break;
             case GameFlowState.Waiting:
                 _audioManager.StopBGM();
                 break;
             case GameFlowState.Result:
                 ShowResultUI();
-                _audioManager.PlayBGM(BGMType.Result);
+                _audioManager.PlayBGM(GameBGM.Result);
                 break;
         }
     }
@@ -89,7 +131,7 @@ public class GameView : IGameView
     }
     public void ShowResultUI()
     {
-        _resultUIGroup.SetActive(true);
+        _resultUI.SetActive(true);
         _ = ShowResultScore();
     }
     public async UniTaskVoid ShowHighScore()
@@ -124,19 +166,14 @@ public class GameView : IGameView
         _audioManager.ResumeBGM();
         _pauseUI.SetActive(false);
     }
-    public void PlayButtonSound()
-    {
-        _audioManager.PlaySE(SEType.Start);
-        
-    }
 
     public void PlayHitItemSound()
     {
-        _audioManager.PlaySE(SEType.HitItem);
+        _audioManager.PlaySE(GameSE.HitItem);
     }
 
     public void PlayHitEnemySound()
     {
-        _audioManager.PlaySE(SEType.HitEnemy);
+        _audioManager.PlaySE(GameSE.HitEnemy);
     }
 }

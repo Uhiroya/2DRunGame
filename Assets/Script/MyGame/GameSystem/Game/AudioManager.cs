@@ -3,14 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum SEType
+public enum GameSE
 {
-    Start = 0,    
+    Click = 0,    
     HitItem = 1,       
     HitEnemy = 2,    
     GameOver = 3,            
 }
-public enum BGMType
+public enum GameBGM
 {
     Title = 0,
     InGame = 1,
@@ -18,8 +18,8 @@ public enum BGMType
 }
 public interface IAudioManager
 {
-    void PlaySE(SEType soundIndex);
-    void PlayBGM(BGMType soundIndex);
+    void PlaySE(GameSE soundIndex);
+    void PlayBGM(GameBGM soundIndex);
     void StopBGM();
     void PauseBGM();
     void ResumeBGM();
@@ -29,8 +29,8 @@ public class AudioManager : IAudioManager
     AudioSource _audioSESource;
     AudioSource _audioBGMSource;
     AudioData _audioData;
-    AudioClip[] _audioSEClips => _audioData.AudioSEClips;
-    AudioClip[] _audioBGMClips => _audioData.AudioBGMClips;
+    AudioClip[] AudioSEClips => _audioData.AudioSEClips;
+    AudioClip[] AudioBGMClips => _audioData.AudioBGMClips;
     public AudioManager(MyAudioSetting audioSetting , AudioSource audioSESource ,AudioSource audioBGMSource)
     {
         _audioData = audioSetting.AudioData;
@@ -38,13 +38,13 @@ public class AudioManager : IAudioManager
         _audioBGMSource = audioBGMSource;
     }
 
-    public void PlaySE(SEType soundIndex)
+    public void PlaySE(GameSE soundIndex)
     {
-        _audioSESource.PlayOneShot(_audioSEClips[(int)soundIndex]);
+        _audioSESource.PlayOneShot(AudioSEClips[(int)soundIndex]);
     }
-    public void PlayBGM(BGMType soundIndex)
+    public void PlayBGM(GameBGM soundIndex)
     {
-        _audioBGMSource.clip = _audioBGMClips[(int)soundIndex];
+        _audioBGMSource.clip = AudioBGMClips[(int)soundIndex];
         _audioBGMSource.Play();
     }
     public void StopBGM()

@@ -397,10 +397,12 @@ MonoBehaviour:
   autoRun: 1
   autoInjectGameObjects: []
   _gameSettings: {fileID: 11400000, guid: 8bca061bccbce1543bb925851143bf48, type: 2}
-  _gameManager: {fileID: 175587346}
   _inputProvider: {fileID: 175587348}
   _audioSESource: {fileID: 359127316}
   _audioBGMSource: {fileID: 616872106}
+  _startButton: {fileID: 817933534}
+  _returnButton: {fileID: 1897384762}
+  _restartButton: {fileID: 1975101395}
   _titleAnimation: {fileID: 7400000, guid: 4dfd2194441eb2e45a2cbfb87b64c03f, type: 2}
   _resultFadeAnimation: {fileID: 7400000, guid: 887b40eb539cd87469ac0115de49e344, type: 2}
   _resultEmphasisAnimation: {fileID: 7400000, guid: dd354d590a1753f4dbd0968eb0332439, type: 2}
@@ -506,7 +508,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 175587347}
-  - component: {fileID: 175587346}
   - component: {fileID: 175587348}
   m_Layer: 5
   m_Name: GameSystem
@@ -515,18 +516,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &175587346
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 175587345}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5e1120d5743dbda49852b1c4b2ecef0f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &175587347
 Transform:
   m_ObjectHideFlags: 0
@@ -1434,7 +1423,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
-      - m_Target: {fileID: 175587346}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: AnimationEventProvider, Assembly-CSharp
         m_MethodName: GameStart
         m_Mode: 1
@@ -2460,7 +2449,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
-      - m_Target: {fileID: 175587346}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: GamePresenter, Assembly-CSharp
         m_MethodName: ShowResultScore
         m_Mode: 1
@@ -2651,7 +2640,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 175587346}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: AnimationEventProvider, Assembly-CSharp
         m_MethodName: GoTitle
         m_Mode: 1
@@ -2896,7 +2885,7 @@ GameObject:
   - component: {fileID: 1975101396}
   - component: {fileID: 1975101395}
   m_Layer: 5
-  m_Name: RetryButton
+  m_Name: RestartButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2979,7 +2968,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
-      - m_Target: {fileID: 175587346}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: AnimationEventProvider, Assembly-CSharp
         m_MethodName: GameStart
         m_Mode: 1
