@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f93e31306ea5c148975886eb32c7276, type: 3}
   m_Name: GemeSettings
   m_EditorClassIdentifier: 
+  _audioSetting:
+    _audioData: {fileID: 11400000, guid: 93e20cb1fb0191a4d9ec963e2811c04a, type: 2}
   _gameModelSetting:
     _startSpeed: 0.5
     _speedUpRate: 0.015
