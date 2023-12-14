@@ -1,44 +1,48 @@
+using System;
+using MyScriptableObjectClass;
 using UniRx;
 using UnityEngine;
-using UnityEngine.UIElements;
-using MyScriptableObjectClass;
+using Object = UnityEngine.Object;
 
 public interface IObstacleModel
 {
-    event System.Action<float> OnCollisionItem;
-    event System.Action OnCollisionEnemy;
     MyCircleCollider Collider { get; }
     int ObstacleDataID { get; }
     IReadOnlyReactiveProperty<float> Theta { get; }
+    event Action<float> OnCollisionItem;
+    event Action OnCollisionEnemy;
     void CollisionOther(MyCircleCollider other);
     void SetInitializePosition(Vector2 position);
     void Move(float deltaTime, float speed);
 }
+
 public class ObstacleModel : IObstacleModel
 {
-    ObstacleData _obstacleData;
-    MyCircleCollider _collider;
-    public event System.Action<float> OnCollisionItem;
-    public event System.Action OnCollisionEnemy;
-    public MyCircleCollider Collider => _collider;
-    public int ObstacleDataID => _obstacleData.ObstacleID;
-    readonly ReactiveProperty<float> _theta;
-    public IReadOnlyReactiveProperty<float> Theta => _theta;
+    private readonly ObstacleData _obstacleData;
+    private readonly ReactiveProperty<float> _theta;
     private readonly Transform _transform;
-    public ObstacleModel(Transform transform , ObstacleData obstacleData)
+    private MyCircleCollider _collider;
+    private float _defaultPositionX;
+    private float _time;
+    private float _xMoveRange;
+
+    public ObstacleModel(Transform transform, ObstacleData obstacleData)
     {
         _obstacleData = obstacleData;
         _transform = transform;
-        _collider = new(_obstacleData.CollisionType, transform, _obstacleData.HitRange);
-        _theta = new();
-    } 
-    float _xMoveRange;
-    float _defaultPositionX = 0f;
-    float _time;
+        _collider = new MyCircleCollider(_obstacleData.CollisionType, transform, _obstacleData.HitRange);
+        _theta = new ReactiveProperty<float>();
+    }
+
+    public event Action<float> OnCollisionItem;
+    public event Action OnCollisionEnemy;
+    public MyCircleCollider Collider => _collider;
+    public int ObstacleDataID => _obstacleData.ObstacleID;
+    public IReadOnlyReactiveProperty<float> Theta => _theta;
+
     public void CollisionOther(MyCircleCollider other)
     {
-        if (other.tag.Equals(CollisionTag.Player))
-        {
+        if (other.Tag.Equals(CollisionTag.Player))
             switch (_obstacleData.CollisionType)
             {
                 case CollisionTag.Item:
@@ -48,55 +52,45 @@ public class ObstacleModel : IObstacleModel
                     OnCollisionEnemy?.Invoke();
                     InstantiateDestroyEffect();
                     break;
-                default:
-                    break;
             }
-        }
     }
+
     public void SetInitializePosition(Vector2 position)
     {
-        var posX = position.x; 
+        var posX = position.x;
         var posY = position.y;
         //SetX
-        _xMoveRange = (_obstacleData.XMoveArea) * (InGameConst.WindowWidth - InGameConst.GroundXMargin * 2) / 2;
+        _xMoveRange = _obstacleData.XMoveArea * (InGameConst.WindowWidth - InGameConst.GroundXMargin * 2) / 2;
         //障害物の移動距離がマップに収まるように制限する。
         if (posX - _xMoveRange < InGameConst.GroundXMargin)
-        {
             _defaultPositionX = InGameConst.GroundXMargin + _xMoveRange;
-        }
         else if (posX + _xMoveRange > InGameConst.WindowWidth - InGameConst.GroundXMargin)
-        {
             _defaultPositionX = InGameConst.WindowWidth - InGameConst.GroundXMargin - _xMoveRange;
-        }
         else
-        {
             _defaultPositionX = posX;
-        }
         //SetX , SetY
-        _collider.position = new(posX, posY);
+        _collider.Position = new Vector2(posX, posY);
     }
+
     public void Move(float deltaTime, float speed)
     {
         //X移動
         _time += deltaTime;
-        _theta.Value = (_time * speed * _obstacleData.XMoveSpeed) % (Mathf.PI * 2);
+        _theta.Value = _time * speed * _obstacleData.XMoveSpeed % (Mathf.PI * 2);
         var newPos = _defaultPositionX + _xMoveRange * Mathf.Sin(_theta.Value);
         //Y移動
         var moveAmount = deltaTime * speed * InGameConst.WindowHeight * _obstacleData.YMoveSpeed;
-        _collider.position = new Vector2(newPos, _collider.position.y - moveAmount);
+        _collider.Position = new Vector2(newPos, _collider.Position.y - moveAmount);
     }
-    void InstantiateDestroyEffect()
+
+    private void InstantiateDestroyEffect()
     {
         if (_obstacleData.DestroyEffect == null) return;
-        var obj = Object.Instantiate(_obstacleData.DestroyEffect, _collider.position, Quaternion.identity, _transform.parent);
+        var obj = Object.Instantiate(_obstacleData.DestroyEffect, _collider.Position, Quaternion.identity,
+            _transform.parent);
         if (_obstacleData.DestroyAnimation == null)
-        {
             Object.Destroy(obj, 1f);
-        }
         else
-        {
             Object.Destroy(obj, _obstacleData.DestroyAnimation.length);
-        }
     }
 }
-

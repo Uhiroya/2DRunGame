@@ -1,9 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using DG.Tweening;
-using Cysharp.Threading.Tasks;
 using System;
+using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 public interface IPlayerView
 {
@@ -14,22 +11,26 @@ public interface IPlayerView
     void OnWalk();
     UniTask OnDead();
 }
+
 public class PlayerView : IPlayerView
 {
-    float _deadAnimationTime;
-    static readonly int _hashInitialize = Animator.StringToHash("Initialize");
-    static readonly int _hashWaiting = Animator.StringToHash("Waiting");
-    static readonly int _hashWalking = Animator.StringToHash("Walking");
-    static readonly int _hashDead = Animator.StringToHash("Dead");
-    Animator _animator;
-    IAudioManager _audioManager;
-    public PlayerView(IAudioManager audioManager ,float deadAnimationTime, Animator animator)
+    private static readonly int HashInitialize = Animator.StringToHash("Initialize");
+    private static readonly int HashWaiting = Animator.StringToHash("Waiting");
+    private static readonly int HashWalking = Animator.StringToHash("Walking");
+    private static readonly int HashDead = Animator.StringToHash("Dead");
+    private readonly Animator _animator;
+    private readonly IAudioManager _audioManager;
+    private readonly float _deadAnimationTime;
+
+    public PlayerView(IAudioManager audioManager, float deadAnimationTime, Animator animator)
     {
         _audioManager = audioManager;
         _deadAnimationTime = deadAnimationTime;
         _animator = animator;
     }
+
     public event Action OnFinishDeadAnimation;
+
     public async UniTaskVoid OnPlayerConditionChanged(PlayerCondition playerCondition)
     {
         switch (playerCondition)
@@ -49,21 +50,29 @@ public class PlayerView : IPlayerView
             case PlayerCondition.Dying:
                 _audioManager.PlaySE(GameSE.HitEnemy);
                 await OnDead();
-                OnFinishDeadAnimation.Invoke();
-                break;
-            default:
+                OnFinishDeadAnimation?.Invoke();
                 break;
         }
     }
+
     public void OnInitialize()
-        => _animator.SetTrigger(_hashInitialize);
+    {
+        _animator.SetTrigger(HashInitialize);
+    }
+
     public void OnWaiting()
-        => _animator.SetTrigger(_hashWaiting);
+    {
+        _animator.SetTrigger(HashWaiting);
+    }
+
     public void OnWalk()
-        => _animator.SetTrigger(_hashWalking);
+    {
+        _animator.SetTrigger(HashWalking);
+    }
+
     public async UniTask OnDead()
     {
-        _animator.SetTrigger(_hashDead);
-        await UniTask.Delay((int)(_deadAnimationTime * 1000)); 
+        _animator.SetTrigger(HashDead);
+        await UniTask.Delay((int)(_deadAnimationTime * 1000));
     }
 }

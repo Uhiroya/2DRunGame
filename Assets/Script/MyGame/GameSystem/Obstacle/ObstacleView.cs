@@ -1,24 +1,28 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+
 public interface IObstacleView
 {
     void SetTheta(float theta);
     void Pause();
     void Resume();
 }
-public class ObstacleView :IObstacleView
+
+public class ObstacleView : IObstacleView
 {
-    Animator _animator;
+    private readonly Animator _animator;
+    private static readonly int XMovement = Animator.StringToHash("XMovement");
+
     public ObstacleView(Animator animator)
     {
         _animator = animator;
     }
+
     public void SetTheta(float theta)
     {
         if (_animator == null) return;
-        _animator.SetFloat("XMovement", Mathf.Cos(theta + Mathf.PI / 2));
+        _animator.SetFloat(XMovement, Mathf.Cos(theta + Mathf.PI / 2));
     }
+
     public void Pause()
     {
         if (_animator == null) return;

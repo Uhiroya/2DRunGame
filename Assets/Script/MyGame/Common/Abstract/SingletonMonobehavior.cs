@@ -2,10 +2,8 @@ using UnityEngine;
 
 public abstract class SingletonMonobehavior<T> : MonoBehaviour where T : Component
 {
-    private static T _instance;
-    public static T Instance => _instance;
-    /// <summary>Awakeのタイミングで実行したい処理を書く</summary>
-    protected abstract void Initialize();
+    public static T Instance { get; private set; }
+
     protected void Awake()
     {
         if (Instance)
@@ -14,8 +12,11 @@ public abstract class SingletonMonobehavior<T> : MonoBehaviour where T : Compone
         }
         else
         {
-            _instance = this as T;
+            Instance = this as T;
             Initialize();
         }
     }
+
+    /// <summary>Awakeのタイミングで実行したい処理を書く</summary>
+    protected abstract void Initialize();
 }
