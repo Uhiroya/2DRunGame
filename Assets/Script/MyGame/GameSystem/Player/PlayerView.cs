@@ -22,8 +22,10 @@ public class PlayerView : IPlayerView
     static readonly int _hashWalking = Animator.StringToHash("Walking");
     static readonly int _hashDead = Animator.StringToHash("Dead");
     Animator _animator;
-    public PlayerView(float deadAnimationTime, Animator animator)
+    IAudioManager _audioManager;
+    public PlayerView(IAudioManager audioManager ,float deadAnimationTime, Animator animator)
     {
+        _audioManager = audioManager;
         _deadAnimationTime = deadAnimationTime;
         _animator = animator;
     }
@@ -41,7 +43,11 @@ public class PlayerView : IPlayerView
             case PlayerCondition.Alive:
                 OnWalk();
                 break;
+            case PlayerCondition.GetItem:
+                _audioManager.PlaySE(GameSE.HitItem);
+                break;
             case PlayerCondition.Dying:
+                _audioManager.PlaySE(GameSE.HitEnemy);
                 await OnDead();
                 OnFinishDeadAnimation.Invoke();
                 break;

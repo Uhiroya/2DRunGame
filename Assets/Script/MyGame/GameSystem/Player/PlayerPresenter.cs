@@ -8,10 +8,10 @@ public interface IPlayerPresenter
 {
     IReadOnlyReactiveProperty<PlayerCondition> PlayerState { get; }
     MyCircleCollider Collider { get; }
+    void CollisionObstacle(MyCircleCollider obstacle, MyCircleCollider other);
     void OnGameFlowStateChanged(GameFlowState gameFlowState);
     void SetInputX(float x);
     void SetSpeedRate(float speedRate);
-    void Dying();
 
 }
 [RequireComponent(typeof(Rigidbody2D))]
@@ -48,9 +48,7 @@ public class PlayerPresenter : IPlayerPresenter, IPauseable, IFixedTickable, Sys
             default:
                 break;
         }
-
     }
-
     void Bind()
     {
         //modelとviewのバインド
@@ -64,6 +62,10 @@ public class PlayerPresenter : IPlayerPresenter, IPauseable, IFixedTickable, Sys
     void UnRegisterEvent()
     {
         _view.OnFinishDeadAnimation -= _model.Dead;
+    }
+    public void CollisionObstacle(MyCircleCollider obstacle, MyCircleCollider other)
+    {
+        _model.CollisionObstacle(obstacle, other);
     }
     public void OnGameFlowStateChanged(GameFlowState gameFlowState)
     {

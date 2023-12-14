@@ -5,21 +5,23 @@ using MyScriptableObjectClass;
 
 public interface IObstacleModel
 {
+    event System.Action<float> OnCollisionItem;
+    event System.Action OnCollisionEnemy;
     MyCircleCollider Collider { get; }
     int ObstacleDataID { get; }
-    float Score { get; }
     IReadOnlyReactiveProperty<float> Theta { get; }
+    void CollisionOther(MyCircleCollider other);
     void SetInitializePosition(Vector2 position);
     void Move(float deltaTime, float speed);
-    void InstantiateDestroyEffect();
 }
 public class ObstacleModel : IObstacleModel
 {
     ObstacleData _obstacleData;
     MyCircleCollider _collider;
+    public event System.Action<float> OnCollisionItem;
+    public event System.Action OnCollisionEnemy;
     public MyCircleCollider Collider => _collider;
     public int ObstacleDataID => _obstacleData.ObstacleID;
-    public float Score => _obstacleData.Score;
     readonly ReactiveProperty<float> _theta;
     public IReadOnlyReactiveProperty<float> Theta => _theta;
     private readonly Transform _transform;
@@ -33,6 +35,24 @@ public class ObstacleModel : IObstacleModel
     float _xMoveRange;
     float _defaultPositionX = 0f;
     float _time;
+    public void CollisionOther(MyCircleCollider other)
+    {
+        if (other.tag.Equals(CollisionTag.Player))
+        {
+            switch (_obstacleData.CollisionType)
+            {
+                case CollisionTag.Item:
+                    OnCollisionItem?.Invoke(_obstacleData.Score);
+                    break;
+                case CollisionTag.Enemy:
+                    OnCollisionEnemy?.Invoke();
+                    InstantiateDestroyEffect();
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
     public void SetInitializePosition(Vector2 position)
     {
         var posX = position.x; 
@@ -65,7 +85,7 @@ public class ObstacleModel : IObstacleModel
         var moveAmount = deltaTime * speed * InGameConst.WindowHeight * _obstacleData.YMoveSpeed;
         _collider.position = new Vector2(newPos, _collider.position.y - moveAmount);
     }
-    public void InstantiateDestroyEffect()
+    void InstantiateDestroyEffect()
     {
         if (_obstacleData.DestroyEffect == null) return;
         var obj = Object.Instantiate(_obstacleData.DestroyEffect, _collider.position, Quaternion.identity, _transform.parent);

@@ -4,11 +4,14 @@ using UnityEngine;
 
 public interface ICollisionChecker
 {
-    event Action<MyCircleCollider, CollisionTag> OnCollisionEnter;
+    event Action<MyCircleCollider, MyCircleCollider> OnCollisionEnter;
     void ManualUpdate();
 }
 public class CollisionChecker : ICollisionChecker
 {
+    private static MyCircleCollider? _outField;
+    public MyCircleCollider OutField => _outField ??= new MyCircleCollider(CollisionTag.OutField, null, 0);
+
     CollisionCheckerSetting _collisionCheckerSetting;
     IPlayerPresenter _playerPresenter;
     IObstacleManager _obstacleManager;
@@ -23,7 +26,7 @@ public class CollisionChecker : ICollisionChecker
     {
         CheckCollision();
     }
-    public event Action<MyCircleCollider, CollisionTag> OnCollisionEnter;
+    public event Action<MyCircleCollider, MyCircleCollider> OnCollisionEnter;
     /// <summary>
     /// 衝突判定
     /// </summary>
@@ -34,11 +37,11 @@ public class CollisionChecker : ICollisionChecker
         {
             if (playerCollider.IsHit(collider))
             {
-                OnCollisionEnter?.Invoke(collider , playerCollider.tag);
+                OnCollisionEnter?.Invoke(collider , playerCollider);
             }
             if (collider.position.y < -_collisionCheckerSetting._YFrameOut)
             {
-                OnCollisionEnter?.Invoke(collider, CollisionTag.OutField);
+                OnCollisionEnter?.Invoke(collider, OutField);
             }
         }
     }

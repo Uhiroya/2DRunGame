@@ -8,10 +8,12 @@ using UnityEngine.UIElements;
 
 public interface IPlayerModel
 {
+    void CollisionObstacle(MyCircleCollider obstacle, MyCircleCollider other);
     IReadOnlyReactiveProperty<PlayerCondition> PlayerState { get; }
     MyCircleCollider Collider { get; }
     void Initialize();
     void GameStart();
+    void GetItem();
     void Dying();
     void Dead();
     void Pause();
@@ -69,6 +71,31 @@ public class PlayerModel : IPlayerModel, IDisposable
     public void GameStart()
     {
         SetPlayerCondition(PlayerCondition.Alive);
+    }
+    /// <summary>
+    /// 衝突時及び場外の判定
+    /// </summary>
+    public void CollisionObstacle(MyCircleCollider obstacle, MyCircleCollider other)
+    {
+        if (other.tag.Equals(CollisionTag.Player))
+        {
+            switch (obstacle.tag)
+            {
+                case CollisionTag.Item:
+                    SetPlayerCondition(PlayerCondition.GetItem);
+                    SetPlayerCondition(PlayerCondition.Alive);
+                    break;
+                case CollisionTag.Enemy:
+                    Dying();
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+    public void GetItem() 
+    {
+        SetPlayerCondition(PlayerCondition.GetItem);
     }
 
     public void Dying()

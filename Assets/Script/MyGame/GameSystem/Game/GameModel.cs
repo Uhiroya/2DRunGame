@@ -5,6 +5,8 @@ using UniRx;
 using System.Drawing;
 using MyScriptableObjectClass;
 using System;
+using System.Net.Http.Headers;
+
 public interface IGameModel
 {
     IReadOnlyReactiveProperty<GameFlowState> GameState { get; }

@@ -17,6 +17,7 @@ public enum PlayerCondition
     Initialize,
     Alive,
     Pause,
+    GetItem,
     Dying,
     Dead,
 }

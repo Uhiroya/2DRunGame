@@ -7,16 +7,19 @@ using System.Linq;
 using VContainer;
 using VContainer.Unity;
 using MyScriptableObjectClass;
+
 public interface IObstacleGenerator
 {
-    public void ReleaseObstacle(IObstaclePresenter presenter);
+    event System.Action<float> OnCollisionItem;
+    event System.Action OnCollisionEnemy;
+    public void ReleasePresenter(IObstaclePresenter presenter);
     GameObject GetObstacle(ObstacleData obstacleData, out IObstaclePresenter presenter);
 }
 public class ObstacleGenerator : IObstacleGenerator, System.IDisposable
 {
     Transform _parentTransform;
 
-    [Inject] readonly System.Func<Transform ,ObstacleData , IObstaclePresenter> _obstaclePresenterFactory;
+    [Inject] readonly System.Func<Transform ,ObstacleData,Animator , IObstaclePresenter> _obstaclePresenterFactory;
     public ObstacleGenerator(Transform parentTransform)
     {
         _parentTransform = parentTransform;
@@ -26,6 +29,11 @@ public class ObstacleGenerator : IObstacleGenerator, System.IDisposable
     {
         _disposable.Dispose();
     }
+    /// <summary>
+    /// 衝突イベント(Modelに登録する)
+    /// </summary>
+    public event System.Action<float> OnCollisionItem;
+    public event System.Action OnCollisionEnemy;
     /// <summary>
     /// Obstacleの種類毎のオブジェクトプール
     /// </summary>
@@ -58,7 +66,7 @@ public class ObstacleGenerator : IObstacleGenerator, System.IDisposable
             actionOnDestroy: target =>
             {
                 _objectToPresenterReference[target].Dispose();
-                ReleaseObstacle(_objectToPresenterReference[target]);
+                ReleasePresenter(_objectToPresenterReference[target]);
                 Object.Destroy(target);
             } // プールがmaxSizeを超えたときの処理
         );
@@ -67,10 +75,11 @@ public class ObstacleGenerator : IObstacleGenerator, System.IDisposable
         obstaclePool.Release(obj);
         return obstaclePool;
     }
-    public void ReleaseObstacle(IObstaclePresenter presenter)
+    public void ReleasePresenter(IObstaclePresenter presenter)
     {
-        _objectPool[presenter.ObstacleID]
-            .Release(_presenterToObjectReference[presenter]);
+        UnRegisterEvent(in presenter);
+        _objectPool[presenter.ObstacleID].Release(_presenterToObjectReference[presenter]);
+        presenter.Dispose();
     }
     public GameObject GetObstacle(ObstacleData obstacleData , out IObstaclePresenter presenter)
     {
@@ -97,9 +106,19 @@ public class ObstacleGenerator : IObstacleGenerator, System.IDisposable
     }
     void MakePresenter(GameObject obj, ObstacleData obstacleData, out IObstaclePresenter presenter)
     {
-        presenter = _obstaclePresenterFactory.Invoke(obj.transform ,obstacleData);
-        presenter.SetAnimator(obj.GetComponent<Animator>());
+        presenter = _obstaclePresenterFactory.Invoke(obj.transform ,obstacleData, obj.GetComponent<Animator>());
+        RegisterEvent(in presenter);
         _objectToPresenterReference.Add(obj, presenter);
         _presenterToObjectReference.Add(presenter, obj);
+    }
+    void RegisterEvent(in IObstaclePresenter presenter)
+    {
+        presenter.OnCollisionItem += (x) => OnCollisionItem?.Invoke(x);
+        presenter.OnCollisionEnemy += () => OnCollisionEnemy?.Invoke();
+    }
+    void UnRegisterEvent(in IObstaclePresenter presenter)
+    {
+        presenter.OnCollisionItem -= (x) => OnCollisionItem?.Invoke(x);
+        presenter.OnCollisionEnemy -= () => OnCollisionEnemy?.Invoke();
     }
 }
