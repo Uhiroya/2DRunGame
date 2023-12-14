@@ -2,12 +2,13 @@ using UniRx;
 using UnityEngine;
 using VContainer.Unity;
 using Cysharp.Threading.Tasks;
+using Unity.VisualScripting;
 
 public interface IGamePresenter
 {
     GameFlowState NowGameState { get; }
 }
-public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStartable, ITickable, System.IDisposable
+public class GamePresenter : IGamePresenter, IPauseable,IStartable, ITickable, System.IDisposable
 {
     /// <summary>
     /// VContainerで注入される
@@ -34,21 +35,14 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
         _playerPresenter = playerPresenter;
         _obstacleManager = obstacleGenerator;
         _collisionChecker = collisionChecker;
+        _disposable = new();
+        Bind();
+        RegisterEvent();
     }
     /// <summary>
     /// 公開プロパティ、メソッド
     /// </summary>
     public GameFlowState NowGameState => _model.GameState.Value;
-
-    /// <summary>
-    ///VContainerから呼び出される
-    /// </summary>
-    public void Initialize()
-    {
-        _disposable = new();
-        Bind();
-        RegisterEvent();
-    }
     public void Start()
     {
         _model.GoTitle();
@@ -69,7 +63,7 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
     }
     public void Dispose()
     {
-        _disposable.Dispose();
+        UnBind();
         UnRegisterEvent();
     }
     void Bind()
@@ -118,14 +112,18 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
             })
             .AddTo(_disposable);
     }
+    void UnBind()
+    {
+        _disposable.Dispose();
+    }
     void RegisterEvent()
     {
         _view.OnPressStart += _model.GameStart;
         _view.OnPressRestart += _model.GameStart;
         _view.OnPressReturn += _model.GoTitle;
         _collisionChecker.OnCollisionEnter += CollisionObstacle;
-        _obstacleManager.OnCollisionItemEvent += RegisterOnCollisionItemEvent;
-        _obstacleManager.OnCollisionEnemyEvent += RegisterOnCollisionEnemyEvent;
+        _obstacleManager.OnCollisionItem += OnCollisionItem;
+        _obstacleManager.OnCollisionEnemy += OnCollisionEnemy;
     }
     void UnRegisterEvent()
     {
@@ -133,26 +131,25 @@ public class GamePresenter : IGamePresenter, IPauseable, IInitializable, IStarta
         _view.OnPressRestart -= _model.GameStart;
         _view.OnPressReturn -= _model.GoTitle;
         _collisionChecker.OnCollisionEnter -= CollisionObstacle;
-        _obstacleManager.OnCollisionItemEvent -= RegisterOnCollisionItemEvent;
-        _obstacleManager.OnCollisionEnemyEvent -= RegisterOnCollisionEnemyEvent;
-    }
-    void RegisterOnCollisionItemEvent(float score)
-    {
-        _model.AddItemScore(score);
-        _view.PlayHitItemSound();
-    }
-    void RegisterOnCollisionEnemyEvent()
-    {
-        _playerPresenter.Dying();
-        _view.PlayHitEnemySound();
+        _obstacleManager.OnCollisionItem -= OnCollisionItem;
+        _obstacleManager.OnCollisionEnemy -= OnCollisionEnemy;
     }
     /// <summary>
     /// 衝突時に呼び出される。
     /// </summary>
-    void CollisionObstacle(MyCircleCollider collider, CollisionTag collisionTag)
+    void CollisionObstacle(MyCircleCollider obstacle, MyCircleCollider other)
     {
-        _obstacleManager.CollisionObstacle(collider, collisionTag);
+        _obstacleManager.CollisionObstacle(obstacle, other);
+        _playerPresenter.CollisionObstacle(obstacle, other);
     }
+    void OnCollisionItem(float score)
+    {
+        _model.AddItemScore(score);
+    }
+    void OnCollisionEnemy()
+    {
+    }
+
     public void Pause()
     {
         _model.Pause();

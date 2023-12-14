@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 public interface IObstacleView
 {
-    void SetAnimator(Animator animator);
     void SetTheta(float theta);
     void Pause();
     void Resume();
@@ -11,10 +10,7 @@ public interface IObstacleView
 public class ObstacleView :IObstacleView
 {
     Animator _animator;
-    public ObstacleView()
-    {
-    }
-    public void SetAnimator(Animator animator)
+    public ObstacleView(Animator animator)
     {
         _animator = animator;
     }

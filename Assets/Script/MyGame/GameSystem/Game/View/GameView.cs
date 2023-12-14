@@ -21,8 +21,6 @@ public interface IGameView
     UniTaskVoid ShowHighScore();
     void Pause();
     void Resume();
-    void PlayHitItemSound();
-    void PlayHitEnemySound();
 
 }
 public class GameView : IGameView
@@ -165,15 +163,5 @@ public class GameView : IGameView
     {
         _audioManager.ResumeBGM();
         _pauseUI.SetActive(false);
-    }
-
-    public void PlayHitItemSound()
-    {
-        _audioManager.PlaySE(GameSE.HitItem);
-    }
-
-    public void PlayHitEnemySound()
-    {
-        _audioManager.PlaySE(GameSE.HitEnemy);
     }
 }
