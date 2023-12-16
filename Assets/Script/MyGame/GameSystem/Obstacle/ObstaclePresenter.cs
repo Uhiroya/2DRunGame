@@ -74,10 +74,21 @@ public class ObstaclePresenter : IObstaclePresenter
         _model.OnCollisionItem += x => OnCollisionItem?.Invoke(x);
         _model.OnCollisionEnemy += () => OnCollisionEnemy?.Invoke();
     }
-
+    
     private void UnRegisterEvent()
     {
-        _model.OnCollisionItem -= x => OnCollisionItem?.Invoke(x);
-        _model.OnCollisionEnemy -= () => OnCollisionEnemy?.Invoke();
+        _model.OnCollisionItem -= InvokeOnCollisionItem;
+        _model.OnCollisionEnemy -= InvokeOnCollisionEnemy;
     }
+
+    private void InvokeOnCollisionItem(float score)
+    {
+        OnCollisionItem?.Invoke(score);
+    }
+
+    private void InvokeOnCollisionEnemy()
+    {
+        OnCollisionEnemy?.Invoke();
+    }
+    
 }

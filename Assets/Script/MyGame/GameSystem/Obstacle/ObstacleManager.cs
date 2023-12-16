@@ -128,14 +128,24 @@ public class ObstacleManager : IObstacleManager, IDisposable, IPausable
 
     private void RegisterEvent()
     {
-        _obstacleGenerator.OnCollisionItem += x => OnCollisionItem?.Invoke(x);
-        _obstacleGenerator.OnCollisionEnemy += () => OnCollisionEnemy?.Invoke();
+        _obstacleGenerator.OnCollisionItem += InvokeOnCollisionItem;
+        _obstacleGenerator.OnCollisionEnemy += InvokeOnCollisionEnemy;
     }
 
     private void UnRegisterEvent()
     {
-        _obstacleGenerator.OnCollisionItem -= x => OnCollisionItem?.Invoke(x);
-        _obstacleGenerator.OnCollisionEnemy -= () => OnCollisionEnemy?.Invoke();
+        _obstacleGenerator.OnCollisionItem -= InvokeOnCollisionItem;
+        _obstacleGenerator.OnCollisionEnemy -= InvokeOnCollisionEnemy;
+    }
+
+    private void InvokeOnCollisionItem(float score)
+    {
+        OnCollisionItem?.Invoke(score);
+    }
+
+    private void InvokeOnCollisionEnemy()
+    {
+        OnCollisionEnemy?.Invoke();
     }
 
     /// <summary>
