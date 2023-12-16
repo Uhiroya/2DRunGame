@@ -1,11 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UniRx;
-using System.Drawing;
-using MyScriptableObjectClass;
 using System;
-using System.Net.Http.Headers;
+using MyScriptableObjectClass;
+using UniRx;
+using UnityEngine;
 
 public interface IGameModel
 {
@@ -21,36 +17,95 @@ public interface IGameModel
     void ManualUpdate(float deltaTime);
     void AddItemScore(float score);
 }
-public class GameModel : IGameModel , IDisposable
-{
-    GameModelSetting _gameModelSetting;
-    SaveData _saveData;
 
-    readonly ReactiveProperty<GameFlowState> _gameState;
-    readonly ReactiveProperty<float> _gameSpeed ;
-    readonly ReactiveProperty<float> _score;
-    readonly ReactiveProperty<float> _highScore;
-    float _currentSpeed;
-    public IReadOnlyReactiveProperty<float> HighScore => _highScore;
-    public IReadOnlyReactiveProperty<GameFlowState> GameState => _gameState;
-    public IReadOnlyReactiveProperty<float> GameSpeed => _gameSpeed;
-    public IReadOnlyReactiveProperty<float> Score => _score;
+public class GameModel : IGameModel, IDisposable
+{
+    /// <summary>
+    ///     VContainerから呼び出される
+    /// </summary>
+    private readonly CompositeDisposable _disposable;
+
+    private readonly GameModelSetting _gameModelSetting;
+    private readonly ReactiveProperty<float> _gameSpeed;
+
+    private readonly ReactiveProperty<GameFlowState> _gameState;
+    private readonly ReactiveProperty<float> _highScore;
+    private readonly SaveData _saveData;
+    private readonly ReactiveProperty<float> _score;
+    private float _currentSpeed;
+
     public GameModel(GameModelSetting gameModelSetting)
     {
         SaveDataInterface.LoadJson(out _saveData);
         _gameModelSetting = gameModelSetting;
-        _gameState = new(GameFlowState.Initialize);
-        _highScore = new(_saveData.HighScore);
-        _gameSpeed = new(0f);
-        _score = new(0f);
-        _disposable = new();
+        _gameState = new ReactiveProperty<GameFlowState>(GameFlowState.Initialize);
+        _highScore = new ReactiveProperty<float>(_saveData.HighScore);
+        _gameSpeed = new ReactiveProperty<float>(0f);
+        _score = new ReactiveProperty<float>(0f);
+        _disposable = new CompositeDisposable();
         Bind();
     }
-    void Bind()
+
+    public void Dispose()
     {
-        GameState.Subscribe(x => OnGameStateChanged(x)).AddTo(_disposable);
+        _disposable.Dispose();
     }
-    void OnGameStateChanged(GameFlowState gameFlowState)
+
+    public IReadOnlyReactiveProperty<float> HighScore => _highScore;
+    public IReadOnlyReactiveProperty<GameFlowState> GameState => _gameState;
+    public IReadOnlyReactiveProperty<float> GameSpeed => _gameSpeed;
+    public IReadOnlyReactiveProperty<float> Score => _score;
+
+    public void OnPlayerConditionChanged(PlayerCondition playerCondition)
+    {
+        switch (playerCondition)
+        {
+            case PlayerCondition.Dying:
+                ChangeState(GameFlowState.Waiting);
+                break;
+            case PlayerCondition.Dead:
+                ChangeState(GameFlowState.Result);
+                break;
+        }
+    }
+
+    public void GoTitle()
+    {
+        ChangeState(GameFlowState.Title);
+    }
+
+    public void GameStart()
+    {
+        ChangeState(GameFlowState.GameInitialize);
+    }
+
+    public void Pause()
+    {
+        ChangeState(GameFlowState.Pause);
+    }
+
+    public void Resume()
+    {
+        ChangeState(GameFlowState.InGame);
+    }
+
+    public void ManualUpdate(float deltaTime)
+    {
+        AddScoreByDistance(deltaTime);
+        AddSpeedByDistance(deltaTime);
+    }
+
+    public void AddItemScore(float score)
+    {
+        _score.Value += score;
+    }
+
+    private void Bind()
+    {
+        GameState.Subscribe(OnGameStateChanged).AddTo(_disposable);
+    }
+
+    private void OnGameStateChanged(GameFlowState gameFlowState)
     {
         switch (gameFlowState)
         {
@@ -62,7 +117,7 @@ public class GameModel : IGameModel , IDisposable
                 _score.Value = 0f;
                 ChangeState(GameFlowState.GameInitializeEnd);
                 break;
-            //PlyerGameStartのタイミングより早くInGameに遷移させてしまう可能性があるため、フェーズを分離。
+            //PlayerGameStartのタイミングより早くInGameに遷移させてしまう可能性があるため、フェーズを分離。
             case GameFlowState.GameInitializeEnd:
                 ChangeState(GameFlowState.InGame);
                 break;
@@ -78,63 +133,24 @@ public class GameModel : IGameModel , IDisposable
                 SaveDataInterface.SaveJson(_saveData);
                 _highScore.Value = _saveData.HighScore;
                 break;
-            default:
-                break;
         }
     }
-    public void OnPlayerConditionChanged(PlayerCondition playerCondition)
-    {
-        switch (playerCondition)
-        {
-            case PlayerCondition.Dying:
-                ChangeState(GameFlowState.Waiting);
-                break;
-            case PlayerCondition.Dead:
-                ChangeState(GameFlowState.Result);
-                break;
-            default:
-                break;
-        }
-    }
-    public void GoTitle() => ChangeState(GameFlowState.Title);
-    public void GameStart() => ChangeState(GameFlowState.GameInitialize);
-    public void Pause() => ChangeState(GameFlowState.Pause);
-    public void Resume() => ChangeState(GameFlowState.InGame);
 
-    public void ManualUpdate(float deltaTime)
-    {
-        AddScoreByDistance(deltaTime);
-        AddSpeedByDistance(deltaTime);
-    }
-    public void AddItemScore(float score)
-    {
-        _score.Value += score;
-    }
-    void AddScoreByDistance(float deltaTime)
+    private void AddScoreByDistance(float deltaTime)
     {
         _score.Value += _gameModelSetting.ScoreRatePerSecond * deltaTime;
     }
-    void AddSpeedByDistance(float deltaTime)
+
+    private void AddSpeedByDistance(float deltaTime)
     {
         _gameSpeed.Value += _gameModelSetting.SpeedUpRate * deltaTime;
     }
 
-    void ChangeState(GameFlowState state)
+    private void ChangeState(GameFlowState state)
     {
 #if UNITY_EDITOR
         Debug.Log(state);
 #endif
         _gameState.Value = state;
     }
-    /// <summary>
-    /// VContainerから呼び出される
-    /// </summary>
-    CompositeDisposable _disposable;
-    public void Dispose()
-    {
-        _disposable.Dispose();
-    }
-
-
 }
-

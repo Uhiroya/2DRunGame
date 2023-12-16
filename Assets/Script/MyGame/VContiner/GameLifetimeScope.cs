@@ -1,48 +1,49 @@
-using UniRx.Triggers;
+using MyScriptableObjectClass;
 using UnityEngine;
+using UnityEngine.UI;
 using VContainer;
 using VContainer.Unity;
-using UniRx;
-using UnityEngine.UI;
-using MyScriptableObjectClass;
+
 public class GameLifetimeScope : LifetimeScope
 {
-    [Header("GameSettings")]
-    [SerializeField] GameSettings _gameSettings;
+    [Header("GameSettings")] [SerializeField]
+    private GameSettings _gameSettings;
 
-    [Header("InputProvider")]
-    [SerializeField] InputProvider _inputProvider;
+    [Header("InputProvider")] [SerializeField]
+    private InputProvider _inputProvider;
 
-    [Header("AudioManager")]
-    [SerializeField] AudioSource _audioSESource;
-    [SerializeField] AudioSource _audioBGMSource;
+    [Header("AudioManager")] [SerializeField]
+    private AudioSource _audioSESource;
 
-    [Header("GameView")]
-    [SerializeField] Button _startButton;
-    [SerializeField] Button _returnButton;
-    [SerializeField] Button _restartButton;
-    [SerializeField] AnimationClip _titleAnimation;
-    [SerializeField] AnimationClip _resultFadeAnimation;
-    [SerializeField] AnimationClip _resultEmphasisAnimation;
-    [SerializeField] Text _scoreText;
-    [SerializeField] GameObject _resultUIGroup;
-    [SerializeField] Text _highScoreText;
-    [SerializeField] Text _resultScoreText;
-    [SerializeField] GameObject _pauseUI;
+    [SerializeField] private AudioSource _audioBGMSource;
 
-    [Header("_backGroundController")]
-    [SerializeField] RawImage _backGroundImage;
+    [Header("GameView")] [SerializeField] private Button _startButton;
 
-    [Header("PlayerModel")]
-    [SerializeField] Transform _playerTransform;
+    [SerializeField] private Button _returnButton;
+    [SerializeField] private Button _restartButton;
+    [SerializeField] private AnimationClip _titleAnimation;
+    [SerializeField] private AnimationClip _resultFadeAnimation;
+    [SerializeField] private AnimationClip _resultEmphasisAnimation;
+    [SerializeField] private Text _scoreText;
+    [SerializeField] private GameObject _resultUIGroup;
+    [SerializeField] private Text _highScoreText;
+    [SerializeField] private Text _resultScoreText;
+    [SerializeField] private GameObject _pauseUI;
 
-    [Header("PlayerView")]
-    [SerializeField] AnimationClip _deadAnimation;
-    [SerializeField] Animator _animator;
+    [Header("_backGroundController")] [SerializeField]
+    private RawImage _backGroundImage;
 
-    [Header("ObstacleGenerator")]
-    [SerializeField] Transform _obstacleParent;
-    
+    [Header("PlayerModel")] [SerializeField]
+    private Transform _playerTransform;
+
+    [Header("PlayerView")] [SerializeField]
+    private AnimationClip _deadAnimation;
+
+    [SerializeField] private Animator _animator;
+
+    [Header("ObstacleGenerator")] [SerializeField]
+    private Transform _obstacleParent;
+
     protected override void Configure(IContainerBuilder builder)
     {
         builder.RegisterComponent(_inputProvider);
@@ -52,14 +53,14 @@ public class GameLifetimeScope : LifetimeScope
             .WithParameter("audioBGMSource", _audioBGMSource);
         builder.Register<PauseManager>(Lifetime.Singleton)
             .As<IPauseManager>();
-        builder.RegisterEntryPoint<GamePresenter>(Lifetime.Singleton)
-            .As<IGamePresenter>().As<IPauseable>();
+        builder.RegisterEntryPoint<GamePresenter>()
+            .As<IGamePresenter>().As<IPausable>();
         builder.Register<CollisionChecker>(Lifetime.Singleton)
             .As<ICollisionChecker>()
             .WithParameter("collisionCheckerSetting", _gameSettings.CollisionCheckerSetting);
         builder.Register<GameModel>(Lifetime.Singleton)
             .As<IGameModel>()
-             .WithParameter("gameModelSetting", _gameSettings.GameModelSetting);
+            .WithParameter("gameModelSetting", _gameSettings.GameModelSetting);
         builder.Register<GameView>(Lifetime.Singleton)
             .As<IGameView>()
             .WithParameter("startButton", _startButton)
@@ -70,13 +71,13 @@ public class GameLifetimeScope : LifetimeScope
             .WithParameter("resultAnimationTime", _resultFadeAnimation.length + _resultEmphasisAnimation.length)
             .WithParameter("scoreText", _scoreText)
             .WithParameter("resultUIGroup", _resultUIGroup)
-            .WithParameter("resultScoreText", _resultScoreText)       
-            .WithParameter("highScoreText", _highScoreText)       
-            .WithParameter("pauseUI", _pauseUI);       
+            .WithParameter("resultScoreText", _resultScoreText)
+            .WithParameter("highScoreText", _highScoreText)
+            .WithParameter("pauseUI", _pauseUI);
         builder.Register<BackGroundController>(Lifetime.Singleton)
             .As<IBackGroundController>()
             .WithParameter("image", _backGroundImage);
-        builder.RegisterEntryPoint< PlayerPresenter>(Lifetime.Singleton)
+        builder.RegisterEntryPoint<PlayerPresenter>()
             .As<IPlayerPresenter>();
         builder.Register<PlayerModel>(Lifetime.Singleton)
             .As<IPlayerModel>()
@@ -86,13 +87,13 @@ public class GameLifetimeScope : LifetimeScope
             .As<IPlayerView>()
             .WithParameter("deadAnimationTime", _deadAnimation.length)
             .WithParameter("animator", _animator);
-        builder.RegisterEntryPoint<ObstacleGenerator>(Lifetime.Singleton)
+        builder.RegisterEntryPoint<ObstacleGenerator>()
             .As<IObstacleGenerator>()
             .WithParameter("parentTransform", _obstacleParent);
-        builder.RegisterEntryPoint<ObstacleManager>(Lifetime.Singleton)
-            .As<IObstacleManager>().As<IPauseable>()
+        builder.RegisterEntryPoint<ObstacleManager>()
+            .As<IObstacleManager>().As<IPausable>()
             .WithParameter("obstacleGeneratorSetting", _gameSettings.ObstacleGeneratorSetting);
-        builder.RegisterFactory<Transform ,ObstacleData, Animator, IObstaclePresenter>((transform ,data ,animator) 
-            => new ObstaclePresenter(new ObstacleModel(transform ,data), new ObstacleView(animator)));
+        builder.RegisterFactory<Transform, ObstacleData, Animator, IObstaclePresenter>((transform, data, animator)
+            => new ObstaclePresenter(new ObstacleModel(transform, data), new ObstacleView(animator)));
     }
 }

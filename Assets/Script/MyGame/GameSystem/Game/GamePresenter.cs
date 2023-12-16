@@ -1,52 +1,76 @@
+using System;
 using UniRx;
 using UnityEngine;
 using VContainer.Unity;
-using Cysharp.Threading.Tasks;
-using Unity.VisualScripting;
 
 public interface IGamePresenter
 {
     GameFlowState NowGameState { get; }
 }
-public class GamePresenter : IGamePresenter, IPauseable,IStartable, ITickable, System.IDisposable
+
+public class GamePresenter : IGamePresenter, IPausable, IStartable, ITickable, IDisposable
 {
-    /// <summary>
-    /// VContainerで注入される
-    /// </summary>
-    IGameModel _model;
-    IGameView _view;
-    IPlayerPresenter _playerPresenter;
-    IObstacleManager _obstacleManager;
-    ICollisionChecker _collisionChecker;
+    private readonly ICollisionChecker _collisionChecker;
 
     /// <summary>
-    /// メンバ変数
+    ///     メンバ変数
     /// </summary>
-    CompositeDisposable _disposable;
+    private readonly CompositeDisposable _disposable;
+
     /// <summary>
-    /// コンストラクタ
+    ///     VContainerで注入される
     /// </summary>
-    public GamePresenter(IGameModel model , IGameView view 
-        ,IPlayerPresenter playerPresenter, IObstacleManager obstacleGenerator 
+    private readonly IGameModel _model;
+
+    private readonly IObstacleManager _obstacleManager;
+    private readonly IPlayerPresenter _playerPresenter;
+    private readonly IGameView _view;
+
+    /// <summary>
+    ///     コンストラクタ
+    /// </summary>
+    public GamePresenter(IGameModel model, IGameView view
+        , IPlayerPresenter playerPresenter, IObstacleManager obstacleGenerator
         , ICollisionChecker collisionChecker)
     {
-        _model = model ;
-        _view = view ;
+        _model = model;
+        _view = view;
         _playerPresenter = playerPresenter;
         _obstacleManager = obstacleGenerator;
         _collisionChecker = collisionChecker;
-        _disposable = new();
+        _disposable = new CompositeDisposable();
         Bind();
         RegisterEvent();
     }
+
+    public void Dispose()
+    {
+        UnBind();
+        UnRegisterEvent();
+    }
+
     /// <summary>
-    /// 公開プロパティ、メソッド
+    ///     公開プロパティ、メソッド
     /// </summary>
     public GameFlowState NowGameState => _model.GameState.Value;
+
+    public void Pause()
+    {
+        _model.Pause();
+        _view.Pause();
+    }
+
+    public void Resume()
+    {
+        _model.Resume();
+        _view.Resume();
+    }
+
     public void Start()
     {
         _model.GoTitle();
     }
+
     public void Tick()
     {
         switch (_model.GameState.Value)
@@ -57,24 +81,15 @@ public class GamePresenter : IGamePresenter, IPauseable,IStartable, ITickable, S
                 _obstacleManager.UpdateObstacleMove(Time.deltaTime, _model.GameSpeed.Value);
                 _collisionChecker.ManualUpdate();
                 break;
-            default:
-                break;
         }
     }
-    public void Dispose()
-    {
-        UnBind();
-        UnRegisterEvent();
-    }
-    void Bind()
+
+    private void Bind()
     {
         //modelとviewのバインド
         _model.HighScore
             .Subscribe(
-                x =>
-                {
-                    _view.SetHighScore(x);
-                })
+                x => { _view.SetHighScore(x); })
             .AddTo(_disposable);
         _model.GameSpeed
             .Subscribe(
@@ -86,10 +101,7 @@ public class GamePresenter : IGamePresenter, IPauseable,IStartable, ITickable, S
             .AddTo(_disposable);
         _model.Score
             .Subscribe(
-                x =>
-                {
-                    _view.SetScore(x);
-                })
+                x => { _view.SetScore(x); })
             .AddTo(_disposable);
 
         //ゲームフローの状態による命令
@@ -106,17 +118,16 @@ public class GamePresenter : IGamePresenter, IPauseable,IStartable, ITickable, S
         //プレイヤーの状態を監視して現在のゲームの状態を変更する
         _playerPresenter.PlayerState
             .Subscribe(
-            x =>
-            {
-                _model.OnPlayerConditionChanged(x);
-            })
+                x => { _model.OnPlayerConditionChanged(x); })
             .AddTo(_disposable);
     }
-    void UnBind()
+
+    private void UnBind()
     {
         _disposable.Dispose();
     }
-    void RegisterEvent()
+
+    private void RegisterEvent()
     {
         _view.OnPressStart += _model.GameStart;
         _view.OnPressRestart += _model.GameStart;
@@ -125,7 +136,8 @@ public class GamePresenter : IGamePresenter, IPauseable,IStartable, ITickable, S
         _obstacleManager.OnCollisionItem += OnCollisionItem;
         _obstacleManager.OnCollisionEnemy += OnCollisionEnemy;
     }
-    void UnRegisterEvent()
+
+    private void UnRegisterEvent()
     {
         _view.OnPressStart -= _model.GameStart;
         _view.OnPressRestart -= _model.GameStart;
@@ -134,31 +146,22 @@ public class GamePresenter : IGamePresenter, IPauseable,IStartable, ITickable, S
         _obstacleManager.OnCollisionItem -= OnCollisionItem;
         _obstacleManager.OnCollisionEnemy -= OnCollisionEnemy;
     }
+
     /// <summary>
-    /// 衝突時に呼び出される。
+    ///     衝突時に呼び出される。
     /// </summary>
-    void CollisionObstacle(MyCircleCollider obstacle, MyCircleCollider other)
+    private void CollisionObstacle(MyCircleCollider obstacle, MyCircleCollider other)
     {
         _obstacleManager.CollisionObstacle(obstacle, other);
         _playerPresenter.CollisionObstacle(obstacle, other);
     }
-    void OnCollisionItem(float score)
+
+    private void OnCollisionItem(float score)
     {
         _model.AddItemScore(score);
     }
-    void OnCollisionEnemy()
-    {
-    }
 
-    public void Pause()
+    private void OnCollisionEnemy()
     {
-        _model.Pause();
-        _view.Pause();
-    }
-
-    public void Resume()
-    {
-        _model.Resume();
-        _view.Resume();
     }
 }

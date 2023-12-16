@@ -1,30 +1,30 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
-[System.Serializable]
+[Serializable]
 public struct MyCircleCollider
 {
-    private static int _id = 0;
-    public readonly CollisionTag tag;
-    private readonly Transform _transform;
+    private static int _id;
     private readonly float _radius;
-    public readonly int id;
-    public Vector2 position 
-    { 
-        get => _transform.position; 
-        set => _transform.position = value;
-    }
-    public MyCircleCollider(CollisionTag tag ,Transform transform ,float radius)
+    private readonly Transform _transform;
+    public readonly int ID;
+    public readonly CollisionTag Tag;
+
+    public MyCircleCollider(CollisionTag tag, Transform transform, float radius)
     {
-        id = _id;
-        this.tag = tag;
+        ID = _id;
+        this.Tag = tag;
         _transform = transform;
         _radius = radius;
         _id++;
     }
+
+    public Vector2 Position
+    {
+        get => _transform.position;
+        set => _transform.position = value;
+    }
+
     public bool IsHit(in MyCircleCollider other)
     {
         var center = _transform.position;
@@ -34,6 +34,4 @@ public struct MyCircleCollider
         var d = _radius + other._radius;
         return x * x + y * y <= d * d;
     }
-
-
 }

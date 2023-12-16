@@ -1,19 +1,15 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
+using MyScriptableObjectClass;
 using UniRx;
 using UnityEngine;
-using MyScriptableObjectClass;
-using UnityEngine.UIElements;
 
 public interface IPlayerModel
 {
-    void CollisionObstacle(MyCircleCollider obstacle, MyCircleCollider other);
     IReadOnlyReactiveProperty<PlayerCondition> PlayerState { get; }
     MyCircleCollider Collider { get; }
+    void CollisionObstacle(MyCircleCollider obstacle, MyCircleCollider other);
     void Initialize();
     void GameStart();
-    void GetItem();
     void Dying();
     void Dead();
     void Pause();
@@ -25,41 +21,42 @@ public interface IPlayerModel
 
 public class PlayerModel : IPlayerModel, IDisposable
 {
-    PlayerModelSetting _playerModelSetting;
+    private readonly CompositeDisposable _disposable = new();
+    private readonly PlayerModelSetting _playerModelSetting;
+    private readonly ReactiveProperty<PlayerCondition> _playerState;
+    private MyCircleCollider _collider;
 
-    float _speedRate;
-    MyCircleCollider _collider;
-    public MyCircleCollider Collider => _collider;
-    readonly ReactiveProperty<PlayerCondition> _playerState;
-    public IReadOnlyReactiveProperty<PlayerCondition> PlayerState => _playerState;
+    private float _speedRate;
+
     public PlayerModel(PlayerModelSetting playerModelSetting, Transform playerTransform)
     {
         _playerModelSetting = playerModelSetting;
-        _playerState = new(PlayerCondition.Initialize);
-        _collider = new MyCircleCollider(CollisionTag.Player ,playerTransform, _playerModelSetting.PlayerHitRange);
+        _playerState = new ReactiveProperty<PlayerCondition>(PlayerCondition.Initialize);
+        _collider = new MyCircleCollider(CollisionTag.Player, playerTransform, _playerModelSetting.PlayerHitRange);
     }
-    CompositeDisposable _disposable = new();
+
     public void Dispose()
     {
         _disposable.Dispose();
     }
 
-    void SetPlayerCondition(PlayerCondition condition)
-    {
-        _playerState.Value = condition;
-    }
+    public MyCircleCollider Collider => _collider;
+    public IReadOnlyReactiveProperty<PlayerCondition> PlayerState => _playerState;
+
     public void SetSpeedRate(float speedRate)
     {
         _speedRate = speedRate;
     }
+
     public void Move(float x)
     {
-        var position = _collider.position;
+        var position = _collider.Position;
         var nextPosX = position.x + x * _playerModelSetting.PlayerDefaultSpeed * _speedRate;
         //移動制限
-        nextPosX = Mathf.Clamp(nextPosX, InGameConst.GroundXMargin, InGameConst.WindowWidth - InGameConst.GroundXMargin);
+        nextPosX = Mathf.Clamp(nextPosX, InGameConst.GroundXMargin,
+            InGameConst.WindowWidth - InGameConst.GroundXMargin);
         position = new Vector2(nextPosX, position.y);
-        _collider.position = position;
+        _collider.Position = position;
     }
 
     public void Initialize()
@@ -72,14 +69,14 @@ public class PlayerModel : IPlayerModel, IDisposable
     {
         SetPlayerCondition(PlayerCondition.Alive);
     }
+
     /// <summary>
-    /// 衝突時及び場外の判定
+    ///     衝突時及び場外の判定
     /// </summary>
     public void CollisionObstacle(MyCircleCollider obstacle, MyCircleCollider other)
     {
-        if (other.tag.Equals(CollisionTag.Player))
-        {
-            switch (obstacle.tag)
+        if (other.Tag.Equals(CollisionTag.Player))
+            switch (obstacle.Tag)
             {
                 case CollisionTag.Item:
                     SetPlayerCondition(PlayerCondition.GetItem);
@@ -88,20 +85,14 @@ public class PlayerModel : IPlayerModel, IDisposable
                 case CollisionTag.Enemy:
                     Dying();
                     break;
-                default:
-                    break;
             }
-        }
-    }
-    public void GetItem() 
-    {
-        SetPlayerCondition(PlayerCondition.GetItem);
     }
 
     public void Dying()
     {
         SetPlayerCondition(PlayerCondition.Dying);
     }
+
     public void Dead()
     {
         SetPlayerCondition(PlayerCondition.Dead);
@@ -116,9 +107,15 @@ public class PlayerModel : IPlayerModel, IDisposable
     {
         SetPlayerCondition(PlayerCondition.Alive);
     }
+
     public void Reset()
     {
-        var resetPos = new Vector2(InGameConst.WindowWidth / 2, _collider.position.y);
-        _collider.position = resetPos;
+        var resetPos = new Vector2(InGameConst.WindowWidth / 2, _collider.Position.y);
+        _collider.Position = resetPos;
+    }
+
+    private void SetPlayerCondition(PlayerCondition condition)
+    {
+        _playerState.Value = condition;
     }
 }

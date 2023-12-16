@@ -1,11 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
+using Cysharp.Threading.Tasks;
+using DG.Tweening;
+using MyScriptableObjectClass;
 using UnityEngine;
 using UnityEngine.UI;
-using DG.Tweening;
-using Cysharp.Threading.Tasks;
-using MyScriptableObjectClass;
-using System;
 
 public interface IGameView
 {
@@ -21,30 +19,33 @@ public interface IGameView
     UniTaskVoid ShowHighScore();
     void Pause();
     void Resume();
-
 }
+
 public class GameView : IGameView
 {
-    GameViewSetting _gameViewSetting;
-    IAudioManager _audioManager;
-    IBackGroundController _background;
-    Button _startButton;
-    Button _returnButton;
-    Button _restartButton;
-    Text _scoreText;
-    Text _highScoreText;
-    Text _resultScoreText;
-    GameObject _resultUI;
-    GameObject _pauseUI;
-    float _titleAnimationTime;
-    float _resultAnimationTime;
+    private readonly IAudioManager _audioManager;
+    private readonly IBackGroundController _background;
+    private readonly GameViewSetting _gameViewSetting;
+    private readonly Text _highScoreText;
+    private readonly GameObject _pauseUI;
+    private readonly Button _restartButton;
+    private readonly float _resultAnimationTime;
+    private readonly Text _resultScoreText;
+    private readonly GameObject _resultUI;
+    private readonly Button _returnButton;
+    private readonly Text _scoreText;
+    private readonly Button _startButton;
+    private readonly float _titleAnimationTime;
+    private float _highScore;
+    private float _latestScore;
+
     public GameView(
         GameViewSetting gameViewSetting, IAudioManager audioManager, IBackGroundController background,
-        Button startButton, Button returnButton, Button restartButton, 
-        Text scoreText ,Text resultScoreText , Text highScoreText, 
-        GameObject resultUIGroup, GameObject pauseUI ,
+        Button startButton, Button returnButton, Button restartButton,
+        Text scoreText, Text resultScoreText, Text highScoreText,
+        GameObject resultUIGroup, GameObject pauseUI,
         float titleAnimationTime, float resultAnimationTime
-        )
+    )
     {
         _gameViewSetting = gameViewSetting;
         _audioManager = audioManager;
@@ -52,7 +53,7 @@ public class GameView : IGameView
         _startButton = startButton;
         _returnButton = returnButton;
         _restartButton = restartButton;
-        _scoreText = scoreText; 
+        _scoreText = scoreText;
         _highScoreText = highScoreText;
         _resultScoreText = resultScoreText;
         _resultUI = resultUIGroup;
@@ -62,34 +63,11 @@ public class GameView : IGameView
 
         RegisterEvent();
     }
-    float _highScore;
-    float _latestScore;
 
     public event Action OnPressStart;
     public event Action OnPressReturn;
     public event Action OnPressRestart;
 
-    void RegisterEvent()
-    {
-        _startButton.onClick.AddListener(OnClickStartButton);
-        _returnButton.onClick.AddListener(OnClickReturnButton);
-        _restartButton.onClick.AddListener(OnClickRestartButton);
-    }
-    void OnClickStartButton()
-    {
-        _audioManager.PlaySE(GameSE.Click);
-        OnPressStart?.Invoke();
-    }
-    void OnClickReturnButton()
-    {
-        _audioManager.PlaySE(GameSE.Click);
-        OnPressReturn?.Invoke();
-    }
-    void OnClickRestartButton()
-    {
-        _audioManager.PlaySE(GameSE.Click);
-        OnPressRestart?.Invoke();
-    }
     public void OnGameFlowStateChanged(GameFlowState gameFlowState)
     {
         switch (gameFlowState)
@@ -110,28 +88,34 @@ public class GameView : IGameView
                 break;
         }
     }
+
     public void ManualUpdate(float deltaTime)
     {
         _background.ManualUpdate(deltaTime);
     }
+
     public void SetUVSpeed(float speed)
     {
         _background.SetUVSpeed(speed);
     }
+
     public void SetHighScore(float highScore)
     {
         _highScore = highScore;
     }
+
     public void SetScore(float currentScore)
     {
         _latestScore = currentScore;
         _scoreText.text = _latestScore.ToString("00000000");
     }
+
     public void ShowResultUI()
     {
         _resultUI.SetActive(true);
         _ = ShowResultScore();
     }
+
     public async UniTaskVoid ShowHighScore()
     {
         await UniTask.Delay((int)(_titleAnimationTime * 1000));
@@ -143,7 +127,45 @@ public class GameView : IGameView
             value => _highScoreText.text = value.ToString("00000000")
         );
     }
-    async UniTaskVoid ShowResultScore()
+
+    public void Pause()
+    {
+        _audioManager.PauseBGM();
+        _pauseUI.SetActive(true);
+    }
+
+    public void Resume()
+    {
+        _audioManager.ResumeBGM();
+        _pauseUI.SetActive(false);
+    }
+
+    private void RegisterEvent()
+    {
+        _startButton.onClick.AddListener(OnClickStartButton);
+        _returnButton.onClick.AddListener(OnClickReturnButton);
+        _restartButton.onClick.AddListener(OnClickRestartButton);
+    }
+
+    private void OnClickStartButton()
+    {
+        _audioManager.PlaySE(GameSE.Click);
+        OnPressStart?.Invoke();
+    }
+
+    private void OnClickReturnButton()
+    {
+        _audioManager.PlaySE(GameSE.Click);
+        OnPressReturn?.Invoke();
+    }
+
+    private void OnClickRestartButton()
+    {
+        _audioManager.PlaySE(GameSE.Click);
+        OnPressRestart?.Invoke();
+    }
+
+    private async UniTaskVoid ShowResultScore()
     {
         await UniTask.Delay((int)(_resultAnimationTime * 1000));
         //カウントアップ処理
@@ -153,15 +175,5 @@ public class GameView : IGameView
             _gameViewSetting.ScoreCountUpTime,
             value => _resultScoreText.text = value.ToString("00000000")
         );
-    }
-    public void Pause()
-    {
-        _audioManager.PauseBGM();
-        _pauseUI.SetActive(true);
-    }
-    public void Resume()
-    {
-        _audioManager.ResumeBGM();
-        _pauseUI.SetActive(false);
     }
 }

@@ -4,22 +4,26 @@ using UnityEngine;
 namespace MyScriptableObjectClass
 {
     [CreateAssetMenu(menuName = "ScriptableObject/ObstacleData")]
-    [System.Serializable]
+    [Serializable]
     public class ObstacleData : ScriptableObject
     {
         //コピー用Prefab、Generatorへ公開するデータ
-        [SerializeField] GameObject _obstacle;
-        [SerializeField] int _obstacleID;
+        [SerializeField] private GameObject _obstacle;
+
+        [SerializeField] private int _obstacleID;
+
         //Gamepresenterに処理させるために公開するデータ
-        [SerializeField] CollisionTag _itemType;
-        [SerializeField] float _hitRange;
-        [SerializeField] float _score;
+        [SerializeField] private CollisionTag _itemType;
+        [SerializeField] private float _hitRange;
+
+        [SerializeField] private float _score;
+
         //Modelのみ
-        [SerializeField] GameObject _destroyEffect;
-        [SerializeField] AnimationClip _destroyAnimation;
-        [SerializeField, Range(0f, 1f)] float _xMoveArea;
-        [SerializeField] float _xMoveSpeed;
-        [SerializeField] float _yMoveSpeed;
+        [SerializeField] private GameObject _destroyEffect;
+        [SerializeField] private AnimationClip _destroyAnimation;
+        [SerializeField] [Range(0f, 1f)] private float _xMoveArea;
+        [SerializeField] private float _xMoveSpeed;
+        [SerializeField] private float _yMoveSpeed;
 
         public GameObject Obstacle => _obstacle;
         public int ObstacleID => _obstacleID;
@@ -33,18 +37,15 @@ namespace MyScriptableObjectClass
         public float YMoveSpeed => _yMoveSpeed;
     }
 
-    [System.Serializable]
+    [Serializable]
     public class ObstaclePublicInfo
     {
-        [SerializeField] CollisionTag _itemType;
-        [SerializeField] float _hitRange;
-        [SerializeField] float _score;
+        [SerializeField] private CollisionTag _itemType;
+        [SerializeField] private float _hitRange;
+        [SerializeField] private float _score;
 
         public CollisionTag ItemType => _itemType;
         public float HitRange => _hitRange;
         public float Score => _score;
     }
-
 }
-
-

@@ -1,18 +1,19 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+
 namespace MyScriptableObjectClass
 {
     [CreateAssetMenu(menuName = "ScriptableObject/GameSettings")]
-    [System.Serializable]
+    [Serializable]
     public class GameSettings : ScriptableObject
     {
-        [SerializeField] MyAudioSetting _audioSetting;
-        [SerializeField] GameModelSetting _gameModelSetting;
-        [SerializeField] GameViewSetting _gameViewSetting;
-        [SerializeField] CollisionCheckerSetting _collisionCheckerSetting;
-        [SerializeField] PlayerModelSetting _playerModelSetting;
-        [SerializeField] ObstacleGeneratorSetting _obstacleGeneratorSetting;
+        [SerializeField] private MyAudioSetting _audioSetting;
+        [SerializeField] private GameModelSetting _gameModelSetting;
+        [SerializeField] private GameViewSetting _gameViewSetting;
+        [SerializeField] private CollisionCheckerSetting _collisionCheckerSetting;
+        [SerializeField] private PlayerModelSetting _playerModelSetting;
+        [SerializeField] private ObstacleGeneratorSetting _obstacleGeneratorSetting;
         public MyAudioSetting AudioSetting => _audioSetting;
         public GameModelSetting GameModelSetting => _gameModelSetting;
         public GameViewSetting GameViewSetting => _gameViewSetting;
@@ -20,51 +21,56 @@ namespace MyScriptableObjectClass
         public PlayerModelSetting PlayerModelSetting => _playerModelSetting;
         public ObstacleGeneratorSetting ObstacleGeneratorSetting => _obstacleGeneratorSetting;
     }
-    [System.Serializable]
+
+    [Serializable]
     public class MyAudioSetting
     {
-        [SerializeField] AudioData _audioData;
+        [SerializeField] private AudioData _audioData;
         public AudioData AudioData => _audioData;
     }
-    [System.Serializable]
+
+    [Serializable]
     public class GameModelSetting
     {
-        [SerializeField] float _startSpeed;
-        [SerializeField] float _speedUpRate;
-        [SerializeField] float _scoreRatePerSecond;
+        [SerializeField] private float _startSpeed;
+        [SerializeField] private float _speedUpRate;
+        [SerializeField] private float _scoreRatePerSecond;
         public float StartSpeed => _startSpeed;
         public float SpeedUpRate => _speedUpRate;
         public float ScoreRatePerSecond => _scoreRatePerSecond;
     }
-    [System.Serializable]
+
+    [Serializable]
     public class GameViewSetting
     {
-        [SerializeField] float _resultScoreCountUpTime;
+        [SerializeField] private float _resultScoreCountUpTime;
         public float ScoreCountUpTime => _resultScoreCountUpTime;
     }
-    [System.Serializable]
+
+    [Serializable]
     public class CollisionCheckerSetting
     {
-        [SerializeField] float _yFrameOut;
-        public float _YFrameOut => _yFrameOut;
+        [SerializeField] private float _yFrameOut;
+        public float YFrameOut => _yFrameOut;
     }
-    [System.Serializable]
+
+    [Serializable]
     public class PlayerModelSetting
     {
-        [SerializeField] float _playerHitRange;
-        [SerializeField] float _playerDefaultSpeed;
+        [SerializeField] private float _playerHitRange;
+        [SerializeField] private float _playerDefaultSpeed;
         public float PlayerHitRange => _playerHitRange;
         public float PlayerDefaultSpeed => _playerDefaultSpeed;
     }
-    [System.Serializable]
+
+    [Serializable]
     public class ObstacleGeneratorSetting
     {
-        [SerializeField] List<ObstacleData> _obstacleObjects;
-        [SerializeField] float _obstacleMakePerDistance;
-        [SerializeField] float _obstacleSetYPosition;
+        [SerializeField] private List<ObstacleData> _obstacleObjects;
+        [SerializeField] private float _obstacleMakePerDistance;
+        [SerializeField] private float _obstacleSetYPosition;
         public List<ObstacleData> ObstacleDataSet => _obstacleObjects;
         public float ObstacleMakePerDistance => _obstacleMakePerDistance;
         public float ObstacleSetYPosition => _obstacleSetYPosition;
     }
 }
-

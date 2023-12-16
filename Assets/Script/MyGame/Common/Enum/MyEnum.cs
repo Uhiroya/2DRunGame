@@ -1,4 +1,5 @@
 //ステートマシンを利用することでよりスマートに書くことが出来るはず。
+
 public enum GameFlowState
 {
     None,
@@ -9,8 +10,9 @@ public enum GameFlowState
     InGame,
     Pause,
     Waiting,
-    Result,
+    Result
 }
+
 public enum PlayerCondition
 {
     None,
@@ -19,13 +21,14 @@ public enum PlayerCondition
     Pause,
     GetItem,
     Dying,
-    Dead,
+    Dead
 }
+
 public enum CollisionTag
 {
     None,
     Player,
     Enemy,
     Item,
-    OutField,
+    OutField
 }
