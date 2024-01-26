@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f93e31306ea5c148975886eb32c7276, type: 3}
+  m_Name: GemeSettings
+  m_EditorClassIdentifier: 
+  _audioSetting:
+    _audioData: {fileID: 11400000, guid: 93e20cb1fb0191a4d9ec963e2811c04a, type: 2}
+  _gameModelSetting:
+    _startSpeed: 0.5
+    _speedUpRate: 0.015
+    _scoreRatePerSecond: 30
+  _gameViewSetting:
+    _resultScoreCountUpTime: 1
+  _collisionCheckerSetting:
+    _yFrameOut: 300
+  _playerModelSetting:
+    _playerHitRange: 50
+    _playerDefaultSpeed: 15
+  _obstacleGeneratorSetting:
+    _obstacleObjects:
+    - {fileID: 11400000, guid: b6e07446a8b27a648933fca0b0101236, type: 2}
+    - {fileID: 11400000, guid: 0994ffa996400e4448f40448c1b58339, type: 2}
+    - {fileID: 11400000, guid: c2676fb0ff47cd04db87ee30bbecd3d5, type: 2}
+    - {fileID: 11400000, guid: 355dfb3b18f7675488bbb0645e5976dc, type: 2}
+    - {fileID: 11400000, guid: f0c4e76db6df5014c80e6ec334a5a37c, type: 2}
+    - {fileID: 11400000, guid: e14440d020caac445b5e964c2aed6313, type: 2}
+    - {fileID: 11400000, guid: 8767a35da3814304ea296829dd219f2d, type: 2}
+    - {fileID: 11400000, guid: 13f2972f4d8193d4bad9db48ada028a3, type: 2}
+    _obstacleMakePerDistance: 600
+    _obstacleSetYPosition: 100
