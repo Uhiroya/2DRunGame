@@ -1,5 +1,11 @@
 # 2DRunGame
 
+### プレイ動画
+
+https://github.com/Uhiroya/2DRunGame/assets/72613038/08a40a4e-cc07-4a49-9ce7-07da9819f673
+
+
+
 ### 概要
 
 CyberAgent TechCollege 設計編インターンの最終課題の提出物になります。
