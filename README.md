@@ -1,4 +1,4 @@
-# 2DRunGame
+# SugoriRUN
 
 ### プレイ動画
 
